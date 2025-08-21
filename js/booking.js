@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Função para mandar mensagem pro n8n
   async function sendAgentMessage(text) {
     try {
-      const res = await fetch("https://allnsnts.app.n8n.cloud/webhook/agent", {
+      const res = await fetch("https://allnsnts.app.n8n.cloud/webhook/agent-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text })
@@ -176,4 +176,5 @@ document.addEventListener('DOMContentLoaded', () => {
     sendAgentMessage(text); // envia pro n8n
   });
 </script>
+
 

@@ -51,7 +51,7 @@ const slots = Array.isArray(data) ? data : (data.slots || []);
 
 /** Booking submit **/
 async function submitBooking(payload) {
-  const res = await fetch(`${API_BASE}/book`, {
+  const res = await fetch(`${https://allnsnts.app.n8n.cloud/webhook/availability}/book`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -117,4 +117,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
 

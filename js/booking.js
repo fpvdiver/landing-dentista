@@ -22,7 +22,6 @@ function renderSlots(availability) {
 
   console.log("🔍 Disponibilidade recebida:", availability);
 
-  // 🔹 Novo formato vindo do backend: { freeSlots: [], busy: [] }
   const freeSlots = availability.freeSlots || [];
   const busy = availability.busy || [];
 
@@ -31,7 +30,17 @@ function renderSlots(availability) {
     return;
   }
 
-  freeSlots.forEach(s => {
+  // 🔹 Normaliza para lista de strings (HH:mm)
+  const slotsNormalized = freeSlots.map(s => {
+    if (typeof s === 'string') return s;
+    if (s.start) {
+      const d = new Date(s.start);
+      return d.toISOString().substring(11,16); // pega "HH:mm"
+    }
+    return null;
+  }).filter(Boolean);
+
+  slotsNormalized.forEach(s => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'slot btn btn-sm';
@@ -48,7 +57,7 @@ function renderSlots(availability) {
     box.appendChild(b);
   });
 
-  if (freeSlots.length === 0) {
+  if (slotsNormalized.length === 0) {
     const msg = document.createElement('div');
     msg.style.marginTop = '8px';
     msg.style.color = '#64748b';
@@ -56,6 +65,7 @@ function renderSlots(availability) {
     box.appendChild(msg);
   }
 }
+
 
 /** Booking submit **/
 async function submitBooking(payload) {
@@ -138,3 +148,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+

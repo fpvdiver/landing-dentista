@@ -18,8 +18,9 @@ function renderSlots(data) {
   const box = el('#slots');
   if (!box) return;
   box.innerHTML = '';
+  
+const slots = Array.isArray(data) ? data : (data.slots || []);
 
-  const slots = data.slots || [];
 
   slots.forEach(s => {
     const b = document.createElement('button');
@@ -116,3 +117,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+

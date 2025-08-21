@@ -16,55 +16,45 @@ async function fetchAvailability(dateStr) {
 }
 
 function renderSlots(availability) {
-  const box = el('#slots'); 
+  const box = el('#slots');
   if (!box) return;
   box.innerHTML = '';
 
-  console.log("🔍 Disponibilidade recebida:", availability);
+  const { horarios, busy } = availability;
 
-  const freeSlots = availability.freeSlots || [];
-  const busy = availability.busy || [];
-
-  if (!Array.isArray(freeSlots)) {
-    box.innerHTML = '<div style="color:#dc2626">Formato inesperado de disponibilidade.</div>';
-    return;
-  }
-
-  // 🔹 Normaliza para lista de strings (HH:mm)
-  const slotsNormalized = freeSlots.map(s => {
-    if (typeof s === 'string') return s;
-    if (s.start) {
-      const d = new Date(s.start);
-      return d.toISOString().substring(11,16); // pega "HH:mm"
-    }
-    return null;
-  }).filter(Boolean);
-
-  slotsNormalized.forEach(s => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'slot btn btn-sm';
-    b.textContent = s;
-    b.disabled = false;
-
-    b.addEventListener('click', () => {
-      els('.slot.selected', box).forEach(x => x.classList.remove('selected'));
-      b.classList.add('selected');
-      const hidden = el('#selected-time');
-      if (hidden) hidden.value = s;
-    });
-
-    box.appendChild(b);
-  });
-
-  if (slotsNormalized.length === 0) {
+  if (!horarios || horarios.length === 0) {
     const msg = document.createElement('div');
     msg.style.marginTop = '8px';
     msg.style.color = '#64748b';
     msg.textContent = 'Sem horários disponíveis nesta data. Selecione outra ou fale com o agente.';
     box.appendChild(msg);
+    return;
   }
+
+  horarios.forEach(h => {
+    const isBusy = (busy || []).some(b => {
+      const start = new Date(b.start).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      return start === h;
+    });
+
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'slot btn btn-sm ' + (isBusy ? 'disabled' : '');
+    b.textContent = h;
+    b.disabled = isBusy;
+
+    b.addEventListener('click', () => {
+      if (b.classList.contains('disabled')) return;
+      els('.slot.selected', box).forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      const hidden = el('#selected-time');
+      if (hidden) hidden.value = h;
+    });
+
+    box.appendChild(b);
+  });
 }
+
 
 
 /** Booking submit **/
@@ -148,4 +138,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
 

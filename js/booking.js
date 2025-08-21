@@ -1,7 +1,7 @@
 /** CONFIG **/
 const API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/availability';
 const TIMEZONE = 'America/Sao_Paulo';
-const SLOT_INTERVAL_MIN = 30; // deve bater com o servidor
+const SLOT_INTERVAL_MIN = 60; // deve bater com o servidor
 
 /** Helpers **/
 function el(q, root = document) { return root.querySelector(q); }
@@ -167,3 +167,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+

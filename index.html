@@ -210,40 +210,39 @@
         </form>
       </div>
 
-      <!-- Coluna do chat -->
-     <script>
- window.difyChatbotConfig = {
-  token: '9tU2Ft6MsMpRgpsk',
-  inputs: {
-    // You can define the inputs from the Start node here
-    // key is the variable name
-    // e.g.
-    // name: "NAME"
-  },
-  systemVariables: {
-    // user_id: 'YOU CAN DEFINE USER ID HERE',
-    // conversation_id: 'YOU CAN DEFINE CONVERSATION ID HERE, IT MUST BE A VALID UUID',
-  },
-  userVariables: {
-    avatar_url: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fbr.freepik.com%2Ffotos%2Favatar-atendente%2F6&psig=AOvVaw1C3ciZ3dYgQ1JXYiKTdiLZ&ust=1755892689376000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCICg8ZHYnI8DFQAAAAAdAAAAABAL',
-    name: 'Elana',
-  },
- }
-</script>
-<script
- src="https://udify.app/embed.min.js"
- id="9tU2Ft6MsMpRgpsk"
- defer>
-</script>
-<style>
-  #dify-chatbot-bubble-button {
-    background-color: #1C64F2 !important;
-  }
-  #dify-chatbot-bubble-window {
-    width: 24rem !important;
-    height: 40rem !important;
-  }
-</style>
+  <!-- Coluna do chat -->
+      <div class="col-12 col-md-6 d-flex">
+        <!-- CHAT -->
+        <div id="agent-widget" class="lead-chat w-100">
+          <div class="lead-header">
+            <div class="lead-header-left">
+              <img src="images/recepcionista.png" class="lead-avatar" alt="Assistente" />
+              <div>
+                <div class="lead-name">Recepcionista</div>
+                <div class="lead-status"><span class="dot"></span> Online agora</div>
+              </div>
+            </div>
+            <button id="agent-minimize" class="lead-min-btn" aria-label="Minimizar">–</button>
+          </div>
+
+          <div id="agent-thread" class="lead-body"></div>
+
+          <form id="agent-form" class="lead-inputbar" onsubmit="return false;">
+            <input id="agent-input" class="lead-input" placeholder="Digite aqui..." />
+            <button id="agent-send" class="lead-send" type="button" aria-label="Enviar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" fill="none" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 
 
 
@@ -295,6 +294,7 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 </body>
 </html>
+
 
 
 

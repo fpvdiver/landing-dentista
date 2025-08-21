@@ -1,10 +1,5 @@
 <!DOCTYPE html>
-<<<<<<< HEAD
 <html lang="pt-BR">
-=======
-<html>
->>>>>>> fdcf979c87956821270b9cc6b81f8118b436e51d
-
 <head>
   <!-- Basic -->
   <meta charset="utf-8" />
@@ -12,237 +7,125 @@
   <!-- Mobile Metas -->
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <!-- Site Metas -->
-<<<<<<< HEAD
   <meta name="keywords" content="dentista, clínica odontológica, implantes, ortodontia, estética dental" />
   <meta name="description" content="Clínica odontológica moderna com atendimento especializado." />
   <meta name="author" content="OdontoPrime" />
   <link rel="shortcut icon" href="images/favicon.png" type="">
-  <title>Elen Nogata</title>
+  <title>Elen Nogata — Agendar Consulta</title>
 
   <!-- bootstrap core css -->
   <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
-  <!--owl slider stylesheet -->
-  <link rel="stylesheet" type="text/css"
-    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
-  <!-- nice select  -->
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
-  <!-- font awesome style -->
-  <link href="css/font-awesome.min.css" rel="stylesheet" />
-=======
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link rel="shortcut icon" href="images/favicon.png" type="">
-
-  <title> Feane </title>
-
-  <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
-
-  <!--owl slider stylesheet -->
+  <!-- owl slider -->
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
-  <!-- nice select  -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha512-CruCP+TD3yXzlvvijET8wV5WxxEh5H8P4cmz0RFbKK6FlZ2sYl3AEsKlLPHbniXKSrDdFewhbmBK5skbdsASbQ==" crossorigin="anonymous" />
-  <!-- font awesome style -->
+  <!-- nice select -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
+  <!-- font awesome -->
   <link href="css/font-awesome.min.css" rel="stylesheet" />
-
->>>>>>> fdcf979c87956821270b9cc6b81f8118b436e51d
-  <!-- Custom styles for this template -->
+  <!-- template styles -->
   <link href="css/style.css" rel="stylesheet" />
-  <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
-<<<<<<< HEAD
+
+  <!-- Ajustes específicos desta página -->
+  <style>
+    /* Header fixo */
+    .header_section {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      backdrop-filter: saturate(180%) blur(10px);
+      background: rgba(0,0,0,0.55);
+    }
+    /* Compensa a altura do header */
+    .hero_area { padding-top: 86px; }
+
+    /* Hero overlay escuro */
+    .hero_area .bg-box { position: relative; }
+    .hero_area .bg-box .overlay{
+      position:absolute; inset:0; background:rgba(0,0,0,.45);
+    }
+
+    /* Grid lado a lado com alturas cheias */
+    #booking .row.align-items-stretch { align-items: stretch; }
+    #booking .col-md-6.d-flex { align-items: stretch; }
+    #booking .lead-chat { height: 100%; }
+
+    /* Chat (paleta do site) */
+    .lead-chat{
+      display:flex; flex-direction:column; background:#1f2937; color:#e5e7eb;
+      border-radius:16px; box-shadow:0 10px 24px rgba(0,0,0,.2); overflow:hidden;
+    }
+    .lead-header{
+      display:flex; align-items:center; justify-content:space-between;
+      background:#0b1320; padding:12px 14px; color:#fff;
+    }
+    .lead-header-left{ display:flex; align-items:center; gap:10px; }
+    .lead-avatar{ width:36px; height:36px; border-radius:50%; object-fit:cover; }
+    .lead-name{ font-weight:700; line-height:1; }
+    .lead-status{ font-size:12px; opacity:.9; }
+    .lead-status .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#22c55e; margin-right:6px; }
+    .lead-min-btn{
+      border:0; background:transparent; color:#fff; font-size:20px; line-height:1; opacity:.8; cursor:pointer;
+    }
+
+    .lead-body{
+      flex:1; overflow:auto; padding:12px; background:#111827;
+    }
+    .lead-msg{ max-width:78%; padding:10px 12px; border-radius:14px; margin:6px 0; white-space:pre-wrap; }
+    .lead-msg.assistant{ background:#0b1320; color:#e5e7eb; border:1px solid rgba(255,255,255,.06); }
+    .lead-msg.user{ background:#ffbe33; color:#1f2937; margin-left:auto; font-weight:600; }
+
+    .lead-inputbar{ display:flex; gap:8px; padding:10px; background:#0b1320; }
+    .lead-input{
+      flex:1; border-radius:999px; border:1px solid #334155; background:#111827; color:#e5e7eb;
+      padding:10px 14px; outline:none;
+    }
+    .lead-send{
+      border:0; border-radius:999px; background:#ffbe33; padding:10px 14px; display:inline-flex; align-items:center; justify-content:center;
+    }
+    .lead-send:hover{ filter:brightness(0.95); }
+
+    /* Slots */
+    .slot.btn{ border-radius:999px; border:1px solid #334155; background:#0b1320; color:#e5e7eb; }
+    .slot.btn.selected{ background:#ffbe33; color:#1f2937; border-color:#ffbe33; }
+    .slot.btn.disabled, .slot.btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+    /* Botões do template */
+    .btn.btn-primary{ background:#ffbe33; border-color:#ffbe33; color:#1f2937; font-weight:700; border-radius:999px; }
+    .btn.btn-outline-secondary{ border-radius:999px; border:1px solid #ffbe33; color:#ffbe33; background:transparent; }
+    .btn.btn-outline-secondary:hover{ background:#ffbe33; color:#1f2937; }
+  </style>
 </head>
 
 <body>
 
   <div class="hero_area">
-  <div class="bg-box">
-    <img src="images/hero-bg.jpg" alt="">
-    <div class="overlay"></div> <!-- overlay escuro -->
-  </div>
-    <!-- header section -->
-=======
-
-</head>
-
-<body class="sub_page">
-
-  <div class="hero_area">
     <div class="bg-box">
       <img src="images/hero-bg.jpg" alt="">
+      <div class="overlay"></div>
     </div>
-    <!-- header section strats -->
->>>>>>> fdcf979c87956821270b9cc6b81f8118b436e51d
+
+    <!-- header -->
     <header class="header_section">
       <div class="container">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="index.html">
-<<<<<<< HEAD
-            <span>Elen Nogata</span>
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent">
-            <span class=""> </span>
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="index.html"><span>Elen Nogata</span></a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+            <span class=""></span>
           </button>
+
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mx-auto ">
-              <li class="nav-item active">
-                <a class="nav-link" href="index.html">Início</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="menu.html">Serviços</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="about.html">Profissional</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="book.html">Agendar Consulta</a>
-              </li>
+            <ul class="navbar-nav mx-auto">
+              <li class="nav-item"><a class="nav-link" href="index.html">Início</a></li>
+              <li class="nav-item"><a class="nav-link" href="menu.html">Serviços</a></li>
+              <li class="nav-item"><a class="nav-link" href="about.html">Profissional</a></li>
+              <li class="nav-item active"><a class="nav-link" href="book.html">Agendar Consulta</a></li>
             </ul>
             <div class="user_option">
               <a href="tel:+5511999999999" class="order_online">Ligue Agora</a>
-=======
-            <span>
-              Feane
-            </span>
-          </a>
-
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class=""> </span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav  mx-auto ">
-              <li class="nav-item">
-                <a class="nav-link" href="index.html">Home </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="menu.html">Menu</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="about.html">About</a>
-              </li>
-              <li class="nav-item active">
-                <a class="nav-link" href="book.html">Book Table <span class="sr-only">(current)</span> </a>
-              </li>
-            </ul>
-            <div class="user_option">
-              <a href="" class="user_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
-              </a>
-              <a class="cart_link" href="#">
-                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
-                  <g>
-                    <g>
-                      <path d="M345.6,338.862c-29.184,0-53.248,23.552-53.248,53.248c0,29.184,23.552,53.248,53.248,53.248
-                   c29.184,0,53.248-23.552,53.248-53.248C398.336,362.926,374.784,338.862,345.6,338.862z" />
-                    </g>
-                  </g>
-                  <g>
-                    <g>
-                      <path d="M439.296,84.91c-1.024,0-2.56-0.512-4.096-0.512H112.64l-5.12-34.304C104.448,27.566,84.992,10.67,61.952,10.67H20.48
-                   C9.216,10.67,0,19.886,0,31.15c0,11.264,9.216,20.48,20.48,20.48h41.472c2.56,0,4.608,2.048,5.12,4.608l31.744,216.064
-                   c4.096,27.136,27.648,47.616,55.296,47.616h212.992c26.624,0,49.664-18.944,55.296-45.056l33.28-166.4
-                   C457.728,97.71,450.56,86.958,439.296,84.91z" />
-                    </g>
-                  </g>
-                  <g>
-                    <g>
-                      <path d="M215.04,389.55c-1.024-28.16-24.576-50.688-52.736-50.688c-29.696,1.536-52.224,26.112-51.2,55.296
-                   c1.024,28.16,24.064,50.688,52.224,50.688h1.024C193.536,443.31,216.576,418.734,215.04,389.55z" />
-                    </g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                  <g>
-                  </g>
-                </svg>
-              </a>
-              <form class="form-inline">
-                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
-              </form>
-              <a href="" class="order_online">
-                Order Online
-              </a>
->>>>>>> fdcf979c87956821270b9cc6b81f8118b436e51d
             </div>
           </div>
         </nav>
       </div>
     </header>
-    <!-- end header section -->
-<<<<<<< HEAD
- <!-- slider section -->
-    <section class="slider_section">
-      <div id="customCarousel1" class="carousel slide" data-ride="carousel">
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <div class="container ">
-              <div class="row">
-                <div class="col-md-7 col-lg-6">
-                  <div class="detail-box">
-                    <h1>Sorriso Saudável</h1>
-                    <p>Tratamentos odontológicos modernos e acessíveis, para devolver a confiança ao seu sorriso.</p>
-                    <div class="btn-box">
-                      <a href="book.html" class="btn1">Agendar Consulta</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="carousel-item ">
-            <div class="container ">
-              <div class="row">
-                <div class="col-md-7 col-lg-6">
-                  <div class="detail-box">
-                    <h1>Atendimento Humanizado</h1>
-                    <p>Cuidamos da sua saúde bucal com carinho, tecnologia e uma equipe altamente qualificada.</p>
-                    <div class="btn-box">
-                      <a href="menu.html" class="btn1">Conheça os Serviços</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <ol class="carousel-indicators">
-          <li data-target="#customCarousel1" data-slide-to="0" class="active"></li>
-          <li data-target="#customCarousel1" data-slide-to="1"></li>
-        </ol>
-      </div>
-    </section>
+    <!-- end header -->
   </div>
 
   <!-- book section -->
@@ -313,70 +196,7 @@
   </div>
 </section>
 
-=======
-  </div>
 
-  <!-- book section -->
-  <section class="book_section layout_padding">
-    <div class="container">
-      <div class="heading_container">
-        <h2>
-          Book A Table
-        </h2>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form_container">
-            <form action="">
-              <div>
-                <input type="text" class="form-control" placeholder="Your Name" />
-              </div>
-              <div>
-                <input type="text" class="form-control" placeholder="Phone Number" />
-              </div>
-              <div>
-                <input type="email" class="form-control" placeholder="Your Email" />
-              </div>
-              <div>
-                <select class="form-control nice-select wide">
-                  <option value="" disabled selected>
-                    How many persons?
-                  </option>
-                  <option value="">
-                    2
-                  </option>
-                  <option value="">
-                    3
-                  </option>
-                  <option value="">
-                    4
-                  </option>
-                  <option value="">
-                    5
-                  </option>
-                </select>
-              </div>
-              <div>
-                <input type="date" class="form-control">
-              </div>
-              <div class="btn_box">
-                <button>
-                  Book Now
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="map_container ">
-            <div id="googleMap"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- end book section -->
->>>>>>> fdcf979c87956821270b9cc6b81f8118b436e51d
 
   <!-- footer section -->
   <footer class="footer_section">
@@ -384,109 +204,45 @@
       <div class="row">
         <div class="col-md-4 footer-col">
           <div class="footer_contact">
-            <h4>
-              Contact Us
-            </h4>
+            <h4>Contato</h4>
             <div class="contact_link_box">
-              <a href="">
-                <i class="fa fa-map-marker" aria-hidden="true"></i>
-                <span>
-                  Location
-                </span>
-              </a>
-              <a href="">
-                <i class="fa fa-phone" aria-hidden="true"></i>
-                <span>
-                  Call +01 1234567890
-                </span>
-              </a>
-              <a href="">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-                <span>
-                  demo@gmail.com
-                </span>
-              </a>
+              <a href="#"><i class="fa fa-map-marker" aria-hidden="true"></i><span>Av. Paulista, 1000 - São Paulo</span></a>
+              <a href="tel:+5511999999999"><i class="fa fa-phone" aria-hidden="true"></i><span>(11) 99999-9999</span></a>
+              <a href="mailto:contato@odontoprime.com"><i class="fa fa-envelope" aria-hidden="true"></i><span>contato@odontoprime.com</span></a>
             </div>
           </div>
         </div>
         <div class="col-md-4 footer-col">
           <div class="footer_detail">
-            <a href="" class="footer-logo">
-              Feane
-            </a>
-            <p>
-              Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with
-            </p>
+            <a href="#" class="footer-logo">Dra Elen Nogata</a>
+            <p>Cuidado, tecnologia e resultados que inspiram confiança ao sorrir.</p>
             <div class="footer_social">
-              <a href="">
-                <i class="fa fa-facebook" aria-hidden="true"></i>
-              </a>
-              <a href="">
-                <i class="fa fa-twitter" aria-hidden="true"></i>
-              </a>
-              <a href="">
-                <i class="fa fa-linkedin" aria-hidden="true"></i>
-              </a>
-              <a href="">
-                <i class="fa fa-instagram" aria-hidden="true"></i>
-              </a>
-              <a href="">
-                <i class="fa fa-pinterest" aria-hidden="true"></i>
-              </a>
+              <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+              <a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+              <a href="#"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+              <a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a>
+              <a href="#"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
             </div>
           </div>
         </div>
         <div class="col-md-4 footer-col">
-          <h4>
-            Opening Hours
-          </h4>
-          <p>
-            Everyday
-          </p>
-          <p>
-            10.00 Am -10.00 Pm
-          </p>
+          <h4>Horário</h4>
+          <p>Seg a Sex: 9h - 19h</p>
+          <p>Sáb: 9h - 14h</p>
         </div>
       </div>
       <div class="footer-info">
-        <p>
-          &copy; <span id="displayYear"></span> All Rights Reserved By
-          <a href="https://html.design/">Free Html Templates</a><br><br>
-          &copy; <span id="displayYear"></span> Distributed By
-          <a href="https://themewagon.com/" target="_blank">ThemeWagon</a>
-        </p>
+        <p>&copy; <span id="displayYear"></span> Lahntech. Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>
   <!-- footer section -->
+  
 
-  <!-- jQery -->
   <script src="js/jquery-3.4.1.min.js"></script>
-  <!-- popper js -->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-  </script>
-<<<<<<< HEAD
-
-   <!-- booking js -->
-  <script src="js/booking.js"></script>
-=======
->>>>>>> fdcf979c87956821270b9cc6b81f8118b436e51d
-  <!-- bootstrap js -->
   <script src="js/bootstrap.js"></script>
-  <!-- owl slider -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js">
-  </script>
-  <!-- isotope js -->
-  <script src="https://unpkg.com/isotope-layout@3.0.4/dist/isotope.pkgd.min.js"></script>
-  <!-- nice select -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
-  <!-- custom js -->
+  <script src="js/booking.js"></script>
   <script src="js/custom.js"></script>
-  <!-- Google Map -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
-  </script>
-  <!-- End Google Map -->
-
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 </body>
-
 </html>

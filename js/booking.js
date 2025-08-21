@@ -10,7 +10,7 @@ function fmtMoneyBRL(v) { return (v ?? '').toString(); }
 
 /** Disponibilidade **/
 async function fetchAvailability(dateStr) {
-  const url = `${API_BASE}/availability?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
+  const url = `${API_BASE}/?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
   const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
   if (!res.ok) throw new Error('Falha ao consultar disponibilidade');
   return res.json();

@@ -1,12 +1,11 @@
 /** CONFIG **/
 const API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/availability';
 const TIMEZONE = 'America/Sao_Paulo';
-const SLOT_INTERVAL_MIN = 60; // deve bater com o servidor
+const SLOT_INTERVAL_MIN = 60; // fallback, mas não está sendo usado pois vem do servidor
 
 /** Helpers **/
 function el(q, root = document) { return root.querySelector(q); }
 function els(q, root = document) { return Array.from(root.querySelectorAll(q)); }
-function fmtMoneyBRL(v) { return (v ?? '').toString(); }
 
 /** Disponibilidade **/
 async function fetchAvailability(dateStr) {
@@ -16,32 +15,6 @@ async function fetchAvailability(dateStr) {
   return res.json();
 }
 
-function rangeToSlots(start, end, stepMin) {
-  const out = [];
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-  let d = new Date(); d.setHours(sh, sm, 0, 0);
-  const z = new Date(); z.setHours(eh, em, 0, 0);
-  while (d < z) {
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    out.push(`${hh}:${mm}`);
-    d = new Date(d.getTime() + stepMin * 60000);
-  }
-  return out;
-}
-
-function blockByBusy(slots, busyWindows) {
-  const toMin = t => {
-    const [h, m] = t.split(':').map(Number); return h * 60 + m;
-  };
-  const isBusy = (t) => busyWindows.some(([bStart, bEnd]) => {
-    const tm = toMin(t), bs = toMin(bStart), be = toMin(bEnd);
-    return tm >= bs && tm < be;
-  });
-  return slots.map(t => ({ time: t, available: !isBusy(t) }));
-}
-
 function renderSlots(availability) {
   const box = el('#slots'); 
   if (!box) return;
@@ -49,46 +22,33 @@ function renderSlots(availability) {
 
   console.log("🔍 Disponibilidade recebida:", availability);
 
-  const { officeHours, busy, intervalMinutes } = availability;
+  // 🔹 Novo formato vindo do backend: { freeSlots: [], busy: [] }
+  const freeSlots = availability.freeSlots || [];
+  const busy = availability.busy || [];
 
-  if (!officeHours || !officeHours.start || !officeHours.end) {
-    box.innerHTML = '<div style="color:#dc2626">Configuração de horário não encontrada no servidor.</div>';
+  if (!Array.isArray(freeSlots)) {
+    box.innerHTML = '<div style="color:#dc2626">Formato inesperado de disponibilidade.</div>';
     return;
   }
 
-  const slots = rangeToSlots(
-    officeHours.start,
-    officeHours.end,
-    intervalMinutes || SLOT_INTERVAL_MIN
-  );
-
-  // 🔹 Converte busy do formato ISO -> pares ["HH:MM", "HH:MM"]
-  const busyWindows = (busy || []).map(b => {
-    const s = new Date(b.start);
-    const e = new Date(b.end);
-    const fmt = d => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    return [fmt(s), fmt(e)];
-  });
-
-  const withStatus = blockByBusy(slots, busyWindows);
-
-  withStatus.forEach(s => {
+  freeSlots.forEach(s => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'slot btn btn-sm ' + (s.available ? '' : 'disabled');
-    b.textContent = s.time;
-    b.disabled = !s.available;
+    b.className = 'slot btn btn-sm';
+    b.textContent = s;
+    b.disabled = false;
+
     b.addEventListener('click', () => {
-      if (b.classList.contains('disabled')) return;
       els('.slot.selected', box).forEach(x => x.classList.remove('selected'));
       b.classList.add('selected');
       const hidden = el('#selected-time');
-      if (hidden) hidden.value = s.time;
+      if (hidden) hidden.value = s;
     });
+
     box.appendChild(b);
   });
 
-  if (!withStatus.some(s => s.available)) {
+  if (freeSlots.length === 0) {
     const msg = document.createElement('div');
     msg.style.marginTop = '8px';
     msg.style.color = '#64748b';
@@ -121,7 +81,6 @@ async function submitBooking(payload) {
 
 /** Wire-up **/
 document.addEventListener('DOMContentLoaded', () => {
-  // --------- Datepicker & Slots ---------
   const dateInput = el('#booking-date');
   if (dateInput) {
     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -142,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --------- Booking form ---------
   const bookingForm = el('#booking-form');
   if (bookingForm) {
     bookingForm.addEventListener('submit', async (e) => {

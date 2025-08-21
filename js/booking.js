@@ -48,7 +48,17 @@ function renderSlots(availability) {
   const { officeHours, busy, intervalMinutes } = availability;
 
   const slots = rangeToSlots(officeHours.start, officeHours.end, intervalMinutes || SLOT_INTERVAL_MIN);
-  const withStatus = blockByBusy(slots, busy || []);
+
+  // 🔹 Converte busy do formato ISO -> pares ["HH:MM", "HH:MM"]
+  const busyWindows = (busy || []).map(b => {
+    const s = new Date(b.start);
+    const e = new Date(b.end);
+    const fmt = d => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return [fmt(s), fmt(e)];
+  });
+
+  const withStatus = blockByBusy(slots, busyWindows);
+
   withStatus.forEach(s => {
     const b = document.createElement('button');
     b.type = 'button';

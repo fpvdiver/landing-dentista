@@ -43,11 +43,24 @@ function blockByBusy(slots, busyWindows) {
 }
 
 function renderSlots(availability) {
-  const box = el('#slots'); if (!box) return;
+  const box = el('#slots'); 
+  if (!box) return;
   box.innerHTML = '';
+
+  console.log("🔍 Disponibilidade recebida:", availability);
+
   const { officeHours, busy, intervalMinutes } = availability;
 
-  const slots = rangeToSlots(officeHours.start, officeHours.end, intervalMinutes || SLOT_INTERVAL_MIN);
+  if (!officeHours || !officeHours.start || !officeHours.end) {
+    box.innerHTML = '<div style="color:#dc2626">Configuração de horário não encontrada no servidor.</div>';
+    return;
+  }
+
+  const slots = rangeToSlots(
+    officeHours.start,
+    officeHours.end,
+    intervalMinutes || SLOT_INTERVAL_MIN
+  );
 
   // 🔹 Converte busy do formato ISO -> pares ["HH:MM", "HH:MM"]
   const busyWindows = (busy || []).map(b => {
@@ -167,4 +180,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-

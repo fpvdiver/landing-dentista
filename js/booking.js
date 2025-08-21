@@ -32,9 +32,17 @@ function renderSlots(availability) {
   }
 
   horarios.forEach(h => {
+    // verifica se esse horário está dentro de algum busy
     const isBusy = (busy || []).some(b => {
-      const start = new Date(b.start).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-      return start === h;
+      const busyStart = new Date(b.start);
+      const busyEnd = new Date(b.end);
+
+      // horário atual convertido para Date no mesmo dia
+      const slotDate = new Date();
+      const [hh, mm] = h.split(':');
+      slotDate.setHours(hh, mm, 0, 0);
+
+      return slotDate >= busyStart && slotDate < busyEnd;
     });
 
     const b = document.createElement('button');
@@ -54,8 +62,6 @@ function renderSlots(availability) {
     box.appendChild(b);
   });
 }
-
-
 
 /** Booking submit **/
 async function submitBooking(payload) {
@@ -92,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const hidden = el('#selected-time'); if (hidden) hidden.value = '';
       try {
         const data = await fetchAvailability(e.target.value);
+        console.log("Disponibilidade recebida:", data);
         renderSlots(data);
       } catch (err) {
         const slots = el('#slots');
@@ -138,5 +145,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-

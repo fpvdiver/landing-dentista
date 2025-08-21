@@ -153,6 +153,23 @@ h2 {
 }
 
 
+.user-msg {
+  background: #e1f5fe;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin: 5px;
+  align-self: flex-end;
+}
+
+.agent-msg {
+  background: #f1f1f1;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin: 5px;
+  align-self: flex-start;
+}
+
+
 /* Header fixo */
 .header_section {
   position: fixed;

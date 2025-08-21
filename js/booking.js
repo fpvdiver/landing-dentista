@@ -1,7 +1,6 @@
 /** CONFIG **/
-const API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/availability'; // Reverse proxy -> n8n
+const API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/availability'; 
 const TIMEZONE = 'America/Sao_Paulo';
-const SLOT_INTERVAL_MIN = 60; // agora de 1 em 1 hora
 
 /** Helpers **/
 function el(q, root = document) { return root.querySelector(q); }
@@ -15,76 +14,31 @@ async function fetchAvailability(dateStr) {
   return res.json();
 }
 
-function rangeToSlots(start, end, stepMin) {
-  const out = [];
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-  let d = new Date(); d.setHours(sh, sm, 0, 0);
-  const z = new Date(); z.setHours(eh, em, 0, 0);
-  while (d < z) {
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    out.push(`${hh}:${mm}`);
-    d = new Date(d.getTime() + stepMin * 60000);
-  }
-  return out;
-}
-
-function blockByBusy(slots, busyWindows) {
-  const toMin = t => {
-    const [h, m] = t.split(':').map(Number); return h * 60 + m;
-  };
-  const isBusy = (t) => busyWindows.some(([bStart, bEnd]) => {
-    const tm = toMin(t), bs = toMin(bStart), be = toMin(bEnd);
-    return tm >= bs && tm < be;
-  });
-  return slots.map(t => ({ time: t, available: !isBusy(t) }));
-}
-
-function renderSlots(availability) {
-  const box = el('#slots'); 
+function renderSlots(data) {
+  const box = el('#slots');
   if (!box) return;
   box.innerHTML = '';
 
-  let slots = [];
+  const slots = data.slots || [];
 
-  // Caso 1: Backend retorna { officeHours, busy, intervalMinutes }
-  if (availability.officeHours) {
-    const { officeHours, busy, intervalMinutes } = availability;
-    const rawSlots = rangeToSlots(
-      officeHours.start, 
-      officeHours.end, 
-      intervalMinutes || SLOT_INTERVAL_MIN
-    );
-    slots = blockByBusy(rawSlots, busy || []);
-  }
-
-  // Caso 2: Backend já retorna array de slots [{ start, end, available }]
-  else if (Array.isArray(availability.slots)) {
-    slots = availability.slots.map(s => ({
-      time: s.start, 
-      available: s.available !== false
-    }));
-  }
-
-  // Renderização
   slots.forEach(s => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'slot btn btn-sm ' + (s.available ? '' : 'disabled');
-    b.textContent = s.time || `${s.start} - ${s.end}`;
+    b.textContent = `${s.start} - ${s.end}`;
     b.disabled = !s.available;
+
     b.addEventListener('click', () => {
       if (b.classList.contains('disabled')) return;
       els('.slot.selected', box).forEach(x => x.classList.remove('selected'));
       b.classList.add('selected');
       const hidden = el('#selected-time');
-      if (hidden) hidden.value = s.time || s.start;
+      if (hidden) hidden.value = s.start;
     });
+
     box.appendChild(b);
   });
 
-  // Se nenhum disponível
   if (!slots.some(s => s.available)) {
     const msg = document.createElement('div');
     msg.style.marginTop = '8px';
@@ -102,22 +56,7 @@ async function submitBooking(payload) {
     body: JSON.stringify(payload),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = data?.message || 'Não foi possível concluir o agendamento.';
-    throw new Error(msg);
-  }
-  return data;
-}
-
-/** Chat Agent **/
-async function sendAgentMessage(text, context) {
-  const res = await fetch(`${API_BASE}/agent`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: text, context }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.message || 'Falha no agente');
+  if (!res.ok) throw new Error(data?.message || 'Não foi possível concluir o agendamento.');
   return data;
 }
 
@@ -151,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const fd = new FormData(e.currentTarget);
       const date = fd.get('date');
-      const time = fd.get('time') || fd.get('selected-time') || el('#selected-time')?.value || '';
+      const time = fd.get('time') || fd.get('selected-time') || '';
       const feedback = el('#booking-feedback');
 
       if (!time) {
@@ -165,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         date, time,
         tz: TIMEZONE,
         source: 'web-form',
-        idempotencyKey: (crypto && crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random()))
+        idempotencyKey: Date.now() + '-' + Math.random()
       };
       if (feedback) feedback.innerHTML = 'Processando...';
       try {

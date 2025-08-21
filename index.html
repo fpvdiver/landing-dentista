@@ -285,7 +285,65 @@
     </div>
   </footer>
   <!-- footer section -->
-  
+  <script>
+  const thread = document.getElementById("agent-thread");
+  const input = document.getElementById("agent-input");
+  const sendBtn = document.getElementById("agent-send");
+
+  // 👉 URL do seu webhook n8n
+  const WEBHOOK_URL = "https://SEU-N8N_URL/webhook/agent-chat";
+
+  // Função para adicionar mensagens no chat
+  function addMessage(text, sender = "user") {
+    const msg = document.createElement("div");
+    msg.classList.add("lead-msg", sender === "user" ? "user-msg" : "agent-msg");
+    msg.textContent = text;
+    thread.appendChild(msg);
+    thread.scrollTop = thread.scrollHeight;
+  }
+
+  // Enviar mensagem
+  async function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+
+    // mostra no chat do usuário
+    addMessage(message, "user");
+    input.value = "";
+
+    // mostra que a recepcionista está digitando
+    const typingMsg = document.createElement("div");
+    typingMsg.classList.add("lead-msg", "agent-msg");
+    typingMsg.textContent = "Digitando...";
+    thread.appendChild(typingMsg);
+    thread.scrollTop = thread.scrollHeight;
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+
+      // remove "Digitando..."
+      typingMsg.remove();
+
+      // mostra resposta da IA
+      addMessage(data.reply, "agent");
+    } catch (err) {
+      typingMsg.textContent = "⚠️ Erro ao conectar com a recepcionista.";
+    }
+  }
+
+  // Eventos
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+</script>
+
 
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.js"></script>
@@ -294,6 +352,7 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 </body>
 </html>
+
 
 
 

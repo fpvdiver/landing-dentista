@@ -8,10 +8,29 @@ function els(q, root = document) { return Array.from(root.querySelectorAll(q)); 
 
 /** Disponibilidade **/
 async function fetchAvailability(dateStr) {
-  const url = `${API_BASE}/?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
-  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-  if (!res.ok) throw new Error('Falha ao consultar disponibilidade');
-  return res.json();
+  const url = `${API_BASE}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (!res.ok) throw new Error(`Erro do servidor (${res.status})`);
+
+    const data = await res.json();
+    if (!data || typeof data !== 'object') {
+      throw new Error("Resposta inválida do servidor");
+    }
+    return data;
+
+  } catch (err) {
+    console.error("Erro ao buscar disponibilidade:", err);
+    const box = el('#slots');
+    if (box) {
+      box.innerHTML = `<div style="color:#dc2626">Erro ao carregar horários.<br>Tente novamente mais tarde ou fale com nossa equipe pelo chat.</div>`;
+    }
+    return { horarios: [], busy: [] };
+  }
 }
 
 function renderSlots(availability) {
@@ -19,9 +38,9 @@ function renderSlots(availability) {
   if (!box) return;
   box.innerHTML = '';
 
-  const { horarios, busy } = availability;
+  const { horarios = [], busy = [] } = availability;
 
-  if (!horarios || horarios.length === 0) {
+  if (!horarios.length) {
     const msg = document.createElement('div');
     msg.style.marginTop = '8px';
     msg.style.color = '#64748b';
@@ -31,7 +50,7 @@ function renderSlots(availability) {
   }
 
   horarios.forEach(h => {
-    const isBusy = (busy || []).some(b => {
+    const isBusy = busy.some(b => {
       const start = new Date(b.start).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
       return start === h;
     });
@@ -56,24 +75,31 @@ function renderSlots(availability) {
 
 /** Booking submit **/
 async function submitBooking(payload) {
-  const res = await fetch(`${API_BASE}/book`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  let data = {};
   try {
-    data = await res.json();
-  } catch (e) {
-    console.error("Resposta não JSON:", e);
-  }
+    const res = await fetch(`${API_BASE}/book`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
 
-  if (!res.ok) {
-    const msg = data?.message || 'Não foi possível concluir o agendamento.';
-    throw new Error(msg);
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (e) {
+      console.error("Resposta não-JSON:", e);
+    }
+
+    if (!res.ok) {
+      const msg = data?.message || 'Não foi possível concluir o agendamento.';
+      throw new Error(msg);
+    }
+
+    return data;
+
+  } catch (err) {
+    console.error("Erro no submitBooking:", err);
+    throw err;
   }
-  return data;
 }
 
 /** Wire-up **/
@@ -86,7 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
     dateInput.max = max.toISOString().slice(0, 10);
 
     dateInput.addEventListener('change', async (e) => {
-      const hidden = el('#selected-time'); if (hidden) hidden.value = '';
+      const hidden = el('#selected-time'); 
+      if (hidden) hidden.value = '';
       try {
         const data = await fetchAvailability(e.target.value);
         renderSlots(data);
@@ -119,10 +146,10 @@ document.addEventListener('DOMContentLoaded', () => {
         date, time,
         tz: TIMEZONE,
         source: 'web-form',
-        idempotencyKey: (crypto && crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random()))
+        idempotencyKey: (crypto?.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random()))
       };
 
-      if (feedback) feedback.innerHTML = 'Processando...';
+      if (feedback) feedback.innerHTML = '⏳ Processando...';
       try {
         const resp = await submitBooking(payload);
         if (feedback) {
@@ -135,9 +162,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-
-
-
-
-

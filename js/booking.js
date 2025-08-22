@@ -87,7 +87,7 @@ async function sendMessage() {
   addChatMessage(message, "user");
   input.value = "";
 
-  // placeholder "digitando"
+  // placeholder "digitando..."
   const thread = el("#agent-thread");
   const typingMsg = document.createElement("div");
   typingMsg.classList.add("lead-msg", "agent-msg");
@@ -101,11 +101,29 @@ async function sendMessage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message })
     });
-    const data = await res.json();
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      data = await res.text(); // fallback se não for JSON válido
+    }
 
     typingMsg.remove();
-    addChatMessage(data.reply, "agent");
+
+    let reply;
+    if (typeof data === "object" && data.reply) {
+      reply = data.reply;
+    } else if (typeof data === "string") {
+      reply = data;
+    } else {
+      reply = "⚠️ A recepcionista não entendeu a resposta.";
+    }
+
+    addChatMessage(reply, "agent");
+
   } catch (err) {
+    console.error("Erro no chat:", err);
     typingMsg.textContent = "⚠️ Erro ao conectar com a recepcionista.";
   }
 }
@@ -167,6 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---- Chat ----
   el("#agent-send")?.addEventListener("click", sendMessage);
   el("#agent-input")?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
   });
 });

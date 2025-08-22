@@ -39,6 +39,9 @@ function renderSlots(availability) {
   box.innerHTML = '';
 
   const { horarios = [], busy = [] } = availability;
+  const hidden = el('#selected-time');
+if (hidden) hidden.value = h;
+
 
   if (!horarios.length) {
     const msg = document.createElement('div');
@@ -131,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const fd = new FormData(e.currentTarget);
       const date = fd.get('date');
-      const time = fd.get('time') || fd.get('selected-time') || el('#selected-time')?.value || '';
+      const time = fd.get('time') || '';
       const feedback = el('#booking-feedback');
 
       if (!time) {
@@ -162,3 +165,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+

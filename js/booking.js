@@ -108,6 +108,8 @@ async function sendMessage() {
     } catch {
       data = await res.text(); // fallback se não for JSON válido
     }
+    console.log("Resposta do n8n:", data);
+addChatMessage(data.reply, "agent");
     
     addChatMessage(data.reply, "agent");
 
@@ -192,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
 
 
 

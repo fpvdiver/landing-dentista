@@ -39,8 +39,6 @@ function renderSlots(availability) {
   box.innerHTML = '';
 
   const { horarios = [], busy = [] } = availability;
- 
-
 
   if (!horarios.length) {
     const msg = document.createElement('div');
@@ -164,4 +162,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-

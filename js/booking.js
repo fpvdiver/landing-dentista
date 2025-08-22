@@ -249,7 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const data = await sendAgentMessage(text, context);
+      const data = await sendMessage(text, context)
+(text, context);
       appendMsg('assistant', data.reply || 'Ok.');
       if (data.booking && data.booking.status === 'confirmed') {
         const fb = el('#booking-feedback');
@@ -293,3 +294,4 @@ document.addEventListener('DOMContentLoaded', () => {
   bootAgent();
 
 });
+

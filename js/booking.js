@@ -108,6 +108,9 @@ async function sendMessage() {
     } catch {
       data = await res.text(); // fallback se não for JSON válido
     }
+    
+    addChatMessage(data.reply, "agent");
+
 
     typingMsg.remove();
 
@@ -119,10 +122,6 @@ async function sendMessage() {
     } else {
       reply = "⚠️ A recepcionista não entendeu a resposta.";
     }
-
-   
-addChatMessage(data.reply, "agent");
-
 
   } catch (err) {
     console.error("Erro no chat:", err);
@@ -193,5 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
 
 

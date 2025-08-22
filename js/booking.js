@@ -137,44 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-<script>
-  const thread = document.getElementById("agent-thread");
-  const input = document.getElementById("agent-input");
-  const sendBtn = document.getElementById("agent-send");
 
-  // Função para adicionar mensagem no chat
-  function addMessage(text, sender = "user") {
-    const msg = document.createElement("div");
-    msg.className = sender === "user" ? "user-msg" : "agent-msg";
-    msg.textContent = text;
-    thread.appendChild(msg);
-    thread.scrollTop = thread.scrollHeight; // rolar pro final
-  }
 
-  // Função para mandar mensagem pro n8n
-  async function sendAgentMessage(text) {
-    try {
-      const res = await fetch("https://allnsnts.app.n8n.cloud/webhook/agent-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text })
-      });
-
-      const data = await res.json();
-      addMessage(data.reply, "agent"); // resposta da IA
-    } catch (err) {
-      addMessage("⚠️ Erro ao conectar com o agente.", "agent");
-    }
-  }
-
-  // Evento do botão de enviar
-  sendBtn.addEventListener("click", () => {
-    const text = input.value.trim();
-    if (!text) return;
-    addMessage(text, "user"); // mostra mensagem do usuário
-    input.value = "";
-    sendAgentMessage(text); // envia pro n8n
-  });
-</script>
 
 

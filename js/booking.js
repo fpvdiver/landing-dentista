@@ -120,7 +120,7 @@ async function sendMessage() {
       reply = "⚠️ A recepcionista não entendeu a resposta.";
     }
 
-    const data = await res.json();
+   
 addChatMessage(data.reply, "agent");
 
 
@@ -193,4 +193,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
 

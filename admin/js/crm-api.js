@@ -1,6 +1,6 @@
 /** ============ CONFIG ============ **/
 // Você pode sobrescrever via <script>window.CRM_API_BASE='https://SEU-N8N.com/webhook/odonto'</script>
-const API_BASE = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/'); 
+const API_BASE = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/gcal/day'); 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 /** utils **/
@@ -324,3 +324,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+

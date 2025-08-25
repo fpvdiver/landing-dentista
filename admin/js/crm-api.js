@@ -1,9 +1,18 @@
-/* js/crm-api.js */
 /** ============ CONFIG ============ **/
-const API_BASE = 'https://allnsnts.app.n8n.cloud/webhook'; // ajuste se necessário
+// Você pode sobrescrever via <script>window.CRM_API_BASE='https://SEU-N8N.com/webhook/odonto'</script>
+const API_BASE = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/'); 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
-/** helper fetch com tratamento de erro */
+/** utils **/
+const toBRL = v => (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const qs = (obj={}) => {
+  const p = new URLSearchParams();
+  Object.entries(obj).forEach(([k,v]) => (v!==undefined && v!==null) && p.append(k, String(v)));
+  const s = p.toString();
+  return s ? ('?'+s) : '';
+};
+
+/** fetch com tratamento de erro */
 async function api(path, { method='GET', body, headers=JSON_HEADERS } = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     method,
@@ -12,10 +21,12 @@ async function api(path, { method='GET', body, headers=JSON_HEADERS } = {}) {
   });
   let data = null;
   try { data = await res.json(); } catch {}
-  if (!res.ok) throw new Error(data?.message || `Erro ${res.status}`);
+  if (!res.ok) {
+    const msg = data?.message || (data?.error?.message) || `Erro ${res.status}`;
+    throw new Error(msg);
+  }
   return data;
 }
-const toBRL = v => (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
 /** ============ PROCEDIMENTOS ============ **/
 let PROCEDURES_CACHE = []; // [{id,name,price,duration,code}]
@@ -24,23 +35,23 @@ async function loadProcedures() {
   // GET /procedures -> [{id,name,price,duration,code}]
   const list = await api('/procedures');
   PROCEDURES_CACHE = Array.isArray(list) ? list : [];
-  // preencher selects da UI
+
+  // <select> do agendamento
   const selAg = document.getElementById('ag-proc');
-  const orcTable = document.querySelector('#orc-table tbody');
   if (selAg) {
     selAg.innerHTML = PROCEDURES_CACHE.map(p =>
       `<option value="${p.name}" data-id="${p.id||''}" data-dur="${p.duration||60}" data-price="${p.price||0}">
-         ${p.name}
-       </option>`).join('');
-    // setar duração automática
+        ${p.name}
+      </option>`).join('');
     const dur = document.getElementById('ag-dur');
     if (dur && selAg.selectedOptions[0]) dur.value = `${selAg.selectedOptions[0].dataset.dur} min`;
     selAg.onchange = () => {
       const d = selAg.selectedOptions[0]?.dataset?.dur;
-      if (d) dur.value = `${d} min`;
+      if (d && dur) dur.value = `${d} min`;
     };
   }
-  // tabela de gerência de procedimentos (modal md-procedimentos)
+
+  // tabela de gerência (modal)
   const tbody = document.querySelector('#proc-table tbody');
   if (tbody) {
     tbody.innerHTML = '';
@@ -57,18 +68,18 @@ async function loadProcedures() {
       tbody.appendChild(tr);
     });
   }
-  // se existir tabela de orçamento, re-render dos itens para atualizar lista
-  if (orcTable && orcTable.children.length === 0) addOrcRow(); // garante 1ª linha
+
+  // orçamento: se não tem linhas, cria a 1ª
+  const orcTable = document.querySelector('#orc-table tbody');
+  if (orcTable && orcTable.children.length === 0) addOrcRow();
 }
 
-/** adicionar procedimento (POST /procedures) */
+/** criar / excluir procedimento */
 async function createProcedure({name, duration, price, code}) {
   const created = await api('/procedures', { method:'POST', body:{ name, duration, price, code }});
   await loadProcedures();
   return created;
 }
-
-/** excluir procedimento (POST /procedures/delete) – n8n costuma aceitar só GET/POST */
 async function deleteProcedure(id) {
   await api('/procedures/delete', { method:'POST', body:{ id } });
   await loadProcedures();
@@ -77,13 +88,10 @@ async function deleteProcedure(id) {
 /** ============ PACIENTES ============ **/
 async function loadPatientsToDatalist() {
   // GET /patients?limit=50 -> [{id,name,phone,email}]
-  const list = await api('/patients?limit=50');
+  const list = await api('/patients'+qs({limit:50}));
   const dl = document.getElementById('dl-pacientes');
-  if (dl) {
-    dl.innerHTML = (list||[]).map(p => `<option value="${p.name}">`).join('');
-  }
+  if (dl) dl.innerHTML = (list||[]).map(p => `<option value="${p.name}">`).join('');
 }
-
 async function createPatient(payload) {
   // POST /patients
   return api('/patients', { method:'POST', body: payload });
@@ -91,8 +99,27 @@ async function createPatient(payload) {
 
 /** ============ AGENDAMENTOS ============ **/
 async function createAppointment(payload) {
-  // POST /appointments -> retorna {id/status/...}
+  // POST /appointments -> {id/status/...}
   return api('/appointments', { method:'POST', body: payload });
+}
+
+/* Buscar agenda do dia (unificada Google Calendar -> n8n) 
+   GET /appointments/day?date=YYYY-MM-DD&tz=America/Sao_Paulo
+   → [{start:"10:00", end:"10:30", patient:"Amanda", procedure:"Profilaxia", status:"confirmed", id:"..."}]  */
+async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
+  return api('/appointments/day'+qs({ date: dateStr, tz }));
+}
+
+/* Reagendar 
+   POST /appointments/reschedule { id, date, time, duracaoMin } → { ok:true } */
+async function rescheduleAppointment({ id, date, time, duracaoMin }) {
+  return api('/appointments/reschedule', { method:'POST', body:{ id, date, time, duracaoMin }});
+}
+
+/* Cancelar 
+   POST /appointments/cancel { id } → { ok:true } */
+async function cancelAppointment(id) {
+  return api('/appointments/cancel', { method:'POST', body:{ id }});
 }
 
 /** ============ ORÇAMENTOS ============ **/
@@ -119,7 +146,6 @@ function addOrcRow() {
     <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>
   `;
   tbody.appendChild(tr);
-  // set preço inicial
   const sel = tr.querySelector('.orc-proc');
   const unit = tr.querySelector('.orc-unit');
   unit.value = Number(sel.selectedOptions[0]?.dataset?.price || 0).toFixed(2);
@@ -147,10 +173,10 @@ function calcOrc() {
 
 /** ============ BOOTSTRAP DOS MODAIS/FORMULÁRIOS ============ **/
 document.addEventListener('DOMContentLoaded', () => {
-  // carrega dados iniciais
+  // dados iniciais
   Promise.all([loadProcedures(), loadPatientsToDatalist()]).catch(console.error);
 
-  /* === Modal: Procedimentos === */
+  /* Modal: Procedimentos */
   const btnAddProc = document.getElementById('proc-add');
   if (btnAddProc) {
     btnAddProc.addEventListener('click', async ()=>{
@@ -179,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* === Modal: Orçamento === */
+  /* Modal: Orçamento */
   const tbody = document.querySelector('#orc-table tbody');
   const addBtn = document.getElementById('orc-add');
   if (addBtn) addBtn.addEventListener('click', addOrcRow);
@@ -211,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
     formOrc.addEventListener('submit', async e=>{
       e.preventDefault();
       const fd = new FormData(formOrc);
-      // coleta itens
       const items = [];
       document.querySelectorAll('#orc-table tbody tr').forEach(tr=>{
         const name = tr.querySelector('.orc-proc').value;
@@ -238,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* === Modal: Paciente === */
+  /* Modal: Paciente */
   const formPac = document.getElementById('form-paciente');
   if (formPac) {
     formPac.addEventListener('submit', async e=>{
@@ -254,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* === Modal: Agendamento === */
+  /* Modal: Agendamento */
   const formAg = document.getElementById('form-agendamento');
   if (formAg) {
     formAg.addEventListener('submit', async e=>{
@@ -288,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // atalho: chips na home para abrir modais
+  // chips de atalho (home)
   document.querySelectorAll('.crm-chip')?.forEach(ch=>{
     const label = ch.textContent.trim().toLowerCase();
     ch.addEventListener('click', ()=>{
@@ -299,4 +324,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-

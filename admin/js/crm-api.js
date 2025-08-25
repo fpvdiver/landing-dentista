@@ -325,3 +325,35 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
+<script>
+(function () {
+  const app     = document.querySelector('.crm-app');
+  const burger  = document.getElementById('crmBurger');
+  const overlay = document.getElementById('crmOverlay');
+  const sidebar = document.getElementById('crmSidebar');
+
+  if (!app || !burger || !overlay || !sidebar) return;
+
+  function open() {
+    app.classList.add('sidebar-open');
+    burger.setAttribute('aria-expanded', 'true');
+    // evita scroll do conteúdo atrás
+    document.documentElement.style.overflow = 'hidden';
+  }
+  function close() {
+    app.classList.remove('sidebar-open');
+    burger.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+  }
+  function toggle() {
+    app.classList.contains('sidebar-open') ? close() : open();
+  }
+
+  burger.addEventListener('click', toggle);
+  overlay.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+})();
+</script>
+
+

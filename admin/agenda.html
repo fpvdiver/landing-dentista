@@ -24,8 +24,8 @@
 </head>
 <body data-page="agenda">
 <div class="crm-app">
-  <!-- Sidebar injetada como componente -->
-    <aside class="crm-sidebar">
+  <!-- Sidebar inline -->
+  <aside class="crm-sidebar">
     <div class="crm-brand">
       <span class="logo"></span>
       <div>
@@ -35,7 +35,7 @@
     </div>
     <nav class="crm-nav">
       <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
-      <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+      <a href="agenda.html" data-nav="agenda" class="active"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
       <a href="pacientes.html" data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
       <a href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
       <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
@@ -47,7 +47,6 @@
       <div>v0.1</div>
     </div>
   </aside>
-
 
   <main class="crm-main">
     <!-- HERO -->
@@ -77,14 +76,12 @@
               <thead>
                 <tr><th>Hora</th><th>Paciente</th><th>Procedimento</th><th>Status</th><th></th></tr>
               </thead>
-              <tbody id="agenda-tbody">
-                <!-- preenchido via JS -->
-              </tbody>
+              <tbody id="agenda-tbody"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Lateral: notas e filtros -->
+        <!-- Lateral -->
         <div class="col-lg-4 mb-3">
           <div class="crm-card">
             <h6 class="mb-3">Notas do dia</h6>
@@ -235,344 +232,244 @@
 <!-- JS -->
 <script src="../js/jquery-3.4.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
-<script src="components/sidebar/sidebar.js"></script>
-<script>
-/* ===== CONFIG ===== */
-const API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/gcal/day';           // mesmo padrão do booking.js
-const TIMEZONE = 'America/Sao_Paulo';
 
-/* ===== Helpers ===== */
+<!-- 1) Configure aqui o prefixo (sem repetir a rota) -->
+<script>
+  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto'; // só o prefixo!
+  const TIMEZONE = 'America/Sao_Paulo';
+</script>
+
+<!-- 2) Se precisar dos helpers do crm-api.js, carregue apenas UMA vez -->
+<script src="js/crm-api.js"></script>
+
+<!-- 3) Lógica da página -->
+<script>
 function el(q, root=document){ return root.querySelector(q); }
 function els(q, root=document){ return Array.from(root.querySelectorAll(q)); }
-function pad2(n){ return String(n).padStart(2,'0'); }
-function ymdToday(){
-  const d=new Date(); const y=d.getFullYear(), m=pad2(d.getMonth()+1), dd=pad2(d.getDate());
-  return `${y}-${m}-${dd}`;
-}
-function fmtBR(iso){
-  try{ const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; }catch{ return iso; }
-}
+const pad2 = n => String(n).padStart(2,'0');
+const ymdToday = () => {
+  const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+};
+const fmtBR = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }catch{ return iso; } };
 
-/* ===== Slots (reaproveitando a ideia do booking.js) ===== */
-function rangeToSlots(start, end, stepMin) {
-  const out = [];
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-  let d = new Date(); d.setHours(sh, sm, 0, 0);
-  const z = new Date(); z.setHours(eh, em, 0, 0);
-  while (d < z) {
-    out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`);
-    d = new Date(d.getTime() + stepMin*60000);
-  }
+function rangeToSlots(start, end, stepMin){
+  const out=[], [sh,sm]=start.split(':').map(Number), [eh,em]=end.split(':').map(Number);
+  let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
+  while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+stepMin*60000); }
   return out;
 }
-function blockByBusy(slots, busyWindows) {
-  const toMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
-  const isBusy = (t) => busyWindows.some(([bStart,bEnd]) => {
-    const tm=toMin(t), bs=toMin(bStart), be=toMin(bEnd);
-    return tm >= bs && tm < be;
+function blockByBusy(slots, busy){
+  const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m;};
+  return slots.map(t=>{
+    const tm=toMin(t);
+    const busyNow=(busy||[]).some(([bStart,bEnd])=>tm>=toMin(bStart)&&tm<toMin(bEnd));
+    return { time:t, available:!busyNow };
   });
-  return slots.map(t => ({ time: t, available: !isBusy(t) }));
-}
-async function fetchAvailability(dateStr) {
-  const url = `${API_BASE}/availability?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
-  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-  if (!res.ok) throw new Error('Falha ao consultar disponibilidade');
-  return res.json(); // { officeHours:{start,end}, busy:[[start,end],...], intervalMinutes }
-}
-function renderReagendarSlots(container, availability) {
-  container.innerHTML = '';
-  const { officeHours, busy, intervalMinutes } = availability;
-  const slots = rangeToSlots(officeHours.start, officeHours.end, intervalMinutes || 30);
-  const withStatus = blockByBusy(slots, busy || []);
-  withStatus.forEach(s => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'slot btn btn-sm ' + (s.available ? '' : 'disabled');
-    b.textContent = s.time;
-    b.disabled = !s.available;
-    b.addEventListener('click', () => {
-      if (b.classList.contains('disabled')) return;
-      els('.slot.selected', container).forEach(x=>x.classList.remove('selected'));
-      b.classList.add('selected');
-      el('#reag-selected-time').value = s.time;
-    });
-    container.appendChild(b);
-  });
-  if (!withStatus.some(s=>s.available)) {
-    const msg = document.createElement('div');
-    msg.style.marginTop = '8px';
-    msg.style.color = '#64748b';
-    msg.textContent = 'Sem horários disponíveis nesta data.';
-    container.appendChild(msg);
-  }
 }
 
-/* ===== Google Calendar via n8n ===== */
-// Lista do dia para montar a grade e mostrar botões "Ver"
+/* ===== chamadas ao n8n ===== */
+const BASE = window.CRM_API_BASE;
+
+async function fetchAvailability(dateStr){
+  const url=`${BASE}/availability?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
+  const res=await fetch(url,{headers:{'Accept':'application/json'}});
+  if(!res.ok) throw new Error('Falha ao consultar disponibilidade');
+  return res.json();
+}
 async function fetchDay(dateStr){
-  const url = `${API_BASE}/gcal/day?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
-  const res = await fetch(url, { headers: { 'Accept':'application/json' } });
+  const url=`${BASE}/appointments/day?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
+  const res=await fetch(url,{headers:{'Accept':'application/json'}});
   if(!res.ok) throw new Error('Falha ao buscar agenda do dia');
   return res.json();
-  /* Esperado:
-    {
-      officeHours: { start:"09:00", end:"18:00" },
-      intervalMinutes: 30,
-      events: [
-        {
-          id:"xxx", start:"10:00", end:"11:00",
-          patientName:"Amanda", phone:"...", email:"...",
-          procedure:"Profilaxia", status:"confirmado",
-          dentist:"Dra. Elen Nogata", room:"Sala 1",
-          notes:"...", // opcional
-          log:[{when:"Hoje 09:12", text:"Criado"}, ...] // opcional
-        }, ...
-      ]
-    }
-  */
+}
+async function submitReschedule(payload){
+  const res=await fetch(`${BASE}/appointments/reschedule`,{
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data?.message||'Falha ao reagendar');
+  return data;
+}
+
+/* ===== UI ===== */
+function renderReagendarSlots(container, availability){
+  container.innerHTML='';
+  const { officeHours, busy, intervalMinutes } = availability;
+  const slots=rangeToSlots(officeHours.start, officeHours.end, intervalMinutes||30);
+  const withStatus=blockByBusy(slots, busy||[]);
+  withStatus.forEach(s=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='slot btn btn-sm '+(s.available?'':'disabled');
+    b.textContent=s.time; b.disabled=!s.available;
+    b.onclick=()=>{
+      if(!s.available) return;
+      els('.slot.selected',container).forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected'); el('#reag-selected-time').value=s.time;
+    };
+    container.appendChild(b);
+  });
+  if(!withStatus.some(s=>s.available)){
+    container.insertAdjacentHTML('beforeend','<div class="text-muted mt-2">Sem horários disponíveis nesta data.</div>');
+  }
 }
 function statusBadge(status){
-  const s = (status||'').toLowerCase();
+  const s=(status||'').toLowerCase();
   if(s.includes('confirm')) return '<span class="badge-soft bg-soft-green">Confirmado</span>';
   if(s.includes('pend')||s.includes('pré')) return '<span class="badge-soft bg-soft-amber">Pendente</span>';
   if(s.includes('cancel')) return '<span class="badge-soft bg-soft-red">Cancelado</span>';
   return '<span class="badge-soft">Livre</span>';
 }
 
-/* ===== Tabela do dia ===== */
-function buildDayTable(container, dayData){
-  const tbody = container;
-  tbody.innerHTML = '';
-  const start = dayData.officeHours?.start || '08:00';
-  const end   = dayData.officeHours?.end   || '18:00';
-  const step  = dayData.intervalMinutes || 30;
-  const slots = rangeToSlots(start, end, step);
-  const evByStart = {};
-  (dayData.events||[]).forEach(ev => { evByStart[ev.start] = ev; });
-
-  slots.forEach(hhmm => {
-    const ev = evByStart[hhmm];
+function buildDayTable(tbody, dayData){
+  tbody.innerHTML='';
+  const start=dayData.officeHours?.start||'08:00';
+  const end=dayData.officeHours?.end||'18:00';
+  const step=dayData.intervalMinutes||30;
+  const slots=rangeToSlots(start,end,step);
+  const evByStart={}; (dayData.events||[]).forEach(ev=>{evByStart[ev.start]=ev;});
+  slots.forEach(hhmm=>{
+    const ev=evByStart[hhmm];
     if(!ev){
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${hhmm}</td><td>-</td><td>-</td><td>${statusBadge('livre')}</td><td></td>`;
-      tbody.appendChild(tr);
-    } else {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${ev.start}</td>
-        <td>${ev.patientName||'-'}</td>
-        <td>${ev.procedure||'-'}</td>
-        <td>${statusBadge(ev.status)}</td>
-        <td>
-          <a href="javascript:void(0)"
-             class="btn btn-sm btn-outline-secondary btn-pill agenda-item"
-             data-id="${ev.id||''}"
-             data-paciente="${ev.patientName||''}"
-             data-phone="${ev.phone||''}"
-             data-email="${ev.email||''}"
-             data-proc="${ev.procedure||''}"
-             data-status="${ev.status||''}"
-             data-date="${el('#flt-date').value || ymdToday()}"
-             data-start="${ev.start||''}"
-             data-dur="${ev.durationMin||step}"
-             data-dentista="${ev.dentist||''}"
-             data-sala="${ev.room||''}"
-             data-notas="${(ev.notes||'').replace(/"/g,'&quot;')}">
-            Ver
-          </a>
-        </td>`;
-      tbody.appendChild(tr);
+      tbody.insertAdjacentHTML('beforeend', `<tr><td>${hhmm}</td><td>-</td><td>-</td><td>${statusBadge('livre')}</td><td></td></tr>`);
+    }else{
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td>${ev.start}</td>
+          <td>${ev.patientName||'-'}</td>
+          <td>${ev.procedure||'-'}</td>
+          <td>${statusBadge(ev.status)}</td>
+          <td>
+            <a href="javascript:void(0)" class="btn btn-sm btn-outline-secondary btn-pill agenda-item"
+               data-id="${ev.id||''}"
+               data-paciente="${ev.patientName||''}"
+               data-phone="${ev.phone||''}"
+               data-email="${ev.email||''}"
+               data-proc="${ev.procedure||''}"
+               data-status="${ev.status||''}"
+               data-date="${el('#flt-date').value}"
+               data-start="${ev.start||''}"
+               data-dur="${ev.durationMin||step}"
+               data-dentista="${ev.dentist||''}"
+               data-sala="${ev.room||''}"
+               data-notas="${(ev.notes||'').replace(/"/g,'&quot;')}">Ver</a>
+          </td>
+        </tr>`);
     }
   });
 }
 
-/* ===== Modal Ver agendamento ===== */
-const STATUS_MAP = {
-  "confirmado":        { label: "Confirmado",        klass: "bg-soft-green" },
-  "pré-agendamento":   { label: "Pré-agendamento",   klass: "bg-soft-amber" },
-  "pendente":          { label: "Pendente",          klass: "bg-soft-amber" },
-  "aguardando":        { label: "Aguardando",        klass: "bg-soft-blue"  },
-  "cancelado":         { label: "Cancelado",         klass: "bg-soft-red"   },
-  "compareceu":        { label: "Compareceu",        klass: "bg-soft-purple"},
-  "faltou":            { label: "Faltou",            klass: "bg-soft-gray"  }
+/* ===== modal “ver” & reagendar ===== */
+const STATUS_MAP={
+  confirmado: {label:'Confirmado',klass:'bg-soft-green'},
+  'pré-agendamento': {label:'Pré-agendamento',klass:'bg-soft-amber'},
+  pendente: {label:'Pendente',klass:'bg-soft-amber'},
+  aguardando: {label:'Aguardando',klass:'bg-soft-blue'},
+  cancelado: {label:'Cancelado',klass:'bg-soft-red'},
+  compareceu: {label:'Compareceu',klass:'bg-soft-purple'},
+  faltou: {label:'Faltou',klass:'bg-soft-gray'},
 };
-function toWhats(raw){
-  const digits = (raw||'').replace(/\D/g,''); if(!digits) return 'javascript:void(0)';
-  const d = digits.length===11 ? `55${digits}` : digits; return `https://wa.me/${d}`;
-}
+const toWhats=raw=>{const d=(raw||'').replace(/\D/g,''); if(!d) return 'javascript:void(0)'; return `https://wa.me/${d.length===11?`55${d}`:d}`;};
+
 function openVerModal(data){
-  el('#ver-proc').textContent  = data.procedimento || '-';
-  el('#ver-proc2').textContent = data.procedimento || '-';
+  el('#ver-proc').textContent=data.procedimento||'-';
+  el('#ver-proc2').textContent=data.procedimento||'-';
 
-  const stKey = (data.status||'confirmado').toLowerCase();
-  const map   = STATUS_MAP[stKey] || STATUS_MAP['confirmado'];
-  const badge = el('#ver-status');
-  badge.textContent = map.label;
-  badge.className   = `badge-soft ${map.klass}`;
+  const map=STATUS_MAP[(data.status||'confirmado').toLowerCase()]||STATUS_MAP.confirmado;
+  const badge=el('#ver-status'); badge.textContent=map.label; badge.className=`badge-soft ${map.klass}`;
 
-  const when = `${fmtBR(data.date)} • ${data.start}`;
-  el('#ver-when').textContent     = when;
-  el('#ver-datahora').textContent = `${when} — Duração ${data.durMin||60} min`;
+  const when=`${fmtBR(data.date)} • ${data.start}`;
+  el('#ver-when').textContent=when;
+  el('#ver-datahora').textContent=`${when} — Duração ${data.durMin||60} min`;
 
-  el('#ver-paciente').textContent = data.paciente || '-';
-  el('#ver-whats').href           = toWhats(data.phone);
-  el('#ver-mail').href            = `mailto:${data.email||''}`;
+  el('#ver-paciente').textContent=data.paciente||'-';
+  el('#ver-whats').href=toWhats(data.phone);
+  el('#ver-mail').href=`mailto:${data.email||''}`;
+  el('#ver-dentista').textContent=data.dentista||'—';
+  el('#ver-sala').textContent=data.sala||'—';
+  el('#ver-dur').textContent=`${data.durMin||60} min`;
+  el('#ver-notas').textContent=data.notas||'—';
 
-  el('#ver-dentista').textContent = data.dentista || '—';
-  el('#ver-sala').textContent     = data.sala || '—';
-  el('#ver-dur').textContent      = `${data.durMin||60} min`;
-  el('#ver-notas').textContent    = data.notas || '—';
-
-  const log = el('#ver-log'); log.innerHTML = '';
-  (data.log||[
-    { when:'Hoje 09:12', text:'Agendamento sincronizado com Google Calendar.' }
-  ]).forEach(e=>{
-    const li = document.createElement('li');
-    li.className = 'py-1 border-bottom';
-    li.innerHTML = `<span class="muted">${e.when}</span> — ${e.text}`;
-    log.appendChild(li);
+  const log=el('#ver-log'); log.innerHTML='';
+  (data.log||[{when:'Hoje 09:12',text:'Agendamento sincronizado com Google Calendar.'}]).forEach(e=>{
+    log.insertAdjacentHTML('beforeend', `<li class="py-1 border-bottom"><span class="muted">${e.when}</span> — ${e.text}</li>`);
   });
 
-  document.body._currentEvent = data;
-
-  el('#btn-enviar-lembr').onclick = ()=> alert('Lembrete enviado ✅');
-  el('#btn-confirmar').onclick    = ()=> { badge.textContent = STATUS_MAP['confirmado'].label; badge.className = `badge-soft ${STATUS_MAP['confirmado'].klass}`; alert('Agendamento confirmado ✅'); };
-  el('#btn-cancelar').onclick     = ()=> { if(confirm('Confirmar cancelamento?')){ badge.textContent = STATUS_MAP['cancelado'].label; badge.className = `badge-soft ${STATUS_MAP['cancelado'].klass}`; alert('Agendamento cancelado ✅'); } };
-
-  // >>> Reagendar abre o modal com slots do dia selecionado
-  el('#btn-reagendar').onclick = ()=> openReagendarModal(data);
+  document.body._currentEvent=data;
+  el('#btn-enviar-lembr').onclick=()=>alert('Lembrete enviado ✅');
+  el('#btn-confirmar').onclick =()=>{badge.textContent=STATUS_MAP.confirmado.label;badge.className=`badge-soft ${STATUS_MAP.confirmado.klass}`;alert('Agendamento confirmado ✅');};
+  el('#btn-cancelar').onclick  =()=>{if(confirm('Confirmar cancelamento?')){badge.textContent=STATUS_MAP.cancelado.label;badge.className=`badge-soft ${STATUS_MAP.cancelado.klass}`;alert('Agendamento cancelado ✅');}};
+  el('#btn-reagendar').onclick =()=>openReagendarModal(data);
 
   $('#md-agenda-ver').modal('show');
 }
 
-/* ===== Modal Reagendar ===== */
 async function openReagendarModal(evData){
-  // Preenche e carrega disponibilidade
-  el('#reag-eventId').value = evData.id || '';
-  const dateInput = el('#reag-date');
-  dateInput.value = evData.date;
-  // min hoje, máx +60d
-  const today = new Date(); today.setHours(0,0,0,0);
-  dateInput.min = today.toISOString().slice(0,10);
-  const max = new Date(today.getTime() + 60*24*3600*1000);
-  dateInput.max = max.toISOString().slice(0,10);
+  el('#reag-eventId').value=evData.id||'';
+  const dateInput=el('#reag-date'); dateInput.value=evData.date;
+  const today=new Date(); today.setHours(0,0,0,0);
+  dateInput.min=today.toISOString().slice(0,10);
+  const max=new Date(today.getTime()+60*24*3600*1000); dateInput.max=max.toISOString().slice(0,10);
+  el('#reag-selected-time').value='';
 
-  el('#reag-selected-time').value = '';
-
-  const loadSlots = async (dateStr)=>{
-    el('#reag-slots').innerHTML = 'Carregando...';
-    try{
-      const avail = await fetchAvailability(dateStr); // via n8n
-      renderReagendarSlots(el('#reag-slots'), avail);
-    }catch(err){
-      el('#reag-slots').innerHTML = '<div class="text-danger">Erro ao carregar horários.</div>';
-      console.error(err);
-    }
+  const loadSlots=async dateStr=>{
+    el('#reag-slots').innerHTML='Carregando...';
+    try{ renderReagendarSlots(el('#reag-slots'), await fetchAvailability(dateStr)); }
+    catch{ el('#reag-slots').innerHTML='<div class="text-danger">Erro ao carregar horários.</div>'; }
   };
-  dateInput.onchange = (e)=>{ el('#reag-selected-time').value=''; loadSlots(e.target.value); };
-
+  dateInput.onchange=e=>{ el('#reag-selected-time').value=''; loadSlots(e.target.value); };
   await loadSlots(evData.date);
   $('#md-reagendar').modal('show');
 }
 
-/* Enviar reagendamento para n8n -> Google Calendar */
-async function submitReschedule(payload){
-  const res = await fetch(`${API_BASE}/gcal/reschedule`, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json().catch(()=> ({}));
-  if(!res.ok) throw new Error(data?.message || 'Falha ao reagendar');
-  return data; // { ok:true, eventId: "...", start:"...", end:"..." }
-}
-
-/* ===== Boot ===== */
+/* ===== boot ===== */
 document.addEventListener('DOMContentLoaded', async ()=>{
-  // Sidebar ativa
-  const markActive = () => {
-    const cur = document.querySelector('.crm-nav [data-nav="agenda"]');
-    if (cur) cur.classList.add('active');
-  };
-  markActive(); setTimeout(markActive, 200);
+  const dateIn=el('#flt-date'); dateIn.value=ymdToday();
+  el('#agenda-dia-titulo').textContent=`Dia ${fmtBR(dateIn.value)}`;
 
-  // Data padrão = hoje
-  const dateIn = el('#flt-date');
-  dateIn.value = ymdToday();
-  el('#agenda-dia-titulo').textContent = `Dia ${fmtBR(dateIn.value)}`;
-
-  // Carrega o dia do n8n/Google Calendar
   async function loadDay(){
-    el('#agenda-dia-titulo').textContent = `Dia ${fmtBR(dateIn.value)}`;
-    const tbody = el('#agenda-tbody');
-    tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+    el('#agenda-dia-titulo').textContent=`Dia ${fmtBR(dateIn.value)}`;
+    const tbody=el('#agenda-tbody'); tbody.innerHTML='<tr><td colspan="5">Carregando...</td></tr>';
     try{
-      const day = await fetchDay(dateIn.value);
-      el('#agenda-intervalo').textContent = `Intervalo de ${day.intervalMinutes||30} min`;
+      const day=await fetchDay(dateIn.value);
+      el('#agenda-intervalo').textContent=`Intervalo de ${day.intervalMinutes||30} min`;
       buildDayTable(tbody, day);
-    }catch(err){
-      tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erro ao carregar agenda do dia.</td></tr>';
-      console.error(err);
+    }catch(e){
+      tbody.innerHTML='<tr><td colspan="5" class="text-danger">Erro ao carregar agenda do dia.</td></tr>';
+      console.error(e);
     }
   }
   el('#btn-filtrar').addEventListener('click', loadDay);
   await loadDay();
 
-  // Abrir “Ver” a partir da tabela
-  document.addEventListener('click', (ev)=>{
-    const a = ev.target.closest('.agenda-item');
-    if(!a) return;
-    const data = {
-      id:         a.dataset.id,
-      paciente:   a.dataset.paciente,
-      phone:      a.dataset.phone,
-      email:      a.dataset.email,
-      procedimento: a.dataset.proc,
-      status:     a.dataset.status,
-      date:       a.dataset.date,
-      start:      a.dataset.start,
-      durMin:     Number(a.dataset.dur || 60),
-      dentista:   a.dataset.dentista,
-      sala:       a.dataset.sala,
-      notas:      a.dataset.notas
-    };
-    openVerModal(data);
+  document.addEventListener('click', ev=>{
+    const a=ev.target.closest('.agenda-item'); if(!a) return;
+    openVerModal({
+      id:a.dataset.id, paciente:a.dataset.paciente, phone:a.dataset.phone, email:a.dataset.email,
+      procedimento:a.dataset.proc, status:a.dataset.status, date:a.dataset.date, start:a.dataset.start,
+      durMin:Number(a.dataset.dur||60), dentista:a.dataset.dentista, sala:a.dataset.sala, notas:a.dataset.notas
+    });
   });
 
-  // Submit reagendar
-  el('#form-reagendar').addEventListener('submit', async (e)=>{
+  el('#form-reagendar').addEventListener('submit', async e=>{
     e.preventDefault();
-    const eventId = el('#reag-eventId').value;
-    const date    = el('#reag-date').value;
-    const time    = el('#reag-selected-time').value;
-    if(!time){ el('#reag-feedback').innerHTML = '<div class="text-danger">Selecione o horário.</div>'; return; }
-    el('#reag-feedback').innerHTML = 'Reagendando...';
+    const eventId=el('#reag-eventId').value, date=el('#reag-date').value, time=el('#reag-selected-time').value;
+    if(!time){ el('#reag-feedback').innerHTML='<div class="text-danger">Selecione o horário.</div>'; return; }
+    el('#reag-feedback').innerHTML='Reagendando...';
     try{
-      const resp = await submitReschedule({ eventId, date, time, tz: TIMEZONE });
-      el('#reag-feedback').innerHTML = '<div class="text-success">Reagendado com sucesso!</div>';
-      // Fecha e recarrega o dia
-      setTimeout(()=>{
-        $('#md-reagendar').modal('hide');
-        $('#md-agenda-ver').modal('hide');
-        document.body._currentEvent = null;
-        el('#reag-feedback').innerHTML = '';
-        el('#reag-selected-time').value = '';
-        // recarrega tabela
-        (async ()=>{ await loadDay(); })();
+      await submitReschedule({ eventId, date, time, tz: TIMEZONE });
+      el('#reag-feedback').innerHTML='<div class="text-success">Reagendado com sucesso!</div>';
+      setTimeout(async ()=>{
+        $('#md-reagendar').modal('hide'); $('#md-agenda-ver').modal('hide');
+        el('#reag-feedback').innerHTML=''; el('#reag-selected-time').value='';
+        await loadDay();
       }, 400);
     }catch(err){
-      el('#reag-feedback').innerHTML = `<div class="text-danger">${err.message}</div>`;
+      el('#reag-feedback').innerHTML=`<div class="text-danger">${err.message}</div>`;
       console.error(err);
     }
   });
 });
 </script>
-<script src="js/crm-api.js"></script>
 </body>
 </html>
-
-
-
-
-

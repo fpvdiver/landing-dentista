@@ -1,12 +1,13 @@
 :root{
   --primary:#0ea5e9; --accent:#fbbf24; --ink:#0f172a; --muted:#64748b;
   --bg:#f7f8fb; --panel:#ffffff; --chip:#f1f5f9; --ring:#e2e8f0;
+  --sidebar-w: 280px; 
 }
 html,body{height:100%; background:var(--bg); color:var(--ink);}
 
 /* Shell */
 .crm-app{display:flex; min-height:100%;}
-.crm-sidebar{width:260px; background:#fff; border-right:1px solid var(--ring);
+.crm-sidebar{ width: var(--sidebar-w); background:#fff; border-right:1px solid var(--ring);
   padding:16px 12px; position:sticky; top:0; height:100vh;}
 .crm-brand{display:flex; align-items:center; gap:10px; padding:10px 12px;}
 .crm-brand .logo{width:32px; height:32px; border-radius:8px; background:var(--primary); display:inline-block}
@@ -72,6 +73,9 @@ html,body{height:100%; background:var(--bg); color:var(--ink);}
   box-shadow:0 1px 2px rgba(0,0,0,.06);
   position:fixed; left:12px; top:12px;
   z-index:1050;
+  left: max(12px, env(safe-area-inset-left));   /* respeita notch/iOS */
+  top: 12px;
+  transition: left .25s ease;
 }
 
 /* ====== overlay (escurece o fundo no mobile) ====== */
@@ -97,6 +101,9 @@ html,body{height:100%; background:var(--bg); color:var(--ink);}
   .crm-app.sidebar-open .crm-sidebar{
     transform:translateX(0);
     box-shadow:0 10px 30px rgba(0,0,0,.18);
+  }
+  .crm-app.sidebar-open .crm-burger{
+    left: calc(var(--sidebar-w) + max(12px, env(safe-area-inset-left)));
   }
 
   .crm-burger{ display:inline-flex; }   /* exibe botão no mobile */
@@ -190,6 +197,7 @@ html, body { overflow-x: hidden; }
 
 /* evita scroll lateral quando off-canvas existe */
 html,body{overflow-x:hidden;}
+
 
 
 

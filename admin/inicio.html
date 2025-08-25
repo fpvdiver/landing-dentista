@@ -1,0 +1,591 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRM Odonto – Início</title>
+  <link rel="stylesheet" href="../css/bootstrap.css">
+  <link rel="stylesheet" href="css/crm.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Inclua em TODAS as páginas, após Font Awesome / Bootstrap -->
+<script src="js/sidebar.js"></script>
+
+</head>
+<body data-page="inicio">
+<div class="crm-app">
+ <!-- sidebar + shell comum -->
+<div class="crm-app">
+  <aside class="crm-sidebar">
+    <div class="crm-brand">
+      <span class="logo"></span>
+      <div>
+        <div style="font-weight:800; font-size:18px;">OdontoCRM</div>
+        <div style="color:var(--muted); font-size:12px;">Clínica Elen Nogata</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
+      <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+      <a href="pacientes.html" data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
+      <a href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
+      <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
+      <a href="campanhas.html" data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
+      <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </nav>
+    <div class="crm-footer">
+      <div>Conectado como <strong>admin@clinica</strong></div>
+      <div>v0.1</div>
+    </div>
+  </aside>
+
+  <main class="crm-main">
+    <section class="crm-hero">
+      <h1 class="text-center mb-1">O que você quer fazer hoje?</h1>
+      <div class="tabs justify-content-center">
+        <div class="pill active">Minha clínica</div>
+        <div class="pill">Fluxos</div>
+        <div class="pill">Agente IA</div>
+      </div>
+      <div class="crm-search">
+        <i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i>
+        <input placeholder="Busque por paciente, agendamento, orçamento..." />
+        <button class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
+      </div>
+      <div class="search-hint">Dica: “@amanhã” ou “#implante”.</div>
+      <div class="crm-quick container-fluid">
+        <div class="crm-chip"><i class="fa-regular fa-calendar-plus"></i> Novo agendamento</div>
+        <div class="crm-chip"><i class="fa-regular fa-user"></i> Novo paciente</div>
+        <div class="crm-chip"><i class="fa-regular fa-clipboard"></i> Novo orçamento</div>
+        <div class="crm-chip"><i class="fa-solid fa-tooth"></i> Procedimentos</div>
+      </div>
+    </section>
+
+    <section class="crm-content">
+      <div class="row">
+        <div class="col-lg-6 mb-3">
+          <div class="crm-card">
+            <div class="crm-head-row"><h5 class="mb-0">Registros recentes</h5></div>
+            <ul class="list-unstyled mb-0">
+              <li class="py-2 border-bottom"><span class="badge-soft bg-soft-green mr-2">Agendado</span> Implante – Emiliane • 23/08 16:45</li>
+              <li class="py-2 border-bottom"><span class="badge-soft bg-soft-amber mr-2">Pré-agendamento</span> Clareamento – Felipe • 22/08 17:00</li>
+              <li class="py-2"> <span class="badge-soft bg-soft-purple mr-2">Contato</span> Avaliação – Fúlvio • 21/08 18:00</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+          <div class="crm-card mb-3">
+            <div class="d-flex justify-content-between">
+              <div><div class="muted">Negociações</div><div class="h4 mb-0">192</div></div>
+              <div><div class="muted">Contatos</div><div class="h4 mb-0">196</div></div>
+              <div><div class="muted">Conversão</div><div class="h4 mb-0">28,1%</div></div>
+              <div><div class="muted">Receita</div><div class="h4 mb-0">R$ 4.981,15</div></div>
+            </div>
+          </div>
+          <div class="crm-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="font-weight-bold">Próximos agendamentos</div>
+              <a href="agenda.html" class="btn btn-sm btn-outline-secondary btn-pill">Ver agenda</a>
+            </div>
+            <ul class="list-unstyled mb-0">
+              <li class="py-2 border-bottom"><i class="fa-regular fa-clock mr-2" style="color:#10b981"></i> Amanhã 10:00 – Profilaxia (Amanda)</li>
+              <li class="py-2 border-bottom"><i class="fa-regular fa-clock mr-2" style="color:#10b981"></i> Amanhã 14:00 – Endodontia (Bruna)</li>
+              <li class="py-2"><i class="fa-regular fa-clock mr-2" style="color:#10b981"></i> 3ªf 09:30 – Avaliação (Carlos)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ====== MODAIS – INÍCIO ====== -->
+<style>
+  /* toque visual dos modais no tema */
+  .modal-header.themed{
+    background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);
+    border-bottom:1px solid var(--ring);
+  }
+  .modal-header .modal-title{font-weight:800; letter-spacing:.2px;}
+  .form-section-title{
+    font-size:12px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:.08em; font-weight:700; margin:8px 0 4px;
+  }
+  .table-mini td,.table-mini th{padding:.55rem .6rem;}
+  .w-44{width:44px;}
+  .btn-pill{border-radius:999px;}
+  .chip-inline{display:inline-flex; align-items:center; gap:8px; padding:6px 10px;
+    border:1px solid var(--ring); border-radius:999px; background:#fff;}
+</style>
+
+<!-- md: NOVO AGENDAMENTO -->
+<div class="modal fade" id="md-agendamento" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title"><i class="fa-regular fa-calendar-plus mr-2"></i>Novo agendamento</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
+      </div>
+      <form id="form-agendamento">
+        <div class="modal-body">
+          <div class="form-section-title">Paciente</div>
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label>Nome do paciente</label>
+              <input list="dl-pacientes" class="form-control" name="paciente" placeholder="Digite para buscar ou cadastrar">
+              <datalist id="dl-pacientes">
+                <option value="Felipe Lima">
+                <option value="Amanda">
+                <option value="Bruna">
+                <option value="Emiliane">
+              </datalist>
+            </div>
+            <div class="form-group col-md-4 d-flex align-items-end">
+              <button type="button" class="btn btn-outline-secondary btn-pill w-100" data-toggle="modal" data-target="#md-paciente">
+                <i class="fa-regular fa-user mr-1"></i> Novo paciente
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Telefone (WhatsApp)</label>
+              <input class="form-control" name="phone" placeholder="(11) 9 9999-9999">
+            </div>
+            <div class="form-group col-md-4">
+              <label>E-mail</label>
+              <input type="email" class="form-control" name="email" placeholder="email@exemplo.com">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Preferência de contato</label>
+              <select class="form-control" name="channel">
+                <option>WhatsApp</option><option>E-mail</option><option>Telefone</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Atendimento</div>
+          <div class="form-row">
+            <div class="form-group col-md-5">
+              <label>Procedimento</label>
+              <select class="form-control" name="proc" id="ag-proc">
+                <option value="Profilaxia" data-dur="30">Profilaxia</option>
+                <option value="Clareamento" data-dur="60">Clareamento</option>
+                <option value="Endodontia" data-dur="60">Endodontia</option>
+                <option value="Implante unitário" data-dur="90">Implante unitário</option>
+              </select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Data</label>
+              <input type="date" class="form-control" name="date" required>
+            </div>
+            <div class="form-group col-md-2">
+              <label>Hora</label>
+              <input type="time" class="form-control" name="time" step="1800" required>
+            </div>
+            <div class="form-group col-md-2">
+              <label>Duração</label>
+              <select class="form-control" name="dur" id="ag-dur">
+                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Dentista</label>
+              <select class="form-control" name="doctor">
+                <option>Dra. Elen Nogata</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Observações</label>
+              <input class="form-control" name="notes" placeholder="Anote algo importante (opcional)">
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="chip-inline"><input type="checkbox" class="mr-2" name="send_whats">WhatsApp</span>
+              <span class="chip-inline ml-2"><input type="checkbox" class="mr-2" name="send_mail">E-mail</span>
+              <span class="chip-inline ml-2"><input type="checkbox" class="mr-2" name="send_sms">SMS</span>
+            </div>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="ag-status" checked>
+              <label class="custom-control-label" for="ag-status">Confirmado</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
+          <button class="btn btn-outline-secondary btn-pill" type="button" id="agendar-salvar">Salvar</button>
+          <button class="btn btn-primary btn-pill" type="submit" id="agendar-enviar">Salvar & Enviar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- md: NOVO PACIENTE -->
+<div class="modal fade" id="md-paciente" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title"><i class="fa-regular fa-user mr-2"></i>Novo paciente</h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <form id="form-paciente">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label>Nome completo</label>
+              <input class="form-control" name="name" required>
+            </div>
+            <div class="form-group col-md-4">
+              <label>CPF (opcional)</label>
+              <input class="form-control" name="cpf">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label>Nascimento</label>
+              <input type="date" class="form-control" name="dob">
+            </div>
+            <div class="form-group col-md-3">
+              <label>Sexo</label>
+              <select class="form-control" name="gender">
+                <option>Feminino</option><option>Masculino</option><option>Outro</option>
+              </select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Telefone</label>
+              <input class="form-control" name="phone" placeholder="(11) 9 9999-9999">
+            </div>
+            <div class="form-group col-md-3">
+              <label>E-mail</label>
+              <input type="email" class="form-control" name="email">
+            </div>
+          </div>
+
+          <div class="form-section-title">Endereço</div>
+          <div class="form-row">
+            <div class="form-group col-md-3"><label>CEP</label><input class="form-control" name="cep"></div>
+            <div class="form-group col-md-6"><label>Logradouro</label><input class="form-control" name="street"></div>
+            <div class="form-group col-md-3"><label>Número</label><input class="form-control" name="number"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4"><label>Bairro</label><input class="form-control" name="district"></div>
+            <div class="form-group col-md-5"><label>Cidade</label><input class="form-control" name="city"></div>
+            <div class="form-group col-md-3"><label>UF</label><input class="form-control" name="uf" maxlength="2"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Como nos conheceu?</label>
+              <select class="form-control" name="source">
+                <option>Indicação</option><option>Instagram</option><option>Google</option><option>Outros</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Observações</label>
+              <input class="form-control" name="notes" placeholder="Alergias, preferências...">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary btn-pill" type="submit">Salvar paciente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- md: NOVO ORÇAMENTO -->
+<div class="modal fade" id="md-orcamento" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title"><i class="fa-regular fa-clipboard mr-2"></i>Novo orçamento</h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <form id="form-orc">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group col-md-5">
+              <label>Paciente</label>
+              <input list="dl-pacientes" class="form-control" name="paciente" required>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Validade</label>
+              <input type="date" class="form-control" name="validade">
+            </div>
+            <div class="form-group col-md-2">
+              <label>Status</label>
+              <select class="form-control" name="status">
+                <option>Rascunho</option><option>Enviado</option><option>Aprovado</option>
+              </select>
+            </div>
+            <div class="form-group col-md-2">
+              <label>Canal</label>
+              <select class="form-control" name="canal">
+                <option>WhatsApp</option><option>E-mail</option><option>Imprimir</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Itens</div>
+          <div class="table-responsive">
+            <table class="table table-mini" id="orc-table">
+              <thead>
+                <tr>
+                  <th style="min-width:220px">Procedimento</th>
+                  <th class="w-44 text-center">Qtd</th>
+                  <th style="width:140px">Valor unit. (R$)</th>
+                  <th style="width:120px">Subtotal (R$)</th>
+                  <th style="width:60px"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <button type="button" class="btn btn-outline-secondary btn-pill" id="orc-add">
+            <i class="fa-solid fa-plus mr-1"></i> Adicionar item
+          </button>
+
+          <div class="row mt-3">
+            <div class="col-lg-5">
+              <label>Observações / Condições</label>
+              <textarea class="form-control" name="obs" rows="4" placeholder="Formas de pagamento, prazos, observações clínicas..."></textarea>
+            </div>
+            <div class="col-lg-7">
+              <div class="crm-card">
+                <div class="d-flex justify-content-between">
+                  <div class="muted">Subtotal</div><div id="orc-subtotal">R$ 0,00</div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                  <div class="muted">Desconto</div>
+                  <div class="d-flex" style="gap:8px;">
+                    <input type="number" class="form-control form-control-sm" id="orc-desc" style="width:120px" value="0">
+                    <select class="form-control form-control-sm" id="orc-desc-type" style="width:90px">
+                      <option value="abs">R$</option><option value="pct">%</option>
+                    </select>
+                  </div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between h5 mb-0">
+                  <div>Total</div><div id="orc-total">R$ 0,00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
+          <button class="btn btn-outline-secondary btn-pill" type="button" id="orc-salvar">Salvar rascunho</button>
+          <button class="btn btn-primary btn-pill" type="submit" id="orc-enviar">
+            <i class="fa-brands fa-whatsapp mr-1"></i> Enviar/Finalizar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- md: PROCEDIMENTOS (gerenciar) -->
+<div class="modal fade" id="md-procedimentos" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title"><i class="fa-solid fa-tooth mr-2"></i>Procedimentos</h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-mini mb-3" id="proc-table">
+            <thead><tr><th>Nome</th><th>Duração</th><th>Preço (R$)</th><th>Código</th><th style="width:60px"></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="crm-card">
+          <div class="form-row">
+            <div class="form-group col-md-5"><label>Nome</label><input class="form-control" id="proc-name"></div>
+            <div class="form-group col-md-2"><label>Duração</label>
+              <select class="form-control" id="proc-dur">
+                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
+              </select>
+            </div>
+            <div class="form-group col-md-3"><label>Preço</label><input type="number" class="form-control" id="proc-price" step="0.01" value="0"></div>
+            <div class="form-group col-md-2"><label>Código</label><input class="form-control" id="proc-code" placeholder="EX-001"></div>
+          </div>
+          <button class="btn btn-primary btn-pill" id="proc-add"><i class="fa-solid fa-plus mr-1"></i> Adicionar</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ====== MODAIS – FIM ====== -->
+
+<script>
+/* ===== Mini “dados” locais para preço de procedimentos ===== */
+const PROC_PRECOS = {
+  "Profilaxia": 150.00,
+  "Clareamento": 1200.00,
+  "Endodontia": 2900.00,
+  "Implante unitário": 4500.00
+};
+
+/* ===== Wire chips -> abrir modais (mantém seu visual) ===== */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.crm-chip').forEach(ch=>{
+    const label = ch.textContent.trim().toLowerCase();
+    ch.addEventListener('click', ()=>{
+      if(label.includes('agendamento')) $('#md-agendamento').modal('show');
+      else if(label.includes('paciente')) $('#md-paciente').modal('show');
+      else if(label.includes('orçamento')) $('#md-orcamento').modal('show');
+      else if(label.includes('procedimentos')) $('#md-procedimentos').modal('show');
+    });
+  });
+
+  /* Agendamento: set duração padrão ao trocar procedimento */
+  const agProc = document.getElementById('ag-proc');
+  const agDur  = document.getElementById('ag-dur');
+  if(agProc && agDur){
+    const setDur = () => {
+      const d = agProc.selectedOptions[0]?.dataset?.dur;
+      if(d){ agDur.value = `${d} min`; }
+    };
+    setDur(); agProc.addEventListener('change', setDur);
+  }
+
+  /* Orçamento – tabela dinâmica */
+  const tbody = document.querySelector('#orc-table tbody');
+  const addRow = () => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select class="form-control orc-proc">
+          ${Object.entries(PROC_PRECOS).map(([n,v])=>`<option value="${n}" data-price="${v}">${n}</option>`).join('')}
+        </select>
+      </td>
+      <td class="text-center"><input type="number" class="form-control form-control-sm orc-qtd" value="1" min="1"></td>
+      <td><input type="number" class="form-control form-control-sm orc-unit" step="0.01" value="0"></td>
+      <td class="orc-sub text-right">0,00</td>
+      <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>
+    `;
+    tbody.appendChild(tr);
+    // preencher preço padrão
+    const select = tr.querySelector('.orc-proc');
+    const unit   = tr.querySelector('.orc-unit');
+    unit.value = Number(select.selectedOptions[0].dataset.price || 0).toFixed(2);
+    calc();
+  };
+  const toBRL = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const calc = () => {
+    let subtotal = 0;
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      const qtd  = Number(tr.querySelector('.orc-qtd').value || 0);
+      const unit = Number(tr.querySelector('.orc-unit').value || 0);
+      const sub  = qtd * unit;
+      tr.querySelector('.orc-sub').textContent = sub.toFixed(2).replace('.',',');
+      subtotal += sub;
+    });
+    document.getElementById('orc-subtotal').textContent = toBRL(subtotal);
+
+    const dval = Number(document.getElementById('orc-desc').value || 0);
+    const dtype= document.getElementById('orc-desc-type').value;
+    const desconto = (dtype==='pct') ? subtotal*(dval/100) : dval;
+    const total = Math.max(0, subtotal - desconto);
+    document.getElementById('orc-total').textContent = toBRL(total);
+  };
+  document.getElementById('orc-add').addEventListener('click', addRow);
+  ['change','input'].forEach(ev=>{
+    document.getElementById('orc-desc').addEventListener(ev, calc);
+    document.getElementById('orc-desc-type').addEventListener(ev, calc);
+  });
+  tbody.addEventListener('input', e=>{
+    if(e.target.classList.contains('orc-proc')){
+      const unit = e.target.closest('tr').querySelector('.orc-unit');
+      unit.value = Number(e.target.selectedOptions[0].dataset.price || 0).toFixed(2);
+    }
+    calc();
+  });
+  tbody.addEventListener('click', e=>{
+    if(e.target.classList.contains('orc-del')){
+      e.preventDefault(); e.target.closest('tr').remove(); calc();
+    }
+  });
+  // adiciona a 1ª linha por padrão
+  addRow();
+
+  /* Procedimentos – lista e inclusão simples */
+  const procTableBody = document.querySelector('#proc-table tbody');
+  const renderProcs = () => {
+    procTableBody.innerHTML = '';
+    Object.entries(PROC_PRECOS).forEach(([nome,preco])=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${nome}</td>
+        <td>60 min</td>
+        <td>${preco.toFixed(2).replace('.',',')}</td>
+        <td>-</td>
+        <td class="text-right">
+          <button class="btn btn-sm btn-outline-secondary btn-pill proc-del" data-name="${nome}">Excluir</button>
+        </td>`;
+      procTableBody.appendChild(tr);
+    });
+  };
+  renderProcs();
+
+  document.getElementById('proc-add').addEventListener('click', ()=>{
+    const name = document.getElementById('proc-name').value.trim();
+    const price= Number(document.getElementById('proc-price').value||0);
+    if(!name){ alert('Informe o nome do procedimento.'); return; }
+    PROC_PRECOS[name] = price;
+    // atualizar selects dependentes
+    const sel = document.getElementById('ag-proc');
+    if(sel && ![...sel.options].some(o=>o.value===name)){
+      const opt = new Option(name, name);
+      opt.dataset.dur="60";
+      sel.add(opt);
+    }
+    renderProcs();
+    // limpar
+    document.getElementById('proc-name').value='';
+    document.getElementById('proc-price').value='0';
+  });
+
+  procTableBody.addEventListener('click', e=>{
+    if(e.target.classList.contains('proc-del')){
+      const name = e.target.dataset.name;
+      delete PROC_PRECOS[name];
+      renderProcs();
+    }
+  });
+
+  /* Submissões simples (mock) */
+  document.getElementById('form-agendamento').addEventListener('submit', e=>{
+    e.preventDefault();
+    $('#md-agendamento').modal('hide');
+    alert('Agendamento salvo e enviado ✅');
+  });
+  document.getElementById('form-paciente').addEventListener('submit', e=>{
+    e.preventDefault();
+    $('#md-paciente').modal('hide');
+    alert('Paciente cadastrado ✅');
+  });
+  document.getElementById('form-orc').addEventListener('submit', e=>{
+    e.preventDefault();
+    $('#md-orcamento').modal('hide');
+    alert('Orçamento finalizado/enviado ✅');
+  });
+});
+</script>
+
+
+<script src="../js/jquery-3.4.1.min.js"></script>
+<script src="../js/bootstrap.js"></script>
+<script src="assets/crm.js"></script>
+</body></html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRM Odonto – Pacientes</title>
+  <link rel="stylesheet" href="../css/bootstrap.css">
+  <link rel="stylesheet" href="css/crm.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body data-page="pacientes">
+<div class="crm-app">
+ <!-- sidebar + shell comum -->
+<div class="crm-app">
+  <aside class="crm-sidebar">
+    <div class="crm-brand">
+      <span class="logo"></span>
+      <div>
+        <div style="font-weight:800; font-size:18px;">OdontoCRM</div>
+        <div style="color:var(--muted); font-size:12px;">Clínica Elen Nogata</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
+      <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+      <a href="pacientes.html" data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
+      <a href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
+      <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
+      <a href="campanhas.html" data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
+      <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </nav>
+    <div class="crm-footer">
+      <div>Conectado como <strong>admin@clinica</strong></div>
+      <div>v0.1</div>
+    </div>
+  </aside>
+  <main class="crm-main">
+    <!-- HERO + CONTENT específicos de cada página aqui -->
+  </main>
+</div>
+  <main class="crm-main">
+    <section class="crm-hero">
+      <h1 class="text-center mb-1">Pacientes</h1>
+      <div class="crm-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input placeholder="Buscar por nome, telefone, e-mail..." />
+        <button class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
+        <a href="#" class="btn btn-sm btn-primary btn-pill ml-auto"><i class="fa-regular fa-user mr-1"></i> Novo paciente</a>
+      </div>
+    </section>
+
+    <section class="crm-content">
+      <div class="crm-card">
+        <table class="table mb-0">
+          <thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Última visita</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Felipe Lima</td><td>(11) 99999-0000</td><td>felipe@email.com</td><td>22/08/2025</td>
+              <td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Prontuário</a> <a class="btn btn-sm btn-primary btn-pill">Agendar</a></td></tr>
+            <tr><td>Amanda</td><td>(11) 98888-1111</td><td>amanda@email.com</td><td>—</td>
+              <td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Prontuário</a> <a class="btn btn-sm btn-primary btn-pill">Agendar</a></td></tr>
+            <tr><td>Bruna</td><td>(11) 97777-2222</td><td>bruna@email.com</td><td>20/08/2025</td>
+              <td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Prontuário</a> <a class="btn btn-sm btn-primary btn-pill">Agendar</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="../js/jquery-3.4.1.min.js"></script><script src="../js/bootstrap.js"></script><script src="assets/crm.js"></script>
+</body></html>

@@ -1,0 +1,95 @@
+/* ===== Admin Bookings (paleta do site) ===== */
+:root{
+  --accent: #ffbe33;
+  --accent-600: #f59e0b;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #64748b;
+  --line: #e5e7eb;
+  --green: #16a34a;
+  --green-badge: #dcfce7;
+  --purple: #7c3aed;
+  --purple-badge: #f3e8ff;
+}
+
+.admin-bookings .title{ margin:0; color:var(--text); font-weight:800; }
+.admin-bookings .subtitle{ color:var(--muted); font-size:14px; }
+
+.admin-bookings .admin-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px; background:var(--card); border:1px solid var(--line);
+  border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,.05); margin-top:10px;
+}
+
+.admin-bookings .btn-primary{
+  border:0; background:var(--accent); color:#1f2937; font-weight:700;
+  padding:10px 16px; border-radius:10px; box-shadow:0 6px 16px rgba(255,190,51,.35);
+}
+.admin-bookings .btn-ghost{
+  border:1px solid var(--line); background:#fff; color:var(--text);
+  padding:10px 14px; border-radius:10px;
+}
+
+.admin-bookings .admin-toolbar{
+  display:flex; gap:12px; align-items:center; margin:14px 0;
+}
+.admin-bookings .search{
+  flex:1; position:relative; background:#fff; border:1px solid var(--line);
+  border-radius:12px; padding:10px 12px 10px 36px;
+}
+.admin-bookings .search i{ position:absolute; left:12px; top:11px; color:var(--muted); }
+.admin-bookings .search input{
+  width:100%; border:0; outline:none; color:var(--text); background:transparent;
+}
+.admin-bookings .filter{ position:relative; }
+.admin-bookings .filter .menu{
+  position:absolute; right:0; top:44px; background:#fff; border:1px solid var(--line);
+  border-radius:10px; box-shadow:0 10px 20px rgba(0,0,0,.08); padding:6px; z-index:20;
+}
+.admin-bookings .filter .menu button{
+  display:block; width:100%; text-align:left; padding:8px 10px; border:0; background:#fff;
+}
+.admin-bookings .filter .menu button:hover{ background:#f3f4f6; }
+
+/* Lista / Cards */
+.admin-bookings .list{ display:flex; flex-direction:column; gap:12px; }
+.admin-bookings .card{
+  display:grid; grid-template-columns:120px 1fr 84px; gap:16px;
+  align-items:center; padding:14px; background:var(--card); border:1px solid var(--line);
+  border-radius:14px; box-shadow:0 10px 24px rgba(0,0,0,.05);
+}
+@media(max-width:700px){
+  .admin-bookings .card{ grid-template-columns:1fr; align-items:flex-start; }
+}
+
+/* Bloco data/hora à esquerda (usa a paleta amarela) */
+.admin-bookings .stamp{
+  background:linear-gradient(180deg, var(--accent), var(--accent-600));
+  color:#1f2937; border-radius:12px; padding:10px; text-align:center;
+  box-shadow:0 6px 16px rgba(255,190,51,.35);
+}
+.admin-bookings .stamp .day{ font-size:18px; font-weight:800; }
+.admin-bookings .stamp .time{ margin-top:8px; font-weight:700; }
+
+/* Conteúdo */
+.admin-bookings .title-row{
+  display:flex; align-items:center; gap:10px; margin-bottom:4px;
+}
+.admin-bookings .client-name{ font-weight:800; color:var(--text); }
+.admin-bookings .desc{ color:var(--muted); font-size:14px; }
+
+.admin-bookings .badges{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+.badge{
+  display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:10px; font-size:13px;
+}
+.badge-date{ background:#eef2ff; color:#1f2937; }
+.badge-time{ background:var(--green-badge); color:var(--green); }
+.badge-client{ background:var(--purple-badge); color:var(--purple); }
+
+.admin-bookings .actions{ display:flex; justify-content:flex-end; gap:10px; }
+.admin-bookings .actions a{
+  width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center;
+  border-radius:10px; border:1px solid var(--line); color:var(--text); background:#fff;
+}
+.admin-bookings .actions a:hover{ background:#f9fafb; }

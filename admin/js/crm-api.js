@@ -1,6 +1,6 @@
 /* js/crm-api.js */
 /** ============ CONFIG ============ **/
-const API_BASE = '/webhooks/odonto'; // ajuste se necessário
+const API_BASE = 'https://allnsnts.app.n8n.cloud/webhook'; // ajuste se necessário
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 /** helper fetch com tratamento de erro */
@@ -299,3 +299,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+

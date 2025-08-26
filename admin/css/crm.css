@@ -104,7 +104,7 @@ html,body{height:100%; background:var(--bg); color:var(--ink);}
     box-shadow:0 10px 30px rgba(0,0,0,.18);
   }
   .crm-app.sidebar-open .crm-burger{
-    left: calc(var(--sidebar-w) + max(12px, env(safe-area-inset-left)));
+    left: calc(var(--sidebar-w) + max(2px, env(safe-area-inset-left)));
   }
 
   .crm-burger{ display:inline-flex; }   /* exibe botão no mobile */
@@ -198,6 +198,7 @@ html, body { overflow-x: hidden; }
 
 /* evita scroll lateral quando off-canvas existe */
 html,body{overflow-x:hidden;}
+
 
 
 

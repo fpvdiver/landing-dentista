@@ -42,7 +42,7 @@ html,body{height:100%; background:var(--bg); color:var(--ink);}
 .crm-card{background:#fff; border:1px solid var(--ring); border-radius:16px; padding:16px; box-shadow:0 8px 30px rgba(15,23,42,.05);}
 .crm-head-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
 .btn-pill{border-radius:999px;}
-.btn-pill-enviar{border-radius:30px; margin-right: 0rem !important;}
+.btn-pill-enviar{border-radius:10px; margin-right: 0rem !important;}
 
 /* Pequenos utilitários */
 .muted{color:var(--muted);}
@@ -198,6 +198,7 @@ html, body { overflow-x: hidden; }
 
 /* evita scroll lateral quando off-canvas existe */
 html,body{overflow-x:hidden;}
+
 
 
 

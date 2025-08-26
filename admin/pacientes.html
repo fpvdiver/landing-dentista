@@ -287,23 +287,21 @@
     let page = 0, pageSize = 20, cache = [];
 
     function row(p) {
-      const name  = p.full_name || p.name || '—';
-      const phone = p.phone || '—';
-      const email = p.email || '—';
-      const last  = p.last_visit_date ? new Date(p.last_visit_date).toLocaleDateString('pt-BR') : '—';
-       return `
+    const name  = p.full_name || p.name || '—';
+    const phone = p.phone || '—';
+    const email = p.email || '—';
+    const last  = p.last_visit_date ? new Date(p.last_visit_date).toLocaleDateString('pt-BR') : '—';
+    return `
       <tr>
         <td>${name}</td>
         <td>${phone}</td>
         <td>${email}</td>
         <td>${last}</td>
         <td class="text-right">
-          <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${id}">Prontuário</a>
-              <a class="btn btn-sm btn-primary btn-pill" href="agenda.html?paciente=${encodeURIComponent(name)}">Agendar</a>
-
+          <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${p.id||''}">Prontuário</a>
+          <a class="btn btn-sm btn-primary btn-pill" href="agenda.html?paciente=${encodeURIComponent(name)}">Agendar</a>
         </td>
-      </tr>
-    `;
+      </tr>`;
   }
 </script>
     function render() {
@@ -427,6 +425,7 @@
 
 </body>
 </html>
+
 
 
 

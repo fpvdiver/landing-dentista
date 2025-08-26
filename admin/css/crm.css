@@ -200,6 +200,38 @@ html, body { overflow-x: hidden; }
 html,body{overflow-x:hidden;}
 
 
+/* ---- ANAMNESE (slides) ---- */
+.anm-modal { border-radius:16px; overflow:hidden; }
+.anm-progress { height:6px; background:#eef2ff; }
+.anm-progress-bar { height:6px; width:0; background:var(--primary); transition:width .2s ease; }
+
+.anm-viewport { position:relative; overflow:hidden; }
+.an-step { min-height: 280px; }
+.an-step + .an-step { margin-top: 0; }
+
+/* um por vez */
+.an-step { display:none; }
+.an-step.active { display:block; animation: anmFade .15s ease; }
+
+@keyframes anmFade { from{opacity:.6; transform:translateY(4px)} to{opacity:1; transform:none} }
+
+/* sim/não estilo chip */
+.yn { display:flex; gap:8px; margin:.25rem 0 .5rem; }
+.yn-opt { border:1px solid var(--ring); border-radius:999px; padding:6px 10px; cursor:pointer; user-select:none; }
+.yn-opt input { display:none; }
+.yn-opt:has(input:checked) { background:#fff; border-color:var(--primary); color:#0369a1; }
+
+/* condicionais */
+.if-yes { display:none; }
+.q:has(.yn-opt input[value="Sim"]:checked) .if-yes { display:block; margin-top:6px; }
+
+/* responsividade */
+@media (max-width: 576px){
+  .anm-modal .modal-dialog { margin:0; max-width:100%; }
+  .anm-modal .modal-content { min-height:100vh; border-radius:0; }
+}
+
+
 
 
 

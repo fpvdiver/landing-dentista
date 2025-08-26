@@ -319,6 +319,53 @@
     loadList('');
   })();
 </script>
+
+  <script>
+  // handler do botão Agendar
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-agendar');
+    if (!btn) return;
+
+    e.preventDefault();
+
+    // lê os dados do dataset
+    const name  = decodeURIComponent(btn.dataset.pName || '');
+    const phone = decodeURIComponent(btn.dataset.pPhone || '');
+    const email = decodeURIComponent(btn.dataset.pEmail || '');
+
+    // abre o modal
+    $('#md-agendamento').modal('show');
+
+    // preenche o form
+    const f = document.getElementById('form-agendamento');
+    if (!f) return;
+
+    f.paciente.value = name;
+    f.phone.value    = phone;
+    f.email.value    = email;
+
+    // heurística simples pro canal preferido
+    const canalSel = f.channel || f.querySelector('[name="channel"]');
+    if (canalSel) {
+      canalSel.value = phone ? 'WhatsApp' : (email ? 'E-mail' : 'WhatsApp');
+    }
+
+    // sugestões: hoje + próximo “slot” inteiro (ex.: 30/60min)
+    const now = new Date();
+    const roundTo = 30; // minutos
+    now.setMinutes(now.getMinutes() + (roundTo - (now.getMinutes() % roundTo || roundTo)));
+    const yyyy = now.getFullYear();
+    const mm   = String(now.getMonth()+1).padStart(2,'0');
+    const dd   = String(now.getDate()).padStart(2,'0');
+    const HH   = String(now.getHours()).padStart(2,'0');
+    const MI   = String(now.getMinutes()).padStart(2,'0');
+
+    f.date.value = `${yyyy}-${mm}-${dd}`;
+    f.time.value = `${HH}:${MI}`;
+  });
+</script>
+
 </body>
 </html>
+
 

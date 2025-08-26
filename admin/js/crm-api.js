@@ -78,18 +78,26 @@
     };
   }
 
-  function attachCepAutofill(formEl){
-    const cepIn = formEl?.querySelector('[name="cep"]');
-    if (!cepIn) return;
-    cepIn.addEventListener('blur', async ()=>{
-      const addr = await buscaCEP(cepIn.value);
-      if (!addr) return;
-      formEl.querySelector('[name="street"]')?.value   = addr.street;
-      formEl.querySelector('[name="district"]')?.value = addr.district;
-      formEl.querySelector('[name="city"]')?.value     = addr.city;
-      formEl.querySelector('[name="uf"]')?.value       = addr.uf;
-    });
-  }
+// substitua a função inteira por esta
+function attachCepAutofill(formEl){
+  const cepIn = formEl?.querySelector('[name="cep"]');
+  if (!cepIn) return;
+
+  const setVal = (sel, val) => {
+    const el = formEl.querySelector(sel);
+    if (el) el.value = val || '';
+  };
+
+  cepIn.addEventListener('blur', async ()=>{
+    const addr = await buscaCEP(cepIn.value);
+    if (!addr) return;
+    setVal('[name="street"]',   addr.street);
+    setVal('[name="district"]', addr.district);
+    setVal('[name="city"]',     addr.city);
+    setVal('[name="uf"]',       addr.uf);
+  });
+}
+
 
   /* ===================== PROCEDURES ===================== */
   let PROCEDURES_CACHE = []; // [{id,name,price,duration,code}]
@@ -387,3 +395,4 @@
     createQuote, addOrcRow, calcOrc,
   };
 })();
+

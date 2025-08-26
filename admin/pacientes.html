@@ -173,18 +173,18 @@
 
 <!-- Configure o prefixo do n8n ANTES do crm-api.js -->
 <script>
-  // Use SEM barra ao final
+  // Sem barra no final!
   window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
-  // opcional: window.CRM_API_KEY = 'sua-chave-se-usar';
+  // opcional: window.CRM_API_KEY = 'sua-chave';
 </script>
 
-<!-- Funções de API (seu arquivo) -->
+<!-- Funções de API gerais (CEP etc) -->
 <script src="js/crm-api.js"></script>
 
 <script>
-  // Render de uma linha
+  // ------- Helpers de renderização
   function row(p) {
-    const name = p.full_name || p.name || '—';
+    const name  = p.full_name || p.name || '—';
     const phone = p.phone || '—';
     const email = p.email || '—';
     const last  = p.last_visit_date ? new Date(p.last_visit_date).toLocaleDateString('pt-BR') : '—';
@@ -201,37 +201,44 @@
       </tr>`;
   }
 
+  // ------- Fetch robusto
+  const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,''); // remove barras finais
+  async function fetchJSON(url) {
+    const res = await fetch(url, { headers: { 'Accept':'application/json', 'Cache-Control':'no-cache' }});
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error(`Resposta inválida do servidor: ${text.slice(0,200)}`);
+    }
+  }
+  async function fetchPatients(q) {
+    const url = q && q.trim().length >= 2
+      ? `${API_BASE}/patients/search?q=${encodeURIComponent(q)}`
+      : `${API_BASE}/patients?limit=50`;
+    console.debug('[GET]', url);
+    const data = await fetchJSON(url);
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.items)) return data.items;
+    return [];
+  }
+
+  // ------- UI / Paginação
   let page=0, pageSize=20, currentQuery='';
   let lastBatch = [];
 
-  async function fetchPatients({ query='' } = {}) {
-    try {
-      // quando buscar, usa /patients/search; caso contrário, lista simples
-      if ((query||'').trim().length >= 2) {
-        const resp = await api('/patients/search' + '?' + new URLSearchParams({ q: query }).toString());
-        return Array.isArray(resp) ? resp : (resp?.data || resp?.items || []);
-      } else {
-        const resp = await api('/patients' + '?' + new URLSearchParams({ limit: 50 }).toString());
-        return Array.isArray(resp) ? resp : (resp?.data || resp?.items || []);
-      }
-    } catch (e) {
-      console.error('fetchPatients error:', e);
-      throw e;
-    }
-  }
-
-  async function loadList({ q='', reset=false } = {}) {
-    if (reset) { page = 0; currentQuery = q; }
-
+  async function loadList({q='', reset=false}={}) {
     const tbody = document.getElementById('pac-tbody');
-    tbody.innerHTML = `<tr><td colspan="5" class="empty-hint">Carregando…</td></tr>`;
+    try{
+      if(reset){ page=0; currentQuery=q; }
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-hint">Carregando…</td></tr>`;
 
-    try {
-      lastBatch = await fetchPatients({ query: currentQuery });
-      const start = page * pageSize;
-      const pageItems = lastBatch.slice(start, start + pageSize);
+      lastBatch = await fetchPatients(currentQuery);
+      const start = page*pageSize;
+      const pageItems = lastBatch.slice(start, start+pageSize);
 
-      if (!pageItems.length) {
+      if (pageItems.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="empty-hint">Nenhum paciente encontrado.</td></tr>`;
       } else {
         tbody.innerHTML = pageItems.map(row).join('');
@@ -239,33 +246,30 @@
 
       document.getElementById('pac-count').textContent = lastBatch.length;
       document.getElementById('p-prev').disabled = (page===0);
-      document.getElementById('p-next').disabled = (start + pageSize >= lastBatch.length);
-    } catch (err) {
-      tbody.innerHTML = `<tr><td colspan="5" class="empty-hint text-danger">${err.message || 'Erro ao carregar'}</td></tr>`;
+      document.getElementById('p-next').disabled = (start+pageSize>=lastBatch.length);
+    } catch(err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-hint text-danger">${err.message||'Erro ao carregar'}</td></tr>`;
     }
   }
 
-  function initPacientes(){
-    // CEP -> endereço automático
-    attachCepAutofill(document.getElementById('form-paciente'));
+  // ------- Eventos
+  document.getElementById('btn-buscar').addEventListener('click', ()=> {
+    loadList({ q:document.getElementById('pac-busca').value, reset:true });
+  });
+  document.getElementById('pac-busca').addEventListener('keydown', (e)=> {
+    if(e.key==='Enter') loadList({ q:e.target.value, reset:true });
+  });
+  document.getElementById('p-prev').addEventListener('click', ()=>{ page=Math.max(0,page-1); loadList(); });
+  document.getElementById('p-next').addEventListener('click', ()=>{ page=page+1; loadList(); });
+  document.getElementById('btn-novo').addEventListener('click', ()=> $('#md-paciente').modal('show'));
 
-    // Buscar
-    document.getElementById('btn-buscar').addEventListener('click', ()=>{
-      loadList({ q: document.getElementById('pac-busca').value, reset:true });
-    });
-    document.getElementById('pac-busca').addEventListener('keydown', (e)=>{
-      if (e.key === 'Enter') loadList({ q: e.target.value, reset:true });
-    });
+  // ------- Modal: CEP + salvar paciente (usa funções do crm-api.js)
+  function wireNovoPaciente() {
+    const form = document.getElementById('form-paciente');
+    attachCepAutofill(form);
 
-    // Paginação
-    document.getElementById('p-prev').addEventListener('click', ()=>{ page = Math.max(0, page-1); loadList(); });
-    document.getElementById('p-next').addEventListener('click', ()=>{ page = page+1; loadList(); });
-
-    // Novo paciente
-    document.getElementById('btn-novo').addEventListener('click', ()=> $('#md-paciente').modal('show'));
-
-    // Submit do paciente (usa upsertPaciente do crm-api.js)
-    document.getElementById('form-paciente').addEventListener('submit', async (e)=>{
+    form.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const f = e.target;
       const payload = {
@@ -277,31 +281,27 @@
         phone:f.phone.value || null,
         email:f.email.value || null,
         address:{
-          cep:f.cep.value||null, street:f.street.value||null, number:f.number.value||null,
-          district:f.district.value||null, city:f.city.value||null, uf:f.uf.value||null
+          cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
+          district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
         },
         notes: f.notes.value || null
       };
-      try {
-        await upsertPaciente(payload);
+      try{
+        await upsertPaciente(payload);         // do crm-api.js
         $('#md-paciente').modal('hide');
         await loadList({ q: currentQuery, reset:true });
-      } catch (err) {
+      }catch(err){
         alert(err.message || 'Erro ao salvar paciente');
         console.error(err);
       }
     });
-
-    // Primeiro carregamento
-    loadList({ reset:true });
   }
 
-  // Garante inicialização
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPacientes);
-  } else {
-    initPacientes();
-  }
+  // ------- Boot
+  (function boot(){
+    wireNovoPaciente();
+    loadList({reset:true});
+  })();
 </script>
 </body>
 </html>

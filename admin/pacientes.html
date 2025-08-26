@@ -1,16 +1,25 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CRM Odonto – Início</title>
-  <link rel="stylesheet" href="../css/bootstrap.css">
-  <link rel="stylesheet" href="css/crm.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- Inclua em TODAS as páginas, após Font Awesome / Bootstrap -->
-<script src="js/sidebar.js"></script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM Odonto – Pacientes</title>
 
+  <link rel="stylesheet" href="../css/bootstrap.css" />
+  <link rel="stylesheet" href="css/crm.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Sidebar (mesmo arquivo usado nas demais páginas) -->
+  <script src="js/sidebar.js" defer></script>
+
+  <style>
+    .table td,.table th{ vertical-align: middle; }
+    .empty-hint{ color: var(--muted); padding: 24px 8px; text-align:center; }
+  </style>
 </head>
 <body data-page="pacientes">
-
 <div class="crm-app">
+  <!-- SIDEBAR -->
   <aside class="crm-sidebar" id="crm-sidebar">
     <div class="crm-brand">
       <span class="logo"></span>
@@ -23,10 +32,11 @@
     <nav class="crm-nav">
       <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
       <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
-      <a href="pacientes.html" data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
+      <a href="pacientes.html" data-nav="pacientes" class="active"><i class="fa-regular fa-user"></i> Pacientes</a>
       <a href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
       <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
       <a href="campanhas.html" data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
+      <a href="documentos.html" data-nav="campanhas"><i class="fa-solid fa-notes-medical"></i> Documentos</a>
       <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
     </nav>
 
@@ -36,77 +46,245 @@
     </div>
   </aside>
 
-  <!-- overlay que aparece quando a sidebar é aberta no mobile -->
+  <!-- overlay mobile -->
   <div class="crm-overlay" id="crm-overlay"></div>
 
+  <!-- MAIN -->
   <main class="crm-main">
-    <!-- Botão hambúrguer (mostrado apenas no mobile) -->
+    <!-- Burger (mobile) -->
     <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
       <i class="fa-solid fa-bars"></i>
     </button>
 
-
-
-  <main class="crm-main">
+    <!-- HERO -->
     <section class="crm-hero">
       <h1 class="text-center mb-1">Pacientes</h1>
-      <div class="crm-search">
+      <div class="crm-search" style="max-width:860px">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input placeholder="Buscar por nome, telefone, e-mail..." />
-        <button class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
-        <a href="#" class="btn btn-sm btn-primary btn-pill ml-auto"><i class="fa-regular fa-user mr-1"></i> Novo paciente</a>
+        <input id="pac-busca" placeholder="Buscar por nome, telefone, e-mail..." />
+        <button id="btn-buscar" class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
+        <a href="javascript:void(0)" id="btn-novo" class="btn btn-sm btn-primary btn-pill ml-auto">
+          <i class="fa-regular fa-user mr-1"></i> Novo paciente
+        </a>
       </div>
     </section>
 
+    <!-- CONTEÚDO -->
     <section class="crm-content">
       <div class="crm-card">
-        <table class="table mb-0">
-          <thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Última visita</th><th></th></tr></thead>
-          <tbody>
-            <tr><td>Felipe Lima</td><td>(11) 99999-0000</td><td>felipe@email.com</td><td>22/08/2025</td>
-              <td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Prontuário</a> <a class="btn btn-sm btn-primary btn-pill">Agendar</a></td></tr>
-            <tr><td>Amanda</td><td>(11) 98888-1111</td><td>amanda@email.com</td><td>—</td>
-              <td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Prontuário</a> <a class="btn btn-sm btn-primary btn-pill">Agendar</a></td></tr>
-            <tr><td>Bruna</td><td>(11) 97777-2222</td><td>bruna@email.com</td><td>20/08/2025</td>
-              <td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Prontuário</a> <a class="btn btn-sm btn-primary btn-pill">Agendar</a></td></tr>
-          </tbody>
-        </table>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="muted">Listando <span id="pac-count">0</span> pacientes</div>
+          <div>
+            <button id="p-prev" class="btn btn-sm btn-outline-secondary btn-pill mr-1" disabled>Anterior</button>
+            <button id="p-next" class="btn btn-sm btn-outline-secondary btn-pill" disabled>Próximo</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Nome</th><th>Telefone</th><th>E-mail</th><th>Última visita</th><th class="text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="pac-tbody">
+              <tr><td colspan="5" class="empty-hint">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   </main>
 </div>
 
-  <script>
-(function () {
-  const app = document.querySelector('.crm-app');
-  const btn = document.getElementById('btn-sidebar');
-  const overlay = document.getElementById('crm-overlay');
+<!-- MODAL: NOVO PACIENTE -->
+<div class="modal fade" id="md-paciente" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title"><i class="fa-regular fa-user mr-2"></i>Novo paciente</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
+      </div>
+      <form id="form-paciente">
+        <div class="modal-body">
+          <input type="hidden" id="org-id" value="00000000-0000-0000-0000-000000000000" />
 
-  function open(){ app.classList.add('sidebar-open'); }
-  function close(){ app.classList.remove('sidebar-open'); }
-  function toggle(){ app.classList.toggle('sidebar-open'); }
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label>Nome completo</label>
+              <input class="form-control" name="name" required />
+            </div>
+            <div class="form-group col-md-4">
+              <label>CPF (opcional)</label>
+              <input class="form-control" name="cpf" />
+            </div>
+          </div>
 
-  btn?.addEventListener('click', toggle);
-  overlay?.addEventListener('click', close);
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label>Nascimento</label>
+              <input type="date" class="form-control" name="dob" />
+            </div>
+            <div class="form-group col-md-3">
+              <label>Sexo</label>
+              <select class="form-control" name="gender">
+                <option value="">—</option>
+                <option>Feminino</option><option>Masculino</option><option>Outro</option>
+              </select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Telefone</label>
+              <input class="form-control" name="phone" placeholder="(11) 9 9999-9999" />
+            </div>
+            <div class="form-group col-md-3">
+              <label>E-mail</label>
+              <input type="email" class="form-control" name="email" />
+            </div>
+          </div>
 
-  // Fecha ao pressionar ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-  });
+          <div class="form-section-title">Endereço</div>
+          <div class="form-row">
+            <div class="form-group col-md-3"><label>CEP</label><input class="form-control" name="cep" /></div>
+            <div class="form-group col-md-6"><label>Logradouro</label><input class="form-control" name="street" /></div>
+            <div class="form-group col-md-3"><label>Número</label><input class="form-control" name="number" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4"><label>Bairro</label><input class="form-control" name="district" /></div>
+            <div class="form-group col-md-5"><label>Cidade</label><input class="form-control" name="city" /></div>
+            <div class="form-group col-md-3"><label>UF</label><input class="form-control" name="uf" maxlength="2" /></div>
+          </div>
 
-  // Fecha ao clicar em um item de navegação (no mobile)
-  document.querySelectorAll('.crm-nav a').forEach(a => {
-    a.addEventListener('click', close);
-  });
-})();
+          <div class="form-group">
+            <label>Observações</label>
+            <input class="form-control" name="notes" placeholder="Alergias, preferências..." />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary btn-pill" type="submit">Salvar paciente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- libs -->
+<script src="../js/jquery-3.4.1.min.js"></script>
+<script src="../js/bootstrap.js"></script>
+
+<!-- Configure o prefixo do n8n ANTES do crm-api.js -->
+<script>
+  // EXEMPLO – troque pelo seu domínio do n8n
+  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
+  // opcional: window.CRM_API_KEY = 'sua-chave-se-usar';
 </script>
 
-<script src="../js/jquery-3.4.1.min.js"></script>
-  <script src="../js/bootstrap.js"></script>
-  <script src="assets/crm.js"></script>
-</body></html>
+<!-- Funções de API (arquivo que te enviei) -->
+<script src="assets/crm-api.js"></script>
 
+<script>
+  // Helpers de renderização
+  function row(p) {
+    const name = p.full_name || p.name || '—';
+    const phone = p.phone || '—';
+    const email = p.email || '—';
+    const last = p.last_visit_date ? new Date(p.last_visit_date).toLocaleDateString('pt-BR') : '—';
+    return `
+      <tr>
+        <td>${name}</td>
+        <td>${phone}</td>
+        <td>${email}</td>
+        <td>${last}</td>
+        <td class="text-right">
+          <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${p.id||''}">Prontuário</a>
+          <a class="btn btn-sm btn-primary btn-pill" href="agenda.html?paciente=${encodeURIComponent(name)}">Agendar</a>
+        </td>
+      </tr>`;
+  }
 
+  let page=0, pageSize=20, currentQuery='';
+  let lastBatch = [];
 
+  async function loadList({q='', reset=false}={}){
+    try{
+      if(reset){ page=0; currentQuery=q; }
+      const tbody = document.getElementById('pac-tbody');
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-hint">Carregando…</td></tr>`;
 
+      // se houver busca, usa /patients/search?q=; se não, lista padrão /patients?limit=
+      let results = [];
+      if((currentQuery||'').trim().length>=2){
+        results = await fetch(`${window.CRM_API_BASE}/patients/search?q=${encodeURIComponent(currentQuery)}`, { headers:{'Accept':'application/json'} }).then(r=>r.json());
+      }else{
+        results = await fetch(`${window.CRM_API_BASE}/patients?limit=50`, { headers:{'Accept':'application/json'} }).then(r=>r.json());
+      }
 
+      // paginação client-side simples
+      lastBatch = Array.isArray(results)? results : [];
+      const start = page*pageSize;
+      const pageItems = lastBatch.slice(start, start+pageSize);
+
+      if(pageItems.length===0){
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-hint">Nenhum paciente encontrado.</td></tr>`;
+      }else{
+        tbody.innerHTML = pageItems.map(row).join('');
+      }
+
+      // UI stats / buttons
+      document.getElementById('pac-count').textContent = lastBatch.length;
+      document.getElementById('p-prev').disabled = (page===0);
+      document.getElementById('p-next').disabled = (start+pageSize>=lastBatch.length);
+
+    }catch(err){
+      console.error(err);
+      document.getElementById('pac-tbody').innerHTML = `<tr><td colspan="5" class="empty-hint text-danger">${err.message||'Erro ao carregar'}</td></tr>`;
+    }
+  }
+
+  // Eventos da lista
+  document.getElementById('btn-buscar').addEventListener('click', ()=> loadList({q:document.getElementById('pac-busca').value, reset:true}));
+  document.getElementById('pac-busca').addEventListener('keydown', (e)=>{ if(e.key==='Enter') loadList({q:e.target.value, reset:true}); });
+  document.getElementById('p-prev').addEventListener('click', ()=>{ page=Math.max(0,page-1); loadList(); });
+  document.getElementById('p-next').addEventListener('click', ()=>{ page=page+1; loadList(); });
+
+  // Novo paciente (abre modal)
+  document.getElementById('btn-novo').addEventListener('click', ()=> $('#md-paciente').modal('show'));
+
+  // CEP → endereço e submit do paciente
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // attachCepAutofill e upsertPaciente vêm do crm-api.js
+    attachCepAutofill(document.getElementById('form-paciente'));
+
+    document.getElementById('form-paciente').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const f=e.target;
+      const payload={
+        org_id: document.getElementById('org-id').value,
+        full_name: f.name.value.trim(),
+        cpf:  f.cpf.value.trim() || null,
+        dob:  f.dob.value || null,
+        sex:  f.gender.value || null,
+        phone:f.phone.value || null,
+        email:f.email.value || null,
+        address:{
+          cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
+          district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
+        },
+        notes: f.notes.value || null
+      };
+      try{
+        await upsertPaciente(payload);
+        $('#md-paciente').modal('hide');
+        // recarrega a lista atual
+        await loadList({ q: currentQuery, reset:true });
+      }catch(err){
+        alert(err.message || 'Erro ao salvar paciente');
+        console.error(err);
+      }
+    });
+
+    // carrega a lista inicial
+    loadList({reset:true});
+  });
+</script>
+</body>
+</html>

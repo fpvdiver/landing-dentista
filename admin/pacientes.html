@@ -264,34 +264,13 @@
 <script src="js/crm-api.js"></script>
 
 <script>
-  // Fallback do burger (caso sidebar.js não carregue)
-  (function () {
-    const app = document.querySelector('.crm-app');
-    const btn = document.getElementById('btn-sidebar');
-    const overlay = document.getElementById('crm-overlay');
-    function open(){ app.classList.add('sidebar-open'); }
-    function close(){ app.classList.remove('sidebar-open'); }
-    function toggle(){ app.classList.toggle('sidebar-open'); }
-    btn?.addEventListener('click', toggle);
-    overlay?.addEventListener('click', close);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
-  })();
-
-  // ===== Página de pacientes =====
-  (function () {
-    const tbody   = document.getElementById('pac-tbody');
-    const countEl = document.getElementById('pac-count');
-    const qInput  = document.getElementById('pac-busca');
-    const btnBuscar = document.getElementById('btn-buscar');
-
-    let page = 0, pageSize = 20, cache = [];
-
-    function row(p) {
-    const name  = p.full_name || p.name || '—';
+  // Helpers de renderização
+  function row(p) {
+    const name = p.full_name || p.name || '—';
     const phone = p.phone || '—';
     const email = p.email || '—';
-    const last  = p.last_visit_date ? new Date(p.last_visit_date).toLocaleDateString('pt-BR') : '—';
-    return
+    const last = p.last_visit_date ? new Date(p.last_visit_date).toLocaleDateString('pt-BR') : '—';
+    return `
       <tr>
         <td>${name}</td>
         <td>${phone}</td>
@@ -301,52 +280,62 @@
           <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${p.id||''}">Prontuário</a>
           <a class="btn btn-sm btn-primary btn-pill" href="agenda.html?paciente=${encodeURIComponent(name)}">Agendar</a>
         </td>
-      </tr>;
+      </tr>`;
   }
-</script>
-    function render() {
-      const start = page * pageSize;
-      const pageItems = cache.slice(start, start + pageSize);
-      countEl.textContent = cache.length;
-      document.getElementById('p-prev').disabled = (page === 0);
-      document.getElementById('p-next').disabled = (start + pageSize >= cache.length);
 
-      if (!pageItems.length) {
+  let page=0, pageSize=20, currentQuery='';
+  let lastBatch = [];
+
+  async function loadList({q='', reset=false}={}){
+    try{
+      if(reset){ page=0; currentQuery=q; }
+      const tbody = document.getElementById('pac-tbody');
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-hint">Carregando…</td></tr>`;
+
+      // se houver busca, usa /patients/search?q=; se não, lista padrão /patients?limit=
+      let results = [];
+      if((currentQuery||'').trim().length>=2){
+        results = await fetch(`${window.CRM_API_BASE}/patients/search?q=${encodeURIComponent(currentQuery)}`, { headers:{'Accept':'application/json'} }).then(r=>r.json());
+      }else{
+        results = await fetch(`${window.CRM_API_BASE}/patients?limit=50`, { headers:{'Accept':'application/json'} }).then(r=>r.json());
+      }
+
+      // paginação client-side simples
+      lastBatch = Array.isArray(results)? results : [];
+      const start = page*pageSize;
+      const pageItems = lastBatch.slice(start, start+pageSize);
+
+      if(pageItems.length===0){
         tbody.innerHTML = `<tr><td colspan="5" class="empty-hint">Nenhum paciente encontrado.</td></tr>`;
-        return;
+      }else{
+        tbody.innerHTML = pageItems.map(row).join('');
       }
-      tbody.innerHTML = pageItems.map(row).join('');
+
+      // UI stats / buttons
+      document.getElementById('pac-count').textContent = lastBatch.length;
+      document.getElementById('p-prev').disabled = (page===0);
+      document.getElementById('p-next').disabled = (start+pageSize>=lastBatch.length);
+
+    }catch(err){
+      console.error(err);
+      document.getElementById('pac-tbody').innerHTML = `<tr><td colspan="5" class="empty-hint text-danger">${err.message||'Erro ao carregar'}</td></tr>`;
     }
+  }
 
-    async function loadList(query) {
-      try {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty-hint">Carregando…</td></tr>`;
-        let results;
-        if (query && query.trim().length >= 2) {
-          results = await CRMApi.api('/patients/search' + CRMApi.qs({ q: query.trim() }));
-        } else {
-          results = await CRMApi.api('/patients' + CRMApi.qs({ limit: 50 }));
-        }
-        cache = Array.isArray(results) ? results : [];
-        page = 0;
-        render();
-      } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan="5" class="empty-hint text-danger">${err.message || 'Erro ao carregar'}</td></tr>`;
-      }
-    }
+  // Eventos da lista
+  document.getElementById('btn-buscar').addEventListener('click', ()=> loadList({q:document.getElementById('pac-busca').value, reset:true}));
+  document.getElementById('pac-busca').addEventListener('keydown', (e)=>{ if(e.key==='Enter') loadList({q:e.target.value, reset:true}); });
+  document.getElementById('p-prev').addEventListener('click', ()=>{ page=Math.max(0,page-1); loadList(); });
+  document.getElementById('p-next').addEventListener('click', ()=>{ page=page+1; loadList(); });
 
-    // eventos
-    btnBuscar.addEventListener('click', () => loadList(qInput.value));
-    qInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadList(qInput.value); });
-    document.getElementById('p-prev').addEventListener('click', () => { page = Math.max(0, page - 1); render(); });
-    document.getElementById('p-next').addEventListener('click', () => { page = page + 1; render(); });
+  // Novo paciente (abre modal)
+  document.getElementById('btn-novo').addEventListener('click', ()=> $('#md-paciente').modal('show'));
 
-    // novo paciente
-    document.getElementById('btn-novo').addEventListener('click', () => $('#md-paciente').modal('show'));
-    // CEP + submit (funções já expostas pelo crm-api.js)
-    CRMApi && CRMApi.buscaCEP; // apenas para garantir carregamento
+  // CEP → endereço e submit do paciente
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // attachCepAutofill e upsertPaciente vêm do crm-api.js
     attachCepAutofill(document.getElementById('form-paciente'));
+
     document.getElementById('form-paciente').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const f=e.target;
@@ -367,64 +356,21 @@
       try{
         await upsertPaciente(payload);
         $('#md-paciente').modal('hide');
-        loadList(qInput.value); // recarrega a lista
+        // recarrega a lista atual
+        await loadList({ q: currentQuery, reset:true });
       }catch(err){
         alert(err.message || 'Erro ao salvar paciente');
+        console.error(err);
       }
     });
 
-    // primeira carga
-    loadList('');
-  })();
-</script>
-
-  <script>
-  // handler do botão Agendar
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-agendar');
-    if (!btn) return;
-
-    e.preventDefault();
-
-    // lê os dados do dataset
-    const name  = decodeURIComponent(btn.dataset.pName || '');
-    const phone = decodeURIComponent(btn.dataset.pPhone || '');
-    const email = decodeURIComponent(btn.dataset.pEmail || '');
-
-    // abre o modal
-    $('#md-agendamento').modal('show');
-
-    // preenche o form
-    const f = document.getElementById('form-agendamento');
-    if (!f) return;
-
-    f.paciente.value = name;
-    f.phone.value    = phone;
-    f.email.value    = email;
-
-    // heurística simples pro canal preferido
-    const canalSel = f.channel || f.querySelector('[name="channel"]');
-    if (canalSel) {
-      canalSel.value = phone ? 'WhatsApp' : (email ? 'E-mail' : 'WhatsApp');
-    }
-
-    // sugestões: hoje + próximo “slot” inteiro (ex.: 30/60min)
-    const now = new Date();
-    const roundTo = 30; // minutos
-    now.setMinutes(now.getMinutes() + (roundTo - (now.getMinutes() % roundTo || roundTo)));
-    const yyyy = now.getFullYear();
-    const mm   = String(now.getMonth()+1).padStart(2,'0');
-    const dd   = String(now.getDate()).padStart(2,'0');
-    const HH   = String(now.getHours()).padStart(2,'0');
-    const MI   = String(now.getMinutes()).padStart(2,'0');
-
-    f.date.value = `${yyyy}-${mm}-${dd}`;
-    f.time.value = `${HH}:${MI}`;
+    // carrega a lista inicial
+    loadList({reset:true});
   });
 </script>
-
 </body>
 </html>
+
 
 
 

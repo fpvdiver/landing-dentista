@@ -30,7 +30,7 @@
       <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
     </nav>
 
-    <div class="crm-footer">
+   <div class="crm-footer">
       <div>Conectado como <strong>admin@clinica</strong></div>
       <div>v0.1</div>
     </div>
@@ -38,7 +38,13 @@
 
   <!-- overlay que aparece quando a sidebar é aberta no mobile -->
   <div class="crm-overlay" id="crm-overlay"></div>
- 
+
+  <main class="crm-main">
+    <!-- Botão hambúrguer (mostrado apenas no mobile) -->
+    <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
   <main class="crm-main">
     <section class="crm-hero">
       <h1 class="text-center mb-1">Procedimentos</h1>
@@ -94,6 +100,7 @@
   <script src="../js/bootstrap.js"></script>
   <script src="assets/crm.js"></script>
 </body></html>
+
 
 
 

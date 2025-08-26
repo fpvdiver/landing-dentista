@@ -96,6 +96,89 @@
   </main>
 </div>
 
+<!-- MODAL: NOVO AGENDAMENTO -->
+<div class="modal fade" id="md-agendamento" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title"><i class="fa-regular fa-calendar-plus mr-2"></i>Novo agendamento</h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+
+      <form id="form-agendamento">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Paciente</label>
+              <input class="form-control" name="paciente" required>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Telefone</label>
+              <input class="form-control" name="phone" placeholder="(11) 9 9999-9999">
+            </div>
+            <div class="form-group col-md-3">
+              <label>E-mail</label>
+              <input type="email" class="form-control" name="email">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Procedimento</label>
+              <select class="form-control" name="proc" id="ag-proc"></select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Data</label>
+              <input type="date" class="form-control" name="date" required>
+            </div>
+            <div class="form-group col-md-2">
+              <label>Hora</label>
+              <input type="time" class="form-control" name="time" step="1800" required>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Duração</label>
+              <select class="form-control" name="dur" id="ag-dur">
+                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Dentista</label>
+              <select class="form-control" name="doctor">
+                <option>Dra. Elen Nogata</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Observações</label>
+              <input class="form-control" name="notes" placeholder="Observações (opcional)">
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <label class="mr-2"><input type="checkbox" name="send_whats"> WhatsApp</label>
+              <label class="mr-2"><input type="checkbox" name="send_mail"> E-mail</label>
+              <label class="mr-2"><input type="checkbox" name="send_sms"> SMS</label>
+            </div>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="ag-status" checked>
+              <label class="custom-control-label" for="ag-status">Confirmado</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary btn-pill" type="submit">Salvar & Enviar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <!-- MODAL: NOVO PACIENTE -->
 <div class="modal fade" id="md-paciente" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -344,6 +427,7 @@
 
 </body>
 </html>
+
 
 
 

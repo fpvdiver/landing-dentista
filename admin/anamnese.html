@@ -95,71 +95,85 @@
     <section class="crm-content">
       <form id="wizForm" class="wiz-steps">
 
-        <!-- ====== PASSO 1: IDENTIFICAÇÃO ====== -->
-        <div class="crm-card wiz-pane active" data-step="1">
-          <div class="crm-head-row"><h5 class="mb-0">1) Identificação</h5></div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label>Nome completo</label>
-              <input class="form-control" name="nome" required>
-            </div>
-            <div class="form-group col-md-3">
-              <label>Data de nascimento</label>
-              <input type="date" class="form-control" name="nasc" required>
-            </div>
-            <div class="form-group col-md-3">
-              <label>Sexo</label>
-              <select class="form-control" name="sexo" required>
-                <option value="">Selecione...</option>
-                <option>Feminino</option><option>Masculino</option><option>Outro</option>
-              </select>
-            </div>
-          </div>
+      <!-- ====== PASSO 1: IDENTIFICAÇÃO ====== -->
+<div class="crm-card wiz-pane active" data-step="1">
+  <div class="crm-head-row"><h5 class="mb-0">1) Identificação</h5></div>
 
-          <div class="form-row">
-            <div class="form-group col-md-4">
-              <label>Telefone (WhatsApp)</label>
-              <input class="form-control" name="fone">
-            </div>
-            <div class="form-group col-md-5">
-              <label>E-mail</label>
-              <input type="email" class="form-control" name="email">
-            </div>
-            <div class="form-group col-md-3">
-              <label>Convênio (opcional)</label>
-              <input class="form-control" name="convenio">
-            </div>
-          </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label>Nome completo</label>
+      <input class="form-control" name="nome" required>
+    </div>
+    <div class="form-group col-md-3">
+      <label>Data de nascimento</label>
+      <input type="date" class="form-control" name="nasc" required>
+    </div>
+    <div class="form-group col-md-3">
+      <label>Sexo</label>
+      <select class="form-control" name="sexo" required>
+        <option value="">Selecione...</option>
+        <option>Feminino</option><option>Masculino</option><option>Outro</option>
+      </select>
+    </div>
+  </div>
 
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label>Endereço</label>
-              <input class="form-control" name="end">
-            </div>
-            <div class="form-group col-md-2">
-              <label>Número</label>
-              <input class="form-control" name="num">
-            </div>
-            <div class="form-group col-md-4">
-              <label>Bairro / Cidade - UF</label>
-              <input class="form-control" name="cidade">
-            </div>
-          </div>
+  <!-- ENDEREÇO (com CEP auto) -->
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <label>CEP</label>
+      <input class="form-control" name="cep" id="cep" placeholder="00000-000" required>
+    </div>
+    <div class="form-group col-md-6">
+      <label>Endereço</label>
+      <input class="form-control" name="logradouro" id="logradouro" placeholder="Rua/Av.">
+    </div>
+    <div class="form-group col-md-3">
+      <label>Número</label>
+      <input class="form-control" name="num" id="numero">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <label>Bairro</label>
+      <input class="form-control" name="bairro" id="bairro">
+    </div>
+    <div class="form-group col-md-5">
+      <label>Cidade</label>
+      <input class="form-control" name="cidade" id="cidade">
+    </div>
+    <div class="form-group col-md-3">
+      <label>UF</label>
+      <input class="form-control" name="uf" id="uf" maxlength="2">
+    </div>
+  </div>
 
-          <div class="form-group">
-            <label>Queixa principal</label>
-            <textarea class="form-control" rows="3" name="queixa" placeholder="O que te traz hoje?"></textarea>
-          </div>
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <label>Telefone (WhatsApp)</label>
+      <input class="form-control" name="fone">
+    </div>
+    <div class="form-group col-md-8">
+      <label>E-mail</label>
+      <input type="email" class="form-control" name="email">
+    </div>
+  </div>
 
-          <div class="wiz-actions">
-            <div>
-              <button type="button" class="btn btn-outline-secondary btn-pill" id="draft1">Salvar rascunho</button>
-            </div>
-            <div class="right">
-              <button type="button" class="btn btn-primary btn-pill next">Próximo</button>
-            </div>
-          </div>
-        </div>
+  <div class="form-group">
+    <label>Queixa principal</label>
+    <textarea class="form-control" rows="3" name="queixa" placeholder="O que te traz hoje?"></textarea>
+  </div>
+
+  <div class="wiz-actions">
+    <div>
+      <button type="button" class="btn btn-outline-secondary btn-pill" id="draft1">Salvar rascunho</button>
+    </div>
+    <div class="right">
+      <button type="button" class="btn btn-primary btn-pill next">Próximo</button>
+    </div>
+  </div>
+</div>
+
+
 
         <!-- ====== PASSO 2: SAÚDE GERAL ====== -->
         <div class="crm-card wiz-pane" data-step="2">
@@ -543,26 +557,66 @@ function getFormData(){
   return data;
 }
 
-/* ===== Navegação do wizard ===== */
+/* ===== Navegação do wizard (com validação por passo) ===== */
 let cur = 1, total = 6;
+
+function validateStep(step){
+  const pane = document.querySelector(`.wiz-pane[data-step="${step}"]`);
+  if(!pane) return true;
+  const req = pane.querySelectorAll('[required]');
+  for(const el of req){
+    if(!el.value){
+      el.reportValidity();   // mostra tooltip nativo
+      el.focus();
+      return false;
+    }
+  }
+  return true;
+}
+
 function go(n){
   cur = Math.max(1, Math.min(total, n));
-  $$('.wiz-pane').forEach(p=>p.classList.toggle('active', Number(p.dataset.step)===cur));
-  // stepper
-  for(let i=1;i<=6;i++){
+  document.querySelectorAll('.wiz-pane').forEach(p=>{
+    p.classList.toggle('active', Number(p.dataset.step)===cur);
+  });
+  for(let i=1;i<=total;i++){
     const dot  = document.querySelector(`[data-dot="${i}"]`);
     const line = document.querySelector(`[data-line="${i}"]`);
-    dot.classList.remove('active','done');
-    if(i<cur){ dot.classList.add('done'); }
-    if(i===cur){ dot.classList.add('active'); }
-    if(line){ line.classList.toggle('done', i<cur); }
+    if(dot){
+      dot.classList.remove('active','done');
+      if(i<cur) dot.classList.add('done');
+      if(i===cur) dot.classList.add('active');
+    }
+    if(line) line.classList.toggle('done', i<cur);
   }
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
 document.addEventListener('click', (e)=>{
-  if(e.target.classList.contains('next')) { go(cur+1); }
-  if(e.target.classList.contains('prev')) { go(cur-1); }
+  const nextBtn = e.target.closest('.next');
+  const prevBtn = e.target.closest('.prev');
+  if(nextBtn){
+    if(!validateStep(cur)) return;
+    go(cur+1);
+  }
+  if(prevBtn){
+    go(cur-1);
+  }
 });
+
+/* Enter = próximo (exceto textarea / quando não é o último passo) */
+document.addEventListener('keydown', (e)=>{
+  if(e.key!=='Enter') return;
+  const target = e.target;
+  if(target.tagName==='TEXTAREA') return;
+  const pane = document.querySelector(`.wiz-pane[data-step="${cur}"]`);
+  if(pane && pane.contains(target) && cur<total){
+    e.preventDefault();
+    if(!validateStep(cur)) return;
+    go(cur+1);
+  }
+});
+
 
 /* ===== Chips Sim/Não ===== */
 function toggleIfYes(w){
@@ -659,3 +713,4 @@ go(1);
 </script>
 </body>
 </html>
+

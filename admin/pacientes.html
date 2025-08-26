@@ -299,38 +299,8 @@
           <td>${last}</td>
           <td class="text-right">
             <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${p.id||''}">Prontuário</a>
-<script>
-  function row(p) {
-    const name  = p.full_name || p.name || '—';
-    const phone = p.phone || '—';
-    const email = p.email || '—';
-    const last  = p.last_visit_date ? new Date(p.last_visit_date).toLocaleDateString('pt-BR') : '—';
-    const id    = p.id || '';
+            <a class="btn btn-sm btn-primary btn-pill" href="agenda.html?paciente=${encodeURIComponent(name)}">Agendar</a>
 
-    const dsName  = encodeURIComponent(p.full_name || p.name || '');
-    const dsPhone = encodeURIComponent(p.phone || '');
-    const dsEmail = encodeURIComponent(p.email || '');
-
-    return 
-      <tr>
-        <td>${name}</td>
-        <td>${phone}</td>
-        <td>${email}</td>
-        <td>${last}</td>
-        <td class="text-right">
-          <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${id}">Prontuário</a>
-          <button type="button"
-                  class="btn btn-sm btn-primary btn-pill btn-agendar"
-                  data-p-name="${dsName}"
-                  data-p-phone="${dsPhone}"
-                  data-p-email="${dsEmail}">
-            Agendar
-          </button>
-        </td>
-      </tr>
-    ;
-  }
-</script>
 
 
 
@@ -460,6 +430,7 @@
 
 </body>
 </html>
+
 
 
 

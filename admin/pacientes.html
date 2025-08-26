@@ -216,31 +216,8 @@
           <td>${last}</td>
           <td class="text-right">
             <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${p.id||''}">Prontuário</a>
-           <script>
-  function row(p) {
-    const name  = p.full_name || p.name || '';
-    const phone = p.phone || '';
-    const email = p.email || '';
+          <a class="btn btn-sm btn-primary btn-pill" href="agenda.html?paciente=${encodeURIComponent(name)}">Agendar</a>
 
-    return `
-      <tr>
-        <td>${name || '—'}</td>
-        <td>${phone || '—'}</td>
-        <td>${email || '—'}</td>
-        <td>${p.last_visit_date ? new Date(p.last_visit_date).toLocaleDateString('pt-BR') : '—'}</td>
-        <td class="text-right">
-          <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${p.id||''}">Prontuário</a>
-          <button type="button"
-                  class="btn btn-sm btn-primary btn-pill btn-agendar"
-                  data-p-name="${encodeURIComponent(name)}"
-                  data-p-phone="${encodeURIComponent(phone)}"
-                  data-p-email="${encodeURIComponent(email)}">
-            Agendar
-          </button>
-        </td>
-      </tr>`;
-  }
-</script>
 
           </td>
         </tr>`;
@@ -367,5 +344,6 @@
 
 </body>
 </html>
+
 
 

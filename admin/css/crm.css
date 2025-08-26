@@ -2,6 +2,7 @@
   --primary:#0ea5e9; --accent:#fbbf24; --ink:#0f172a; --muted:#64748b;
   --bg:#f7f8fb; --panel:#ffffff; --chip:#f1f5f9; --ring:#e2e8f0;
   --sidebar-w: 215px; 
+  --sidebar-t: 215px; 
 }
 html,body{height:100%; background:var(--bg); color:var(--ink);}
 
@@ -198,6 +199,7 @@ html, body { overflow-x: hidden; }
 
 /* evita scroll lateral quando off-canvas existe */
 html,body{overflow-x:hidden;}
+
 
 
 

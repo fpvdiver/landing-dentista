@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM Odonto – Anamnese (Wizard)</title>
+
+  <!-- Base -->
+  <link rel="stylesheet" href="../css/bootstrap.css" />
+  <link rel="stylesheet" href="css/crm.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script defer src="js/sidebar.js"></script>
+
+  <style>
+    /* ===== Wizard UI ===== */
+    .wiz-bar{max-width:980px;margin:0 auto 14px;display:flex;align-items:center;gap:10px}
+    .wiz-step-dot{width:28px;height:28px;border-radius:999px;border:2px solid var(--ring);
+      display:grid;place-items:center;font-weight:700;color:var(--muted);background:#fff}
+    .wiz-step-dot.active{border-color:var(--primary);color:#0369a1;background:#eff6ff}
+    .wiz-step-dot.done{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
+    .wiz-line{flex:1;height:2px;background:var(--ring)}
+    .wiz-line.done{background:#0ea5e9}
+    .wiz-steps{max-width:980px;margin:0 auto}
+    .wiz-pane{display:none}
+    .wiz-pane.active{display:block;animation:.15s ease fadeIn}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .yn{display:flex;gap:8px}
+    .yn .chip{padding:8px 14px;border:1px solid var(--ring);border-radius:999px;background:#fff;cursor:pointer}
+    .yn .chip.active{border-color:#0ea5e9;color:#0369a1;background:#eff6ff}
+    .if-yes{display:none}
+    .if-yes.show{display:block}
+    .wiz-actions{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+    .wiz-actions .right{display:flex;gap:8px}
+    .muted-sm{font-size:12px;color:var(--muted)}
+    /* assinatura */
+    .sign-pad{border:1px dashed var(--ring);border-radius:10px;background:#fff;height:160px;touch-action:none}
+    @media (max-width: 992px){ .wiz-bar{padding:0 10px} }
+  </style>
+</head>
+<body data-page="documentos">
+<div class="crm-app">
+
+  <!-- Sidebar -->
+  <aside class="crm-sidebar" id="crm-sidebar">
+    <div class="crm-brand">
+      <span class="logo"></span>
+      <div>
+        <div style="font-weight:800;font-size:18px;">OdontoCRM</div>
+        <div style="color:var(--muted);font-size:12px;">Clínica Elen Nogata</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="inicio.html"><i class="fa-solid fa-grid-2"></i> Início</a>
+      <a href="agenda.html"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+      <a href="pacientes.html"><i class="fa-regular fa-user"></i> Pacientes</a>
+      <a href="orcamentos.html"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
+      <a href="procedimentos.html"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
+      <a href="campanhas.html"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
+      <a href="documentos.html" class="active"><i class="fa-regular fa-file-lines"></i> Documentos</a>
+      <a href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </nav>
+    <div class="crm-footer">
+      <div>Conectado como <strong>admin@clinica</strong></div>
+      <div>v0.1</div>
+    </div>
+  </aside>
+
+  <!-- Overlay mobile -->
+  <div class="crm-overlay" id="crm-overlay"></div>
+
+  <!-- Main -->
+  <main class="crm-main">
+    <!-- Hamburguer -->
+    <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- HERO -->
+    <section class="crm-hero">
+      <h1 class="text-center mb-1">Anamnese Odontológica</h1>
+      <div class="search-hint">Responda em passos rápidos. Suas respostas são salvas automaticamente.</div>
+
+      <!-- Stepper -->
+      <div class="wiz-bar">
+        <div class="wiz-step-dot" data-dot="1">1</div><div class="wiz-line" data-line="1"></div>
+        <div class="wiz-step-dot" data-dot="2">2</div><div class="wiz-line" data-line="2"></div>
+        <div class="wiz-step-dot" data-dot="3">3</div><div class="wiz-line" data-line="3"></div>
+        <div class="wiz-step-dot" data-dot="4">4</div><div class="wiz-line" data-line="4"></div>
+        <div class="wiz-step-dot" data-dot="5">5</div><div class="wiz-line" data-line="5"></div>
+        <div class="wiz-step-dot" data-dot="6">6</div>
+      </div>
+    </section>
+
+    <!-- CONTENT -->
+    <section class="crm-content">
+      <form id="wizForm" class="wiz-steps">
+
+        <!-- ====== PASSO 1: IDENTIFICAÇÃO ====== -->
+        <div class="crm-card wiz-pane active" data-step="1">
+          <div class="crm-head-row"><h5 class="mb-0">1) Identificação</h5></div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Nome completo</label>
+              <input class="form-control" name="nome" required>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Data de nascimento</label>
+              <input type="date" class="form-control" name="nasc" required>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Sexo</label>
+              <select class="form-control" name="sexo" required>
+                <option value="">Selecione...</option>
+                <option>Feminino</option><option>Masculino</option><option>Outro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Telefone (WhatsApp)</label>
+              <input class="form-control" name="fone">
+            </div>
+            <div class="form-group col-md-5">
+              <label>E-mail</label>
+              <input type="email" class="form-control" name="email">
+            </div>
+            <div class="form-group col-md-3">
+              <label>Convênio (opcional)</label>
+              <input class="form-control" name="convenio">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Endereço</label>
+              <input class="form-control" name="end">
+            </div>
+            <div class="form-group col-md-2">
+              <label>Número</label>
+              <input class="form-control" name="num">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Bairro / Cidade - UF</label>
+              <input class="form-control" name="cidade">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Queixa principal</label>
+            <textarea class="form-control" rows="3" name="queixa" placeholder="O que te traz hoje?"></textarea>
+          </div>
+
+          <div class="wiz-actions">
+            <div>
+              <button type="button" class="btn btn-outline-secondary btn-pill" id="draft1">Salvar rascunho</button>
+            </div>
+            <div class="right">
+              <button type="button" class="btn btn-primary btn-pill next">Próximo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== PASSO 2: SAÚDE GERAL ====== -->
+        <div class="crm-card wiz-pane" data-step="2">
+          <div class="crm-head-row"><h5 class="mb-0">2) Saúde geral</h5></div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Está em tratamento médico?</label>
+              <div class="yn" data-yn="trat_medico">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2">
+                <input class="form-control" name="trat_medico_qual" placeholder="Qual? Médico/especialidade, motivo">
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Gestante?</label>
+              <div class="yn" data-yn="gestante">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="gestante_semanas" placeholder="Semanas de gestação"></div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Diabetes?</label>
+              <div class="yn" data-yn="diabetes">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="diabetes_tipo" placeholder="Tipo/controle"></div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Cardiopatia / Pressão arterial</label>
+              <div class="yn" data-yn="cardio">
+                <span class="chip" data-v="Nenhuma">Nenhuma</span>
+                <span class="chip" data-v="Presão Alta">Pressão Alta</span>
+                <span class="chip" data-v="Cardiopatia">Cardiopatia</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="cardio_qual" placeholder="Detalhar (ex.: uso de anticoagulantes, stent, etc.)"></div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Doenças infecciosas / hepatite / HIV / DST?</label>
+              <div class="yn" data-yn="dst">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="dst_quais" placeholder="Quais?"></div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Distúrbio de coagulação / sangramento?</label>
+              <div class="yn" data-yn="coagulacao">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="coagulacao_qual" placeholder="Qual?"></div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Doença respiratória (asma/DPOC)?</label>
+              <div class="yn" data-yn="respiratoria">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="respiratoria_qual" placeholder="Qual?"></div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Reação à anestesia local?</label>
+              <div class="yn" data-yn="reacao_anest">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="reacao_anest_qual" placeholder="Qual reação?"></div>
+            </div>
+          </div>
+
+          <div class="wiz-actions">
+            <div>
+              <button type="button" class="btn btn-outline-secondary btn-pill prev">Voltar</button>
+            </div>
+            <div class="right">
+              <button type="button" class="btn btn-outline-secondary btn-pill" id="draft2">Salvar rascunho</button>
+              <button type="button" class="btn btn-primary btn-pill next">Próximo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== PASSO 3: MEDICAÇÕES & ALERGIAS ====== -->
+        <div class="crm-card wiz-pane" data-step="3">
+          <div class="crm-head-row"><h5 class="mb-0">3) Medicações & Alergias</h5></div>
+
+          <div class="form-group">
+            <label>Usa medicamentos atualmente?</label>
+            <div class="yn" data-yn="medicamentos">
+              <span class="chip" data-v="Não">Não</span>
+              <span class="chip" data-v="Sim">Sim</span>
+            </div>
+            <div class="if-yes mt-2">
+              <textarea class="form-control" rows="3" name="medicamentos_quais" placeholder="Quais? doses e horários"></textarea>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Alergia a medicamentos?</label>
+              <div class="yn" data-yn="aler_meds">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="aler_meds_quais" placeholder="Quais?"></div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Outras alergias (látex/alimentos)?</label>
+              <div class="yn" data-yn="aler_outros">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="aler_outros_quais" placeholder="Quais?"></div>
+            </div>
+          </div>
+
+          <div class="wiz-actions">
+            <div>
+              <button type="button" class="btn btn-outline-secondary btn-pill prev">Voltar</button>
+            </div>
+            <div class="right">
+              <button type="button" class="btn btn-outline-secondary btn-pill" id="draft3">Salvar rascunho</button>
+              <button type="button" class="btn btn-primary btn-pill next">Próximo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== PASSO 4: HÁBITOS ====== -->
+        <div class="crm-card wiz-pane" data-step="4">
+          <div class="crm-head-row"><h5 class="mb-0">4) Hábitos</h5></div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Fuma?</label>
+              <div class="yn" data-yn="fuma">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="fuma_qtd" placeholder="Quantidade/dia"></div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Consome álcool?</label>
+              <div class="yn" data-yn="bebida">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Socialmente">Socialmente</span>
+                <span class="chip" data-v="Frequente">Frequente</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Escovação (vezes/dia)</label>
+              <input type="number" class="form-control" name="escovacao" min="0" max="10" value="2">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Usa fio dental?</label>
+              <select class="form-control" name="fio_dental">
+                <option>Diariamente</option><option>Algumas vezes/semana</option><option>Raramente</option><option>Nunca</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Última consulta odontológica</label>
+              <input type="date" class="form-control" name="ultima_consulta">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Bruxismo (ranger/apertar dentes)?</label>
+              <div class="yn" data-yn="bruxismo">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Próteses/Aparelho/Implantes?</label>
+              <div class="yn" data-yn="protese_implante">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+              <div class="if-yes mt-2"><input class="form-control" name="protese_implante_quais" placeholder="Quais?"></div>
+            </div>
+          </div>
+
+          <div class="wiz-actions">
+            <div>
+              <button type="button" class="btn btn-outline-secondary btn-pill prev">Voltar</button>
+            </div>
+            <div class="right">
+              <button type="button" class="btn btn-outline-secondary btn-pill" id="draft4">Salvar rascunho</button>
+              <button type="button" class="btn btn-primary btn-pill next">Próximo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== PASSO 5: ODONTOLOGIA ====== -->
+        <div class="crm-card wiz-pane" data-step="5">
+          <div class="crm-head-row"><h5 class="mb-0">5) Odontologia</h5></div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Sangramento gengival?</label>
+              <div class="yn" data-yn="sangra_gengiva">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Sensibilidade / dor ao mastigar?</label>
+              <div class="yn" data-yn="dor_mastigar">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Boca seca / halitose?</label>
+              <div class="yn" data-yn="boca_seca">
+                <span class="chip" data-v="Não">Não</span>
+                <span class="chip" data-v="Sim">Sim</span>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Observações odontológicas</label>
+              <input class="form-control" name="odonto_obs" placeholder="Algo importante a registrar">
+            </div>
+          </div>
+
+          <div class="wiz-actions">
+            <div>
+              <button type="button" class="btn btn-outline-secondary btn-pill prev">Voltar</button>
+            </div>
+            <div class="right">
+              <button type="button" class="btn btn-outline-secondary btn-pill" id="draft5">Salvar rascunho</button>
+              <button type="button" class="btn btn-primary btn-pill next">Próximo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== PASSO 6: TERMOS & ASSINATURA + RESUMO ====== -->
+        <div class="crm-card wiz-pane" data-step="6">
+          <div class="crm-head-row"><h5 class="mb-0">6) Termos, Assinatura & Resumo</h5></div>
+
+          <div class="crm-card mb-3" style="background:#fbfdff">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <div class="custom-control custom-checkbox mb-2">
+                  <input type="checkbox" class="custom-control-input" id="t1" required>
+                  <label class="custom-control-label" for="t1">
+                    Declaro que as informações prestadas são verdadeiras e autorizo o uso para fins de prontuário.
+                  </label>
+                </div>
+                <div class="custom-control custom-checkbox mb-2">
+                  <input type="checkbox" class="custom-control-input" id="t2">
+                  <label class="custom-control-label" for="t2">
+                    Autorizo contato por WhatsApp/E-mail sobre meu tratamento.
+                  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="t3">
+                  <label class="custom-control-label" for="t3">
+                    Autorizo o uso de imagens intra-orais para fins clínicos/ensino (nunca em redes sociais sem autorização específica).
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Local e data</label>
+              <input class="form-control" name="local_data" placeholder="São Paulo, __/__/____">
+            </div>
+            <div class="form-group col-md-6">
+              <label>Nome do(a) responsável (se menor)</label>
+              <input class="form-control" name="responsavel">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Assinatura (desenhe)</label>
+            <canvas id="sign" class="sign-pad"></canvas>
+            <div class="muted-sm mt-1">Dica: assine com o dedo (celular) ou mouse (desktop). <a href="javascript:void(0)" id="clearSign">Limpar</a></div>
+          </div>
+
+          <div class="crm-card" id="resume" style="background:#fff;display:none"></div>
+
+          <div class="wiz-actions">
+            <div>
+              <button type="button" class="btn btn-outline-secondary btn-pill prev">Voltar</button>
+            </div>
+            <div class="right">
+              <button type="button" class="btn btn-outline-secondary btn-pill" id="preview">Pré-visualizar</button>
+              <button type="button" class="btn btn-outline-secondary btn-pill" id="print">Imprimir/PDF</button>
+              <button type="submit" class="btn btn-primary btn-pill">Finalizar</button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- Libs -->
+<script src="../js/jquery-3.4.1.min.js"></script>
+<script src="../js/bootstrap.js"></script>
+
+<script>
+(function(){
+  const app    = document.querySelector('.crm-app');
+  const btn    = document.getElementById('btn-sidebar');
+  const ov     = document.getElementById('crm-overlay');
+  btn?.addEventListener('click', ()=>app.classList.toggle('sidebar-open'));
+  ov?.addEventListener('click', ()=>app.classList.remove('sidebar-open'));
+})();
+
+/* ===== Helpers ===== */
+const $ = (q,root=document)=>root.querySelector(q);
+const $$= (q,root=document)=>Array.from(root.querySelectorAll(q));
+const key = 'odonto:anamnese:draft';
+
+function saveDraft(){
+  const data = getFormData();
+  localStorage.setItem(key, JSON.stringify(data));
+}
+function loadDraft(){
+  try{
+    const d = JSON.parse(localStorage.getItem(key)||'{}');
+    if(!d || typeof d!=='object') return;
+    // inputs/selects/textarea
+    $$('#wizForm input[name], #wizForm select[name], #wizForm textarea[name]').forEach(el=>{
+      if(d[el.name] != null) el.value = d[el.name];
+    });
+    // yn chips
+    $$('.yn').forEach(w=>{
+      const k = w.dataset.yn;
+      if(!k || d[k]==null) return;
+      const val = d[k];
+      w.querySelectorAll('.chip').forEach(c=>{
+        c.classList.toggle('active', c.dataset.v===val);
+      });
+      toggleIfYes(w);
+    });
+  }catch(e){}
+}
+function getFormData(){
+  const data = {};
+  // campos básicos
+  $$('#wizForm input[name], #wizForm select[name], #wizForm textarea[name]').forEach(el=>{
+    data[el.name] = el.value;
+  });
+  // grupos yes/no e equivalentes
+  $$('.yn').forEach(w=>{
+    const k = w.dataset.yn;
+    const act = w.querySelector('.chip.active');
+    if(k) data[k] = act ? act.dataset.v : '';
+  });
+  // termos
+  data.termo_1 = $('#t1').checked ? 'Sim':'Não';
+  data.termo_2 = $('#t2').checked ? 'Sim':'Não';
+  data.termo_3 = $('#t3').checked ? 'Sim':'Não';
+  // assinatura (imagem base64 se existir)
+  data.assinatura = window._signDataURL || '';
+  return data;
+}
+
+/* ===== Navegação do wizard ===== */
+let cur = 1, total = 6;
+function go(n){
+  cur = Math.max(1, Math.min(total, n));
+  $$('.wiz-pane').forEach(p=>p.classList.toggle('active', Number(p.dataset.step)===cur));
+  // stepper
+  for(let i=1;i<=6;i++){
+    const dot  = document.querySelector(`[data-dot="${i}"]`);
+    const line = document.querySelector(`[data-line="${i}"]`);
+    dot.classList.remove('active','done');
+    if(i<cur){ dot.classList.add('done'); }
+    if(i===cur){ dot.classList.add('active'); }
+    if(line){ line.classList.toggle('done', i<cur); }
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.addEventListener('click', (e)=>{
+  if(e.target.classList.contains('next')) { go(cur+1); }
+  if(e.target.classList.contains('prev')) { go(cur-1); }
+});
+
+/* ===== Chips Sim/Não ===== */
+function toggleIfYes(w){
+  const v  = w.querySelector('.chip.active')?.dataset.v || 'Não';
+  const box= w.parentElement.querySelector('.if-yes');
+  if(!box) return;
+  const show = (v!=='Não' && v!=='Nenhuma');
+  box.classList.toggle('show', show);
+}
+document.addEventListener('click', (e)=>{
+  const chip = e.target.closest('.yn .chip');
+  if(!chip) return;
+  const wrap = chip.closest('.yn');
+  wrap.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  toggleIfYes(wrap);
+  saveDraft();
+});
+
+/* ===== Auto-save ===== */
+$$('#draft1,#draft2,#draft3,#draft4,#draft5').forEach(b=>b.addEventListener('click', ()=>{
+  saveDraft();
+  b.textContent='Rascunho salvo ✔';
+  setTimeout(()=>b.textContent='Salvar rascunho',1200);
+}));
+$('#wizForm').addEventListener('input', saveDraft);
+
+/* ===== Assinatura (canvas simples) ===== */
+(function signPad(){
+  const c = document.getElementById('sign');
+  const ctx = c.getContext('2d');
+  let draw=false, prev=null;
+  function pos(e){
+    const r=c.getBoundingClientRect();
+    const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    return {x,y};
+  }
+  function begin(e){ draw=true; prev=pos(e); e.preventDefault(); }
+  function move(e){
+    if(!draw) return;
+    const p=pos(e);
+    ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#0f172a';
+    ctx.beginPath(); ctx.moveTo(prev.x,prev.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+    prev=p; e.preventDefault();
+  }
+  function end(){ draw=false; window._signDataURL = c.toDataURL('image/png'); }
+  c.addEventListener('mousedown',begin); c.addEventListener('mousemove',move); c.addEventListener('mouseup',end); c.addEventListener('mouseleave',end);
+  c.addEventListener('touchstart',begin,{passive:false}); c.addEventListener('touchmove',move,{passive:false}); c.addEventListener('touchend',end);
+  document.getElementById('clearSign').addEventListener('click',()=>{
+    ctx.clearRect(0,0,c.width,c.height); window._signDataURL='';
+  });
+  // ajustar tamanho em telas altas
+  function fit(){ c.width=c.clientWidth; c.height=c.clientHeight; }
+  window.addEventListener('resize', fit); fit();
+})();
+
+/* ===== Resumo ===== */
+function makeResume(){
+  const d = getFormData();
+  const rows = Object.entries(d).filter(([k,v])=>String(v||'').trim()!=='')
+    .map(([k,v])=>`<tr><td class="py-1 pr-2" style="white-space:nowrap"><strong>${k}</strong></td><td class="py-1">${v}</td></tr>`).join('');
+  const img = d.assinatura ? `<img src="${d.assinatura}" alt="Assinatura" style="max-width:260px;border:1px solid var(--ring);border-radius:8px;background:#fff">` : '<em class="muted">sem assinatura</em>';
+  $('#resume').innerHTML = `
+    <div class="h6 mb-2">Resumo</div>
+    <div class="table-responsive">
+      <table class="table table-sm"><tbody>${rows}</tbody></table>
+    </div>
+    <div class="mt-2"><div class="muted-sm mb-1">Assinatura</div>${img}</div>
+  `;
+  $('#resume').style.display='block';
+}
+$('#preview').addEventListener('click', ()=>{ makeResume(); saveDraft(); });
+$('#print').addEventListener('click', ()=>{ makeResume(); window.print(); });
+
+/* ===== Submit ===== */
+$('#wizForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  if(!$('#t1').checked){
+    alert('É necessário aceitar o primeiro termo.');
+    return;
+  }
+  const data = getFormData();
+  console.log('ANAMNESE_FINAL', data); // aqui você envia ao backend se quiser
+  localStorage.removeItem(key);
+  alert('Anamnese finalizada com sucesso! ✅');
+  window.location.href = 'documentos.html';
+});
+
+/* ===== Init ===== */
+loadDraft();
+go(1);
+})();
+</script>
+</body>
+</html>

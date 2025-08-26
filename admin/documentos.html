@@ -488,8 +488,222 @@
 })();
 </script>
 
+  <script>
+/* ========= 1) Catálogo de templates ========= */
+const DOC_TEMPLATES = [
+  {
+    key:'anamnese',
+    name:'Anamnese',
+    cat:'clinicos',
+    icon:'fa-regular fa-clipboard',
+    desc:'Ficha clínica do paciente (versão em etapas).',
+    // se o modal de slides existir, abre ele; senão, cai no form curto
+    customOpen: () => {
+      const hasAnm = document.getElementById('md-anamnese');
+      if (hasAnm){ $('#md-anamnese').modal('show'); return true; }
+      return false;
+    },
+    fields: [
+      {name:'paciente', label:'Paciente', required:true},
+      {name:'nascimento', label:'Data de nascimento', type:'date'},
+      {name:'queixa', label:'Queixa principal', type:'textarea'}
+    ],
+    render: (d)=>`
+      <h2>Anamnese</h2>
+      <div class="print-box">
+        <b>Paciente:</b> ${d.paciente||'-'}<br>
+        <b>Nascimento:</b> ${fmt(d.nascimento)||'-'}
+      </div>
+      <h3 class="mt-3">Queixa principal</h3>
+      <div class="print-box">${(d.queixa||'—').replace(/\\n/g,'<br>')}</div>
+    `
+  },
+  {
+    key:'consent_cirurgia',
+    name:'Termo de Consentimento – Cirurgia/Extração',
+    cat:'consentimentos',
+    icon:'fa-regular fa-file-signature',
+    desc:'Autorização e ciência de riscos do procedimento.',
+    fields:[
+      {name:'paciente', label:'Paciente', required:true},
+      {name:'proc', label:'Procedimento', required:true},
+      {name:'data', label:'Data', type:'date', required:true},
+      {name:'responsavel', label:'Responsável (se menor)'}
+    ],
+    render: d=>`
+      <h2>Termo de Consentimento</h2>
+      <div class="print-box">
+        Eu, <b>${d.paciente}</b>, declaro que fui informado(a) sobre o procedimento
+        <b>${d.proc}</b>, bem como seus benefícios, alternativas e possíveis riscos (dor, sangramento,
+        edema, falhas de cicatrização, infecção, parestesias, necessidade de retratamento, entre outros).
+        Declaro ainda que minhas dúvidas foram esclarecidas, e autorizo a execução do procedimento
+        na data de <b>${fmt(d.data)}</b>.
+        ${d.responsavel ? `<br><br>Responsável: <b>${d.responsavel}</b>` : ''}
+      </div>
+      <div class="mt-3" style="display:flex; gap:24px">
+        <div style="flex:1" class="print-box"><br><br>__________________________________<br>Assinatura do paciente</div>
+        <div style="flex:1" class="print-box"><br><br>__________________________________<br>Assinatura do profissional</div>
+      </div>
+    `
+  },
+  {
+    key:'lgpd_consent',
+    name:'Termo LGPD – Consentimento de Dados',
+    cat:'lgpd',
+    icon:'fa-regular fa-shield',
+    desc:'Autorização de uso e armazenamento de dados pessoais.',
+    fields:[
+      {name:'paciente', label:'Titular dos dados (Paciente)', required:true},
+      {name:'data', label:'Data', type:'date', required:true},
+    ],
+    render: d=>`
+      <h2>Consentimento de Dados (LGPD)</h2>
+      <div class="print-box">
+        Eu, <b>${d.paciente}</b>, autorizo a clínica a coletar, armazenar e tratar meus dados
+        pessoais e sensíveis para fins de atendimento odontológico, nos termos da Lei 13.709/2018.
+        Estou ciente dos meus direitos de acesso, correção e revogação do consentimento.
+        <br><br>Data: <b>${fmt(d.data)}</b>
+      </div>
+      <div class="mt-3" style="display:flex; gap:24px">
+        <div style="flex:1" class="print-box"><br><br>______________________________<br>Assinatura do titular</div>
+        <div style="flex:1" class="print-box"><br><br>______________________________<br>Assinatura do responsável técnico</div>
+      </div>
+    `
+  },
+  {
+    key:'declaracao_comparecimento',
+    name:'Declaração de Comparecimento',
+    cat:'atestados',
+    icon:'fa-regular fa-file',
+    desc:'Comprovante de presença do paciente na clínica.',
+    fields:[
+      {name:'paciente', label:'Paciente', required:true},
+      {name:'data', label:'Data', type:'date', required:true},
+      {name:'hora_ini', label:'Horário de chegada', required:true},
+      {name:'hora_fim', label:'Horário de saída', required:true}
+    ],
+    render:d=>`
+      <h2>Declaração de Comparecimento</h2>
+      <div class="print-box">
+        Declaramos para os devidos fins que <b>${d.paciente}</b> esteve presente nesta clínica na data
+        de <b>${fmt(d.data)}</b>, no período de <b>${d.hora_ini}</b> às <b>${d.hora_fim}</b>.
+      </div>
+      <div class="mt-3 print-box">Local e data: _________________________________</div>
+      <div class="mt-3 print-box">Assinatura e carimbo: _________________________</div>
+    `
+  },
+  {
+    key:'atestado',
+    name:'Atestado Odontológico',
+    cat:'atestados',
+    icon:'fa-regular fa-file-medical',
+    desc:'Dispensa/afastamento por motivo odontológico.',
+    fields:[
+      {name:'paciente', label:'Paciente', required:true},
+      {name:'dias', label:'Dias de afastamento', required:true},
+      {name:'cid', label:'CID (opcional)'},
+      {name:'data', label:'Data', type:'date', required:true}
+    ],
+    render:d=>`
+      <h2>Atestado Odontológico</h2>
+      <div class="print-box">
+        Atesto, para os devidos fins, que <b>${d.paciente}</b> necessita de afastamento
+        por <b>${d.dias}</b> dia(s) a contar de <b>${fmt(d.data)}</b>.
+        ${d.cid ? `<br>CID: <b>${d.cid}</b>`:''}
+      </div>
+      <div class="mt-3 print-box">Assinatura e carimbo do cirurgião-dentista: ________________________</div>
+    `
+  },
+  {
+    key:'receituario',
+    name:'Receituário',
+    cat:'prescricoes',
+    icon:'fa-regular fa-prescription-bottle',
+    desc:'Prescrição medicamentosa.',
+    fields:[
+      {name:'paciente', label:'Paciente', required:true},
+      {name:'prescricao', label:'Prescrição', type:'textarea', required:true},
+      {name:'orientacoes', label:'Orientações', type:'textarea'},
+      {name:'data', label:'Data', type:'date', required:true}
+    ],
+    render:d=>`
+      <h2>Receituário</h2>
+      <div class="print-box">
+        <b>Paciente:</b> ${d.paciente}<br>
+        <b>Data:</b> ${fmt(d.data)}
+      </div>
+      <h3 class="mt-2">Prescrição</h3>
+      <div class="print-box">${nl(d.prescricao)}</div>
+      ${d.orientacoes ? `<h3 class="mt-2">Orientações</h3><div class="print-box">${nl(d.orientacoes)}</div>`:''}
+      <div class="mt-3 print-box">Assinatura e carimbo do profissional: __________________________</div>
+    `
+  },
+  {
+    key:'pedido_rx',
+    name:'Pedido de Exame Radiográfico',
+    cat:'clinicos',
+    icon:'fa-regular fa-x-ray',
+    desc:'Solicitação de radiografia / exames por imagem.',
+    fields:[
+      {name:'paciente', label:'Paciente', required:true},
+      {name:'exame', label:'Tipo de exame (ex.: periapical, panorâmica, CBCT)', required:true},
+      {name:'regiao', label:'Dente/Região'},
+      {name:'justificativa', label:'Justificativa clínica', type:'textarea'}
+    ],
+    render:d=>`
+      <h2>Pedido de Exame Radiográfico</h2>
+      <div class="print-box">
+        <b>Paciente:</b> ${d.paciente}<br>
+        <b>Exame:</b> ${d.exame}<br>
+        <b>Região:</b> ${d.regiao||'—'}
+      </div>
+      ${d.justificativa ? `<h3 class="mt-2">Justificativa</h3><div class="print-box">${nl(d.justificativa)}</div>`:''}
+      <div class="mt-3 print-box">Assinatura e carimbo do solicitante: __________________________</div>
+    `
+  },
+  {
+    key:'pos_op',
+    name:'Orientações Pós-operatórias',
+    cat:'clinicos',
+    icon:'fa-regular fa-notes-medical',
+    desc:'Folleto com instruções pós-operatórias ao paciente.',
+    fields:[
+      {name:'paciente', label:'Paciente', required:true},
+      {name:'texto', label:'Orientações', type:'textarea', required:true,
+       placeholder:'Ex.: Gelo local por 24–48h; evitar esforço físico; não cuspir nas primeiras 24h; dieta fria e pastosa; analgesia conforme prescrição; não fumar…'}
+    ],
+    render:d=>`
+      <h2>Orientações Pós-operatórias</h2>
+      <div class="print-box"><b>Paciente:</b> ${d.paciente}</div>
+      <div class="print-box">${nl(d.texto)}</div>
+      <div class="mt-3 print-box">Profissional/Carimbo: ________________________________________</div>
+    `
+  },
+];
+
+/* ========= 2) Renderização da página ========= */
+const $grid = document.getElementById('doc-grid');
+const $filters = document.getElementById('doc-filters');
+const $search = document.getElementById('doc-search');
+
+function renderCards(cat='all', q=''){
+  const term = (q||'').toLowerCase();
+  $grid.innerHTML = '';
+  DOC_TEMPLATES
+    .filter(t => (cat==='all' || t.cat===cat))
+    .filter(t => t.name.toLowerCase().includes(term) || (t.desc||'').toLowerCase().includes(term))
+    .forEach(t=>{
+      const col = document.createElement('div');
+      col.className = 'col-xl-3 col-lg-4 col-md-6 mb-3';
+      col.innerHTML = `
+        <div class="crm-card doc-card h-100 d-flex flex-column">
+          <div class="d-flex align-items-start mb-2">
+            <div class="crm-chip" style="m
+
+
 <script src="../js/jquery-3.4.1.min.js"></script><script src="../js/bootstrap.js"></script><script src="assets/crm.js"></script>
 </body></html>
+
 
 
 

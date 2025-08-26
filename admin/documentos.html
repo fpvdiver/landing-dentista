@@ -36,34 +36,70 @@
   </main>
 </div>
   <main class="crm-main">
-    <section class="crm-hero">
-      <h1 class="text-center mb-1">Documentos</h1>
-      <div class="crm-search">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input placeholder="Buscar documento..." />
-        <button class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
-        <a href="#" class="btn btn-sm btn-primary btn-pill ml-auto"><i class="fa-regular fa-paper-plane mr-1"></i> Novo documento</a>
-      </div>
-    </section>
+  <!-- HERO -->
+<section class="crm-hero">
+  <h1 class="text-center mb-1">Documentos</h1>
 
-  <!-- BOTÃO EXEMPLO -->
-<button class="btn btn-primary btn-pill" data-toggle="modal" data-target="#md-anamnese">
-  Anamnese
-</button>
+  <div class="crm-search">
+    <i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i>
+    <input id="doc-search" placeholder="Buscar documento..." />
+    <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-doc-search">Buscar</button>
+    <button class="btn btn-sm btn-primary btn-pill ml-auto" id="btn-doc-new">
+      <i class="fa-regular fa-paper-plane mr-1"></i> Novo documento
+    </button>
+  </div>
 
-<!-- MODAL: ANAMNESE -->
-<div class="modal fade" id="md-anamnese" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-xl">
-    <div class="modal-content anm-modal">
+  <div class="search-hint">Dica: pesquise por “atestado”, “receituário”, “anamnese”, “consentimento”…</div>
+</section>
+
+<section class="crm-content">
+  <!-- Filtros -->
+  <div class="mb-3 d-flex flex-wrap" id="doc-filters" style="gap:8px;">
+    <button class="pill active" data-cat="all">Todos</button>
+    <button class="pill" data-cat="clinicos">Clínicos</button>
+    <button class="pill" data-cat="consentimentos">Consentimentos</button>
+    <button class="pill" data-cat="atestados">Atestados/Declarações</button>
+    <button class="pill" data-cat="prescricoes">Prescrições</button>
+    <button class="pill" data-cat="lgpd">LGPD/Financeiro</button>
+  </div>
+
+  <!-- Grid -->
+  <div class="row" id="doc-grid"></div>
+</section>
+
+<!-- MODAL: escolher template (usado pelo botão “Novo documento”) -->
+<div class="modal fade" id="md-doc-select" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
       <div class="modal-header themed">
-        <div class="d-flex align-items-center">
-          <h5 class="modal-title mb-0">
-            <i class="fa-regular fa-clipboard mr-2"></i>Ficha de Anamnese
-          </h5>
-          <div class="ml-3 small muted">Passo <span id="anm-step">1</span>/<span id="anm-total">6</span></div>
-        </div>
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h5 class="modal-title"><i class="fa-regular fa-file-lines mr-2"></i>Escolher documento</h5>
+        <button class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
+      <div class="modal-body">
+        <div class="row" id="doc-select-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: form dinâmico para preenchimento -->
+<div class="modal fade" id="md-doc-form" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title" id="doc-form-title">Documento</h5>
+        <button class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <form id="doc-dyn-form">
+        <div class="modal-body" id="doc-form-body"></div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary btn-pill" type="submit">Gerar documento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
       <div class="anm-progress">
         <div class="anm-progress-bar" id="anm-progress"></div>
@@ -454,6 +490,7 @@
 
 <script src="../js/jquery-3.4.1.min.js"></script><script src="../js/bootstrap.js"></script><script src="assets/crm.js"></script>
 </body></html>
+
 
 
 

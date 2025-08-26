@@ -1,15 +1,37 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CRM Odonto – Documentos</title>
-  <link rel="stylesheet" href="../css/bootstrap.css">
-  <link rel="stylesheet" href="css/crm.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- CSS base -->
+  <link rel="stylesheet" href="../css/bootstrap.css" />
+  <link rel="stylesheet" href="css/crm.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Sidebar helper (mesmo arquivo usado nas outras páginas) -->
+  <script defer src="js/sidebar.js"></script>
+
+  <style>
+    /* Ajustes leves específicos da página */
+    .doc-filters{ display:flex; gap:10px; padding:12px 4px; overflow:auto; }
+    .doc-chip{ border:1px solid var(--ring); background:#fff; border-radius:999px; padding:6px 12px; cursor:pointer; white-space:nowrap; }
+    .doc-chip.active{ border-color:var(--primary); color:#0369a1; background:#eff6ff; }
+    .doc-grid{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:16px; }
+    .doc-card{ display:flex; gap:12px; align-items:flex-start; }
+    .doc-icon{ width:42px; height:42px; display:grid; place-items:center; border-radius:12px; background:var(--chip); color:#0f172a; }
+    .doc-title{ font-weight:700; }
+    .doc-meta{ font-size:12px; color:var(--muted); }
+    @media (max-width: 1200px){ .doc-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 768px){  .doc-grid{ grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body data-page="documentos">
+
 <div class="crm-app">
- <!-- sidebar + shell comum -->
-<div class="crm-app">
-  <aside class="crm-sidebar">
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" id="crm-sidebar">
     <div class="crm-brand">
       <span class="logo"></span>
       <div>
@@ -17,6 +39,7 @@
         <div style="color:var(--muted); font-size:12px;">Clínica Elen Nogata</div>
       </div>
     </div>
+
     <nav class="crm-nav">
       <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
       <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
@@ -24,330 +47,103 @@
       <a href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
       <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
       <a href="campanhas.html" data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
+      <a href="documentos.html" class="active"><i class="fa-regular fa-file-lines"></i> Documentos</a>
       <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
     </nav>
+
     <div class="crm-footer">
       <div>Conectado como <strong>admin@clinica</strong></div>
       <div>v0.1</div>
     </div>
   </aside>
+
+  <!-- Overlay mobile -->
+  <div class="crm-overlay" id="crm-overlay"></div>
+
+  <!-- ===== Main ===== -->
   <main class="crm-main">
-    <!-- HERO + CONTENT específicos de cada página aqui -->
+    <!-- Botão hambúrguer (mobile) -->
+    <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- HERO -->
+    <section class="crm-hero">
+      <h1 class="text-center mb-3">Documentos</h1>
+
+      <div class="crm-search" style="max-width:840px">
+        <i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i>
+        <input id="doc-search" placeholder="Buscar documento, termo, especialidade..." />
+        <button id="btn-search" class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
+        <a id="btn-new" class="btn btn-sm btn-primary btn-pill ml-2">
+          <i class="fa-regular fa-paper-plane mr-1"></i> Novo documento
+        </a>
+      </div>
+      <div class="search-hint">Dica: pesquise por “anamnese”, “consentimento”, “implante”, “LGPD”...</div>
+    </section>
+
+    <!-- CONTEÚDO -->
+    <section class="crm-content">
+      <!-- filtros/abas -->
+      <div class="doc-filters">
+        <span class="doc-chip active" data-filter="tudo">Tudo</span>
+        <span class="doc-chip" data-filter="anamnese">Anamnese</span>
+        <span class="doc-chip" data-filter="consentimento">Consentimentos</span>
+        <span class="doc-chip" data-filter="administrativo">Administrativo</span>
+        <span class="doc-chip" data-filter="ortodontia">Ortodontia</span>
+        <span class="doc-chip" data-filter="implante">Implantodontia</span>
+        <span class="doc-chip" data-filter="cirurgia">Cirurgia</span>
+        <span class="doc-chip" data-filter="endodontia">Endodontia</span>
+        <span class="doc-chip" data-filter="periodontia">Periodontia</span>
+        <span class="doc-chip" data-filter="estetica">Estética</span>
+        <span class="doc-chip" data-filter="radiologia">Radiologia</span>
+      </div>
+
+      <div class="doc-grid" id="doc-grid">
+        <!-- cards renderizados via JS -->
+      </div>
+    </section>
   </main>
 </div>
-  <main class="crm-main">
-  <!-- HERO -->
-<section class="crm-hero">
-  <h1 class="text-center mb-1">Documentos</h1>
 
-  <div class="crm-search">
-    <i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i>
-    <input id="doc-search" placeholder="Buscar documento..." />
-    <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-doc-search">Buscar</button>
-    <button class="btn btn-sm btn-primary btn-pill ml-auto" id="btn-doc-new">
-      <i class="fa-regular fa-paper-plane mr-1"></i> Novo documento
-    </button>
-  </div>
-
-  <div class="search-hint">Dica: pesquise por “atestado”, “receituário”, “anamnese”, “consentimento”…</div>
-</section>
-
-<section class="crm-content">
-  <!-- Filtros -->
-  <div class="mb-3 d-flex flex-wrap" id="doc-filters" style="gap:8px;">
-    <button class="pill active" data-cat="all">Todos</button>
-    <button class="pill" data-cat="clinicos">Clínicos</button>
-    <button class="pill" data-cat="consentimentos">Consentimentos</button>
-    <button class="pill" data-cat="atestados">Atestados/Declarações</button>
-    <button class="pill" data-cat="prescricoes">Prescrições</button>
-    <button class="pill" data-cat="lgpd">LGPD/Financeiro</button>
-  </div>
-
-  <!-- Grid -->
-  <div class="row" id="doc-grid"></div>
-</section>
-
-<!-- MODAL: escolher template (usado pelo botão “Novo documento”) -->
-<div class="modal fade" id="md-doc-select" tabindex="-1" aria-hidden="true">
+<!-- ===== MODAL: novo documento ===== -->
+<div class="modal fade" id="md-new-doc" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header themed">
-        <h5 class="modal-title"><i class="fa-regular fa-file-lines mr-2"></i>Escolher documento</h5>
-        <button class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h5 class="modal-title"><i class="fa-regular fa-file-lines mr-2"></i>Novo documento</h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
-      <div class="modal-body">
-        <div class="row" id="doc-select-grid"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: form dinâmico para preenchimento -->
-<div class="modal fade" id="md-doc-form" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header themed">
-        <h5 class="modal-title" id="doc-form-title">Documento</h5>
-        <button class="close" data-dismiss="modal"><span>&times;</span></button>
-      </div>
-      <form id="doc-dyn-form">
-        <div class="modal-body" id="doc-form-body"></div>
-        <div class="modal-footer">
-          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
-          <button class="btn btn-primary btn-pill" type="submit">Gerar documento</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-      <div class="anm-progress">
-        <div class="anm-progress-bar" id="anm-progress"></div>
-      </div>
-
-      <form id="form-anamnese">
+      <form id="form-new-doc">
         <div class="modal-body">
-          <div class="anm-viewport">
-            <!-- ========== PASSO 1: DADOS PESSOAIS ========== -->
-            <section class="an-step active">
-              <div class="crm-card">
-                <h6 class="mb-3">Dados pessoais</h6>
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label>Nome completo *</label>
-                    <input class="form-control" name="nome" required />
-                  </div>
-                  <div class="form-group col-md-3">
-                    <label>Data de nascimento *</label>
-                    <input type="date" class="form-control" name="nascimento" required />
-                  </div>
-                  <div class="form-group col-md-3">
-                    <label>Sexo</label>
-                    <select class="form-control" name="sexo">
-                      <option>F</option><option>M</option><option>Outro</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-group col-md-8">
-                    <label>Endereço</label>
-                    <input class="form-control" name="endereco"/>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label>Telefone</label>
-                    <input class="form-control" name="telefone" placeholder="(11) 9 9999-9999"/>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- ========== PASSO 2: QUEIXA PRINCIPAL ========== -->
-            <section class="an-step">
-              <div class="crm-card">
-                <h6 class="mb-3">Queixa principal</h6>
-                <textarea class="form-control" rows="5" name="queixa" placeholder="Descreva o motivo da consulta..."></textarea>
-              </div>
-            </section>
-
-            <!-- ========== PASSO 3: SAÚDE GERAL ========== -->
-            <section class="an-step">
-              <div class="crm-card">
-                <h6 class="mb-3">Saúde geral</h6>
-
-                <div class="q">
-                  <label class="d-block">Está em tratamento médico?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="tratamento_medico" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="tratamento_medico" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="tratamento_medico_qual" placeholder="Qual?"></div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Possui diabetes?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="diabetes" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="diabetes" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="diabetes_qual" placeholder="Tipo / observações"></div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Possui algum distúrbio sanguíneo?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="disturbio_sanguineo" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="disturbio_sanguineo" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="disturbio_sanguineo_qual" placeholder="Qual?"></div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Possui alguma doença cardiovascular?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="cardio" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="cardio" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="cardio_qual" placeholder="Qual?"></div>
-                </div>
-              </div>
-            </section>
-
-            <!-- ========== PASSO 4: HISTÓRICO MÉDICO ========== -->
-            <section class="an-step">
-              <div class="crm-card">
-                <h6 class="mb-3">Histórico médico</h6>
-
-                <div class="q">
-                  <label class="d-block">Já teve hepatite?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="hepatite" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="hepatite" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="hepatite_qual" placeholder="Tipo/ano"></div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Possui alguma alergia?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="alergia" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="alergia" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="alergia_qual" placeholder="Medicamentos, alimentos, etc."></div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Já teve reação à anestesia local?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="reacao_anestesia" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="reacao_anestesia" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="reacao_anestesia_qual" placeholder="Descreva"></div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Possui alguma doença respiratória?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="respiratoria" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="respiratoria" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="respiratoria_qual" placeholder="Qual?"></div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Possui DST ou HIV?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="dst_hiv" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="dst_hiv" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="dst_hiv_qual" placeholder="Detalhes"></div>
-                </div>
-              </div>
-            </section>
-
-            <!-- ========== PASSO 5: HÁBITOS E SINAIS ========== -->
-            <section class="an-step">
-              <div class="crm-card">
-                <h6 class="mb-3">Hábitos e sinais</h6>
-
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label>Pressão arterial</label>
-                    <select class="form-control" name="pressao">
-                      <option>Normal</option>
-                      <option>Alta</option>
-                      <option>Baixa</option>
-                    </select>
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label>Se souber, informe o valor</label>
-                    <input class="form-control" name="pressao_valor" placeholder="Ex.: 12/8"/>
-                  </div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Está usando algum medicamento atualmente?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="medicamento" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="medicamento" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="medicamento_qual" placeholder="Qual?"></div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Sangramento gengival com facilidade?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="sangra" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="sangra" value="Sim"> Sim</label>
-                  </div>
-                </div>
-
-                <div class="q">
-                  <label class="d-block">Sente dor ao mastigar com frequência?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="dor_mastigar" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="dor_mastigar" value="Sim"> Sim</label>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- ========== PASSO 6: ODONTOLÓGICO + CONSENTIMENTO ========== -->
-            <section class="an-step">
-              <div class="crm-card">
-                <h6 class="mb-3">Histórico odontológico</h6>
-
-                <div class="q">
-                  <label class="d-block">Tem medo de dentista?</label>
-                  <div class="yn">
-                    <label class="yn-opt"><input type="radio" name="medo_dentista" value="Não" checked> Não</label>
-                    <label class="yn-opt"><input type="radio" name="medo_dentista" value="Sim"> Sim</label>
-                  </div>
-                  <div class="if-yes"><input class="form-control" name="medo_motivo" placeholder="O que te deixa desconfortável?"></div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label>Qual foi a última visita ao dentista?</label>
-                    <input class="form-control" name="ultima_visita" placeholder="Ex.: há 6 meses"/>
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label>Motivo da visita de hoje</label>
-                    <input class="form-control" name="motivo_visita"/>
-                  </div>
-                </div>
-
-                <hr>
-                <div class="form-group">
-                  <label class="d-block font-weight-bold">Declaração</label>
-                  <div class="small muted mb-2">
-                    Declaro que as informações prestadas são verdadeiras e autorizo o uso dos dados para fins clínicos.
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="consent" required>
-                    <label class="custom-control-label" for="consent">Li e concordo com a declaração.</label>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label>Assinatura (digite seu nome completo)</label>
-                    <input class="form-control" name="assinatura" required>
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label>Data</label>
-                    <input type="date" class="form-control" name="data_assinatura" required>
-                  </div>
-                </div>
-              </div>
-            </section>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Paciente</label>
+              <input class="form-control" list="dl-pacientes" id="nd-paciente" placeholder="Digite para buscar..." required>
+              <datalist id="dl-pacientes">
+                <option value="Amanda">
+                <option value="Bruna">
+                <option value="Carlos">
+                <option value="Emiliane">
+              </datalist>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Modelo</label>
+              <select class="form-control" id="nd-modelo" required></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Observações (opcional)</label>
+            <input class="form-control" id="nd-notes" placeholder="Campos adicionais, instruções, etc.">
+          </div>
+          <div class="alert alert-light mb-0">
+            Ao confirmar, abriremos o preenchimento do modelo escolhido. Você poderá salvar em PDF, imprimir ou compartilhar um link.
           </div>
         </div>
-
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary btn-pill" id="anm-prev">Anterior</button>
-          <button type="button" class="btn btn-primary btn-pill" id="anm-next">Próximo</button>
-          <button type="submit" class="btn btn-primary btn-pill d-none" id="anm-submit">
-            Enviar anamnese
+          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary btn-pill" type="submit">
+            <i class="fa-regular fa-pen-to-square mr-1"></i> Iniciar preenchimento
           </button>
         </div>
       </form>
@@ -355,356 +151,179 @@
   </div>
 </div>
 
-    
-
-  </main>
-</div>
+<!-- ===== SCRIPTS ===== -->
+<script src="../js/jquery-3.4.1.min.js"></script>
+<script src="../js/bootstrap.js"></script>
 
 <script>
-(function(){
-  const form = document.getElementById('form-anamnese');
-  const steps = Array.from(document.querySelectorAll('.an-step'));
-  const prevBtn = document.getElementById('anm-prev');
-  const nextBtn = document.getElementById('anm-next');
-  const submitBtn = document.getElementById('anm-submit');
-  const progress = document.getElementById('anm-progress');
-  const stepLbl = document.getElementById('anm-step');
-  const totalLbl = document.getElementById('anm-total');
-  const DRAFT_KEY = 'anamnese_draft_v1';
+/** ==========================================================
+ *  Base de modelos (essenciais em odontologia)
+ *  tag: usada para filtro
+ *  cat: categoria textual (exibição)
+ *  ========================================================== */
+const MODELOS = [
+  // Anamnese / Clínica
+  { id:'anamnese-geral', title:'Anamnese Odontológica (Wizard)', cat:'Anamnese', tag:'anamnese', icon:'fa-clipboard-question', updated:'2025-07-10', href:'anamnese.html' },
+  { id:'ficha-clinica', title:'Ficha Clínica Odontológica', cat:'Clínica', tag:'anamnese', icon:'fa-notes-medical', updated:'2025-05-02', href:'#' },
 
-  let idx = 0;
-  totalLbl.textContent = steps.length;
+  // Consentimentos gerais
+  { id:'consentimento-geral', title:'Termo de Consentimento (Geral)', cat:'Consentimento', tag:'consentimento', icon:'fa-file-signature', updated:'2025-06-14', href:'#' },
+  { id:'consentimento-imagem', title:'Autorização de Uso de Imagem', cat:'LGPD / Imagem', tag:'consentimento', icon:'fa-camera', updated:'2025-03-28', href:'#' },
+  { id:'consentimento-rede-social', title:'Consentimento para Fotografias e Redes Sociais', cat:'LGPD / Imagem', tag:'consentimento', icon:'fa-photo-film', updated:'2025-03-28', href:'#' },
 
-  function show(i){
-    idx = Math.max(0, Math.min(i, steps.length-1));
-    steps.forEach((s, k)=> s.classList.toggle('active', k===idx));
-    stepLbl.textContent = idx+1;
-    progress.style.width = ((idx)/(steps.length-1))*100 + '%';
+  // Administrativo / LGPD
+  { id:'lgpd-privacidade', title:'Termo de Privacidade (LGPD)', cat:'Administrativo', tag:'administrativo', icon:'fa-shield-halved', updated:'2025-02-17', href:'#' },
+  { id:'contrato-tratamento', title:'Contrato de Tratamento / Responsabilidade Financeira', cat:'Administrativo', tag:'administrativo', icon:'fa-file-contract', updated:'2025-06-01', href:'#' },
+  { id:'autorizacao-prontuario', title:'Autorização de Fornecimento/Transferência de Prontuário', cat:'Administrativo', tag:'administrativo', icon:'fa-folder-open', updated:'2025-05-15', href:'#' },
+  { id:'declaracao-comparecimento', title:'Declaração de Comparecimento', cat:'Administrativo', tag:'administrativo', icon:'fa-id-card', updated:'2025-04-19', href:'#' },
 
-    prevBtn.disabled = (idx===0);
-    if (idx === steps.length-1){
-      nextBtn.classList.add('d-none');
-      submitBtn.classList.remove('d-none');
-    } else {
-      nextBtn.classList.remove('d-none');
-      submitBtn.classList.add('d-none');
-    }
-  }
+  // Orçamento / Plano
+  { id:'plano-tratamento', title:'Plano de Tratamento + Orçamento', cat:'Administrativo', tag:'administrativo', icon:'fa-list-check', updated:'2025-05-14', href:'#' },
 
-  function validateStep(){
-    // valida apenas campos required visíveis na etapa atual
-    const cur = steps[idx];
-    const reqs = Array.from(cur.querySelectorAll('[required]'));
-    return reqs.every(el=> !!el.value || (el.type==='checkbox' && el.checked));
-  }
+  // Clínicos por especialidade
+  { id:'ortodontia-consent', title:'Consentimento – Ortodontia (colagem/ajuste/retirada)', cat:'Ortodontia', tag:'ortodontia', icon:'fa-tooth', updated:'2025-06-20', href:'#' },
+  { id:'implante-consent', title:'Consentimento – Implante / Enxerto', cat:'Implantodontia', tag:'implante', icon:'fa-screwdriver-wrench', updated:'2025-05-30', href:'#' },
+  { id:'cirurgia-consent', title:'Consentimento – Cirurgia Oral Menor (exodontia, etc.)', cat:'Cirurgia', tag:'cirurgia', icon:'fa-user-doctor', updated:'2025-06-05', href:'#' },
+  { id:'endodontia-consent', title:'Consentimento – Endodontia (canal)', cat:'Endodontia', tag:'endodontia', icon:'fa-tooth', updated:'2025-06-07', href:'#' },
+  { id:'periodontia-consent', title:'Consentimento – Periodontia', cat:'Periodontia', tag:'periodontia', icon:'fa-leaf', updated:'2025-05-26', href:'#' },
+  { id:'clareamento-consent', title:'Consentimento – Clareamento', cat:'Estética', tag:'estetica', icon:'fa-sparkles', updated:'2025-04-21', href:'#' },
+  { id:'laminas-lentes', title:'Consentimento – Lentes / Laminados', cat:'Estética', tag:'estetica', icon:'fa-gem', updated:'2025-04-21', href:'#' },
+  { id:'bichectomia-consent', title:'Consentimento – Bichectomia', cat:'Cirurgia / Estética', tag:'cirurgia estetica', icon:'fa-scissors', updated:'2025-04-11', href:'#' },
 
-  function goNext(){
-    if (!validateStep()){
-      // foca no primeiro required vazio
-      const cur = steps[idx];
-      const first = cur.querySelector('[required]:invalid, [required]:not([value])');
-      (first || cur.querySelector('[required]'))?.focus();
-      cur.querySelectorAll('[required]').forEach(el=>el.classList.add('is-invalid'));
-      return;
-    }
-    saveDraft();
-    show(idx+1);
-  }
-  function goPrev(){ show(idx-1); }
+  // Prescrições
+  { id:'receita', title:'Receita / Prescrição', cat:'Clínica', tag:'administrativo', icon:'fa-prescription-bottle-medical', updated:'2025-06-03', href:'#' },
+  { id:'atestado', title:'Atestado / Afastamento', cat:'Administrativo', tag:'administrativo', icon:'fa-file-medical', updated:'2025-06-03', href:'#' },
 
-  // autosave
-  function saveDraft(){
-    const data = Object.fromEntries(new FormData(form).entries());
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
-  }
-  function restoreDraft(){
-    try{
-      const data = JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}');
-      Object.entries(data).forEach(([k,v])=>{
-        const el = form.elements[k];
-        if (!el) return;
-        if (el.type === 'radio'){ 
-          const r = form.querySelector(`[name="${k}"][value="${v}"]`);
-          r && (r.checked = true);
-        }else{
-          el.value = v;
-        }
-      });
-    }catch{}
-  }
-
-  // toggles condicionais: garantimos "Não" como default
-  form.addEventListener('change', e=>{
-    if (e.target.matches('.yn-opt input') || e.target.matches('[required]')){
-      e.target.classList.remove('is-invalid');
-    }
-  });
-
-  // navegação
-  nextBtn.addEventListener('click', goNext);
-  prevBtn.addEventListener('click', goPrev);
-  form.addEventListener('keydown', (e)=>{
-    if (e.key === 'Enter' && !e.shiftKey){
-      e.preventDefault();
-      (idx === steps.length-1) ? form.requestSubmit() : goNext();
-    }
-  });
-
-  // envio
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    if (!validateStep()) return;
-
-    const payload = Object.fromEntries(new FormData(form).entries());
-    console.log('ANAMNESE JSON =>', payload);
-
-    // Se você tiver o helper api() do seu crm-api.js, descomente:
-    // try {
-    //   await api('/anamneses', { method:'POST', body: payload });
-    //   localStorage.removeItem(DRAFT_KEY);
-    //   $('#md-anamnese').modal('hide');
-    //   alert('Anamnese enviada ✅');
-    // } catch(err){
-    //   alert('Falha ao enviar: ' + (err.message||''));
-    // }
-
-    // Demo:
-    localStorage.removeItem(DRAFT_KEY);
-    $('#md-anamnese').modal('hide');
-    alert('Anamnese (demo) gerada no console ✅');
-  });
-
-  // ao abrir o modal, restaura
-  $('#md-anamnese').on('shown.bs.modal', ()=>{
-    restoreDraft();
-    show(0);
-  });
-
-  // ao fechar, salva e reseta validações visuais
-  $('#md-anamnese').on('hide.bs.modal', ()=>{
-    saveDraft();
-    form.querySelectorAll('.is-invalid').forEach(el=>el.classList.remove('is-invalid'));
-  });
-})();
-</script>
-
-  <script>
-/* ========= 1) Catálogo de templates ========= */
-const DOC_TEMPLATES = [
-  {
-    key:'anamnese',
-    name:'Anamnese',
-    cat:'clinicos',
-    icon:'fa-regular fa-clipboard',
-    desc:'Ficha clínica do paciente (versão em etapas).',
-    // se o modal de slides existir, abre ele; senão, cai no form curto
-    customOpen: () => {
-      const hasAnm = document.getElementById('md-anamnese');
-      if (hasAnm){ $('#md-anamnese').modal('show'); return true; }
-      return false;
-    },
-    fields: [
-      {name:'paciente', label:'Paciente', required:true},
-      {name:'nascimento', label:'Data de nascimento', type:'date'},
-      {name:'queixa', label:'Queixa principal', type:'textarea'}
-    ],
-    render: (d)=>`
-      <h2>Anamnese</h2>
-      <div class="print-box">
-        <b>Paciente:</b> ${d.paciente||'-'}<br>
-        <b>Nascimento:</b> ${fmt(d.nascimento)||'-'}
-      </div>
-      <h3 class="mt-3">Queixa principal</h3>
-      <div class="print-box">${(d.queixa||'—').replace(/\\n/g,'<br>')}</div>
-    `
-  },
-  {
-    key:'consent_cirurgia',
-    name:'Termo de Consentimento – Cirurgia/Extração',
-    cat:'consentimentos',
-    icon:'fa-regular fa-file-signature',
-    desc:'Autorização e ciência de riscos do procedimento.',
-    fields:[
-      {name:'paciente', label:'Paciente', required:true},
-      {name:'proc', label:'Procedimento', required:true},
-      {name:'data', label:'Data', type:'date', required:true},
-      {name:'responsavel', label:'Responsável (se menor)'}
-    ],
-    render: d=>`
-      <h2>Termo de Consentimento</h2>
-      <div class="print-box">
-        Eu, <b>${d.paciente}</b>, declaro que fui informado(a) sobre o procedimento
-        <b>${d.proc}</b>, bem como seus benefícios, alternativas e possíveis riscos (dor, sangramento,
-        edema, falhas de cicatrização, infecção, parestesias, necessidade de retratamento, entre outros).
-        Declaro ainda que minhas dúvidas foram esclarecidas, e autorizo a execução do procedimento
-        na data de <b>${fmt(d.data)}</b>.
-        ${d.responsavel ? `<br><br>Responsável: <b>${d.responsavel}</b>` : ''}
-      </div>
-      <div class="mt-3" style="display:flex; gap:24px">
-        <div style="flex:1" class="print-box"><br><br>__________________________________<br>Assinatura do paciente</div>
-        <div style="flex:1" class="print-box"><br><br>__________________________________<br>Assinatura do profissional</div>
-      </div>
-    `
-  },
-  {
-    key:'lgpd_consent',
-    name:'Termo LGPD – Consentimento de Dados',
-    cat:'lgpd',
-    icon:'fa-regular fa-shield',
-    desc:'Autorização de uso e armazenamento de dados pessoais.',
-    fields:[
-      {name:'paciente', label:'Titular dos dados (Paciente)', required:true},
-      {name:'data', label:'Data', type:'date', required:true},
-    ],
-    render: d=>`
-      <h2>Consentimento de Dados (LGPD)</h2>
-      <div class="print-box">
-        Eu, <b>${d.paciente}</b>, autorizo a clínica a coletar, armazenar e tratar meus dados
-        pessoais e sensíveis para fins de atendimento odontológico, nos termos da Lei 13.709/2018.
-        Estou ciente dos meus direitos de acesso, correção e revogação do consentimento.
-        <br><br>Data: <b>${fmt(d.data)}</b>
-      </div>
-      <div class="mt-3" style="display:flex; gap:24px">
-        <div style="flex:1" class="print-box"><br><br>______________________________<br>Assinatura do titular</div>
-        <div style="flex:1" class="print-box"><br><br>______________________________<br>Assinatura do responsável técnico</div>
-      </div>
-    `
-  },
-  {
-    key:'declaracao_comparecimento',
-    name:'Declaração de Comparecimento',
-    cat:'atestados',
-    icon:'fa-regular fa-file',
-    desc:'Comprovante de presença do paciente na clínica.',
-    fields:[
-      {name:'paciente', label:'Paciente', required:true},
-      {name:'data', label:'Data', type:'date', required:true},
-      {name:'hora_ini', label:'Horário de chegada', required:true},
-      {name:'hora_fim', label:'Horário de saída', required:true}
-    ],
-    render:d=>`
-      <h2>Declaração de Comparecimento</h2>
-      <div class="print-box">
-        Declaramos para os devidos fins que <b>${d.paciente}</b> esteve presente nesta clínica na data
-        de <b>${fmt(d.data)}</b>, no período de <b>${d.hora_ini}</b> às <b>${d.hora_fim}</b>.
-      </div>
-      <div class="mt-3 print-box">Local e data: _________________________________</div>
-      <div class="mt-3 print-box">Assinatura e carimbo: _________________________</div>
-    `
-  },
-  {
-    key:'atestado',
-    name:'Atestado Odontológico',
-    cat:'atestados',
-    icon:'fa-regular fa-file-medical',
-    desc:'Dispensa/afastamento por motivo odontológico.',
-    fields:[
-      {name:'paciente', label:'Paciente', required:true},
-      {name:'dias', label:'Dias de afastamento', required:true},
-      {name:'cid', label:'CID (opcional)'},
-      {name:'data', label:'Data', type:'date', required:true}
-    ],
-    render:d=>`
-      <h2>Atestado Odontológico</h2>
-      <div class="print-box">
-        Atesto, para os devidos fins, que <b>${d.paciente}</b> necessita de afastamento
-        por <b>${d.dias}</b> dia(s) a contar de <b>${fmt(d.data)}</b>.
-        ${d.cid ? `<br>CID: <b>${d.cid}</b>`:''}
-      </div>
-      <div class="mt-3 print-box">Assinatura e carimbo do cirurgião-dentista: ________________________</div>
-    `
-  },
-  {
-    key:'receituario',
-    name:'Receituário',
-    cat:'prescricoes',
-    icon:'fa-regular fa-prescription-bottle',
-    desc:'Prescrição medicamentosa.',
-    fields:[
-      {name:'paciente', label:'Paciente', required:true},
-      {name:'prescricao', label:'Prescrição', type:'textarea', required:true},
-      {name:'orientacoes', label:'Orientações', type:'textarea'},
-      {name:'data', label:'Data', type:'date', required:true}
-    ],
-    render:d=>`
-      <h2>Receituário</h2>
-      <div class="print-box">
-        <b>Paciente:</b> ${d.paciente}<br>
-        <b>Data:</b> ${fmt(d.data)}
-      </div>
-      <h3 class="mt-2">Prescrição</h3>
-      <div class="print-box">${nl(d.prescricao)}</div>
-      ${d.orientacoes ? `<h3 class="mt-2">Orientações</h3><div class="print-box">${nl(d.orientacoes)}</div>`:''}
-      <div class="mt-3 print-box">Assinatura e carimbo do profissional: __________________________</div>
-    `
-  },
-  {
-    key:'pedido_rx',
-    name:'Pedido de Exame Radiográfico',
-    cat:'clinicos',
-    icon:'fa-regular fa-x-ray',
-    desc:'Solicitação de radiografia / exames por imagem.',
-    fields:[
-      {name:'paciente', label:'Paciente', required:true},
-      {name:'exame', label:'Tipo de exame (ex.: periapical, panorâmica, CBCT)', required:true},
-      {name:'regiao', label:'Dente/Região'},
-      {name:'justificativa', label:'Justificativa clínica', type:'textarea'}
-    ],
-    render:d=>`
-      <h2>Pedido de Exame Radiográfico</h2>
-      <div class="print-box">
-        <b>Paciente:</b> ${d.paciente}<br>
-        <b>Exame:</b> ${d.exame}<br>
-        <b>Região:</b> ${d.regiao||'—'}
-      </div>
-      ${d.justificativa ? `<h3 class="mt-2">Justificativa</h3><div class="print-box">${nl(d.justificativa)}</div>`:''}
-      <div class="mt-3 print-box">Assinatura e carimbo do solicitante: __________________________</div>
-    `
-  },
-  {
-    key:'pos_op',
-    name:'Orientações Pós-operatórias',
-    cat:'clinicos',
-    icon:'fa-regular fa-notes-medical',
-    desc:'Folleto com instruções pós-operatórias ao paciente.',
-    fields:[
-      {name:'paciente', label:'Paciente', required:true},
-      {name:'texto', label:'Orientações', type:'textarea', required:true,
-       placeholder:'Ex.: Gelo local por 24–48h; evitar esforço físico; não cuspir nas primeiras 24h; dieta fria e pastosa; analgesia conforme prescrição; não fumar…'}
-    ],
-    render:d=>`
-      <h2>Orientações Pós-operatórias</h2>
-      <div class="print-box"><b>Paciente:</b> ${d.paciente}</div>
-      <div class="print-box">${nl(d.texto)}</div>
-      <div class="mt-3 print-box">Profissional/Carimbo: ________________________________________</div>
-    `
-  },
+  // Radiologia
+  { id:'solicitacao-radiografia', title:'Solicitação de Radiografia / Ortopantomografia', cat:'Radiologia', tag:'radiologia', icon:'fa-x-ray', updated:'2025-05-10', href:'#' },
 ];
 
-/* ========= 2) Renderização da página ========= */
-const $grid = document.getElementById('doc-grid');
-const $filters = document.getElementById('doc-filters');
-const $search = document.getElementById('doc-search');
+/* =========== Renderização de cards =========== */
+function iconFor(m){
+  // só usa Font Awesome regular/solid já importado
+  return `<div class="doc-icon"><i class="fa-solid ${m.icon}"></i></div>`;
+}
 
-function renderCards(cat='all', q=''){
-  const term = (q||'').toLowerCase();
-  $grid.innerHTML = '';
-  DOC_TEMPLATES
-    .filter(t => (cat==='all' || t.cat===cat))
-    .filter(t => t.name.toLowerCase().includes(term) || (t.desc||'').toLowerCase().includes(term))
-    .forEach(t=>{
-      const col = document.createElement('div');
-      col.className = 'col-xl-3 col-lg-4 col-md-6 mb-3';
-      col.innerHTML = `
-        <div class="crm-card doc-card h-100 d-flex flex-column">
-          <div class="d-flex align-items-start mb-2">
-            <div class="crm-chip" style="m
+function actionsFor(m){
+  // Ações fictícias (placeholder). "href" pode abrir um form ou página específica.
+  const fillHref = m.href && m.href !== '#'
+    ? m.href
+    : 'javascript:void(0)';
+  return `
+    <div class="d-flex" style="gap:8px; flex-wrap:wrap">
+      <a href="${fillHref}" class="btn btn-sm btn-outline-secondary btn-pill" ${m.href==='#' ? 'onclick="alert(\'Preenchimento deste modelo será adicionado.\')"' : ''}>
+        <i class="fa-regular fa-pen-to-square mr-1"></i> Preencher
+      </a>
+      <button class="btn btn-sm btn-outline-secondary btn-pill" onclick="alert('Impressão/PDF em breve')">
+        <i class="fa-regular fa-file-pdf mr-1"></i> PDF
+      </button>
+      <button class="btn btn-sm btn-outline-secondary btn-pill" onclick="alert('Link de compartilhamento gerado!')">
+        <i class="fa-regular fa-share-from-square mr-1"></i> Compartilhar
+      </button>
+    </div>`;
+}
 
+function cardTemplate(m){
+  return `
+    <div class="crm-card doc-card" data-tags="${m.tag}">
+      ${iconFor(m)}
+      <div style="flex:1; min-width:0">
+        <div class="doc-title">${m.title}</div>
+        <div class="doc-meta">${m.cat} • Atualizado em ${new Date(m.updated).toLocaleDateString('pt-BR')}</div>
+        <div class="mt-2">${actionsFor(m)}</div>
+      </div>
+    </div>
+  `;
+}
 
-<script src="../js/jquery-3.4.1.min.js"></script><script src="../js/bootstrap.js"></script><script src="assets/crm.js"></script>
-</body></html>
+function renderGrid(filter='tudo', q=''){
+  const grid = document.getElementById('doc-grid');
+  grid.innerHTML = '';
 
+  const term = (q||'').trim().toLowerCase();
+  const list = MODELOS.filter(m => {
+    const byTag = filter==='tudo' ? true : (m.tag||'').includes(filter);
+    const byText = !term ? true :
+      [m.title, m.cat, m.tag].join(' ').toLowerCase().includes(term);
+    return byTag && byText;
+  });
 
+  if(!list.length){
+    grid.innerHTML = `
+      <div class="crm-card">
+        <div class="h6 mb-1">Nenhum documento encontrado</div>
+        <div class="muted">Ajuste os filtros ou a busca.</div>
+      </div>`;
+    return;
+  }
 
+  list.forEach(m => grid.insertAdjacentHTML('beforeend', cardTemplate(m)));
+}
 
+/* =========== Interações =========== */
+document.addEventListener('DOMContentLoaded', () => {
+  // Nav ativa
+  const nav = document.querySelector('.crm-nav a[href="documentos.html"]');
+  if(nav) nav.classList.add('active');
 
+  // Render inicial
+  renderGrid('tudo','');
+
+  // Chips de filtro
+  document.querySelectorAll('.doc-chip').forEach(ch => {
+    ch.addEventListener('click', () => {
+      document.querySelectorAll('.doc-chip').forEach(c=>c.classList.remove('active'));
+      ch.classList.add('active');
+      const filter = ch.dataset.filter || 'tudo';
+      const q = document.getElementById('doc-search').value;
+      renderGrid(filter, q);
+    });
+  });
+
+  // Busca
+  document.getElementById('btn-search').addEventListener('click', ()=>{
+    const actChip = document.querySelector('.doc-chip.active');
+    const filter = actChip ? actChip.dataset.filter : 'tudo';
+    renderGrid(filter, document.getElementById('doc-search').value);
+  });
+  document.getElementById('doc-search').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') document.getElementById('btn-search').click();
+  });
+
+  // Modal Novo documento
+  const sel = document.getElementById('nd-modelo');
+  MODELOS.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id; opt.textContent = `${m.title} — ${m.cat}`;
+    sel.appendChild(opt);
+  });
+
+  document.getElementById('btn-new').addEventListener('click', ()=> $('#md-new-doc').modal('show'));
+
+  document.getElementById('form-new-doc').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const modelo = sel.value;
+    const found = MODELOS.find(m=>m.id===modelo);
+    $('#md-new-doc').modal('hide');
+    if(found && found.href && found.href!=='#'){
+      // Abre página/flow do modelo
+      window.location.href = found.href;
+    }else{
+      alert('Iniciaremos o preenchimento deste modelo em breve.');
+    }
+  });
+
+  // Sidebar (caso não use o sidebar.js, deixo fallback)
+  const app = document.querySelector('.crm-app');
+  const btn = document.getElementById('btn-sidebar');
+  const overlay = document.getElementById('crm-overlay');
+  function close(){ app.classList.remove('sidebar-open'); }
+  function toggle(){ app.classList.toggle('sidebar-open'); }
+  btn?.addEventListener('click', toggle);
+  overlay?.addEventListener('click', close);
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+  document.querySelectorAll('.crm-nav a').forEach(a => a.addEventListener('click', close));
+});
+</script>
+</body>
+</html>

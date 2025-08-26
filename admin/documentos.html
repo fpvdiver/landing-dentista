@@ -46,50 +46,281 @@
       </div>
     </section>
 
-    <section class="crm-content">
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <div class="crm-card">
-            <div class="d-flex align-items-center mb-2">
-              <i class="fa-brands fa-whatsapp mr-2" style="font-size:22px;color:#22c55e"></i>
-              <strong>WhatsApp – Recall de limpeza</strong>
-            </div>
-            <div class="muted mb-2">Segmento: sem visita há 6 meses</div>
-            <div class="d-flex justify-content-between">
-              <span class="badge-soft bg-soft-green">Ativa</span>
-              <a class="btn btn-sm btn-outline-secondary btn-pill">Ver resultados</a>
-            </div>
-          </div>
+  <!-- BOTÃO EXEMPLO -->
+<button class="btn btn-primary btn-pill" data-toggle="modal" data-target="#md-anamnese">
+  Preencher anamnese
+</button>
+
+<!-- MODAL: ANAMNESE -->
+<div class="modal fade" id="md-anamnese" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-xl">
+    <div class="modal-content anm-modal">
+      <div class="modal-header themed">
+        <div class="d-flex align-items-center">
+          <h5 class="modal-title mb-0">
+            <i class="fa-regular fa-clipboard mr-2"></i>Ficha de Anamnese
+          </h5>
+          <div class="ml-3 small muted">Passo <span id="anm-step">1</span>/<span id="anm-total">6</span></div>
         </div>
-        <div class="col-md-4 mb-3">
-          <div class="crm-card">
-            <div class="d-flex align-items-center mb-2">
-              <i class="fa-regular fa-envelope mr-2" style="font-size:22px;color:#6366f1"></i>
-              <strong>E-mail – Pós-procedimento</strong>
-            </div>
-            <div class="muted mb-2">Segmento: concluiu tratamento</div>
-            <div class="d-flex justify-content-between">
-              <span class="badge-soft">Rascunho</span>
-              <a class="btn btn-sm btn-outline-secondary btn-pill">Editar</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-3">
-          <div class="crm-card">
-            <div class="d-flex align-items-center mb-2">
-              <i class="fa-regular fa-message mr-2" style="font-size:22px;color:#f59e0b"></i>
-              <strong>SMS – Confirmação de agenda</strong>
-            </div>
-            <div class="muted mb-2">Segmento: agendamentos de amanhã</div>
-            <div class="d-flex justify-content-between">
-              <span class="badge-soft bg-soft-amber">Pendente</span>
-              <a class="btn btn-sm btn-outline-secondary btn-pill">Configurar</a>
-            </div>
-          </div>
-        </div>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
-    </section>
+
+      <div class="anm-progress">
+        <div class="anm-progress-bar" id="anm-progress"></div>
+      </div>
+
+      <form id="form-anamnese">
+        <div class="modal-body">
+          <div class="anm-viewport">
+            <!-- ========== PASSO 1: DADOS PESSOAIS ========== -->
+            <section class="an-step active">
+              <div class="crm-card">
+                <h6 class="mb-3">Dados pessoais</h6>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label>Nome completo *</label>
+                    <input class="form-control" name="nome" required />
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label>Data de nascimento *</label>
+                    <input type="date" class="form-control" name="nascimento" required />
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label>Sexo</label>
+                    <select class="form-control" name="sexo">
+                      <option>F</option><option>M</option><option>Outro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-8">
+                    <label>Endereço</label>
+                    <input class="form-control" name="endereco"/>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Telefone</label>
+                    <input class="form-control" name="telefone" placeholder="(11) 9 9999-9999"/>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ========== PASSO 2: QUEIXA PRINCIPAL ========== -->
+            <section class="an-step">
+              <div class="crm-card">
+                <h6 class="mb-3">Queixa principal</h6>
+                <textarea class="form-control" rows="5" name="queixa" placeholder="Descreva o motivo da consulta..."></textarea>
+              </div>
+            </section>
+
+            <!-- ========== PASSO 3: SAÚDE GERAL ========== -->
+            <section class="an-step">
+              <div class="crm-card">
+                <h6 class="mb-3">Saúde geral</h6>
+
+                <div class="q">
+                  <label class="d-block">Está em tratamento médico?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="tratamento_medico" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="tratamento_medico" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="tratamento_medico_qual" placeholder="Qual?"></div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Possui diabetes?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="diabetes" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="diabetes" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="diabetes_qual" placeholder="Tipo / observações"></div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Possui algum distúrbio sanguíneo?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="disturbio_sanguineo" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="disturbio_sanguineo" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="disturbio_sanguineo_qual" placeholder="Qual?"></div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Possui alguma doença cardiovascular?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="cardio" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="cardio" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="cardio_qual" placeholder="Qual?"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ========== PASSO 4: HISTÓRICO MÉDICO ========== -->
+            <section class="an-step">
+              <div class="crm-card">
+                <h6 class="mb-3">Histórico médico</h6>
+
+                <div class="q">
+                  <label class="d-block">Já teve hepatite?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="hepatite" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="hepatite" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="hepatite_qual" placeholder="Tipo/ano"></div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Possui alguma alergia?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="alergia" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="alergia" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="alergia_qual" placeholder="Medicamentos, alimentos, etc."></div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Já teve reação à anestesia local?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="reacao_anestesia" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="reacao_anestesia" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="reacao_anestesia_qual" placeholder="Descreva"></div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Possui alguma doença respiratória?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="respiratoria" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="respiratoria" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="respiratoria_qual" placeholder="Qual?"></div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Possui DST ou HIV?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="dst_hiv" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="dst_hiv" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="dst_hiv_qual" placeholder="Detalhes"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ========== PASSO 5: HÁBITOS E SINAIS ========== -->
+            <section class="an-step">
+              <div class="crm-card">
+                <h6 class="mb-3">Hábitos e sinais</h6>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label>Pressão arterial</label>
+                    <select class="form-control" name="pressao">
+                      <option>Normal</option>
+                      <option>Alta</option>
+                      <option>Baixa</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label>Se souber, informe o valor</label>
+                    <input class="form-control" name="pressao_valor" placeholder="Ex.: 12/8"/>
+                  </div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Está usando algum medicamento atualmente?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="medicamento" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="medicamento" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="medicamento_qual" placeholder="Qual?"></div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Sangramento gengival com facilidade?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="sangra" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="sangra" value="Sim"> Sim</label>
+                  </div>
+                </div>
+
+                <div class="q">
+                  <label class="d-block">Sente dor ao mastigar com frequência?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="dor_mastigar" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="dor_mastigar" value="Sim"> Sim</label>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ========== PASSO 6: ODONTOLÓGICO + CONSENTIMENTO ========== -->
+            <section class="an-step">
+              <div class="crm-card">
+                <h6 class="mb-3">Histórico odontológico</h6>
+
+                <div class="q">
+                  <label class="d-block">Tem medo de dentista?</label>
+                  <div class="yn">
+                    <label class="yn-opt"><input type="radio" name="medo_dentista" value="Não" checked> Não</label>
+                    <label class="yn-opt"><input type="radio" name="medo_dentista" value="Sim"> Sim</label>
+                  </div>
+                  <div class="if-yes"><input class="form-control" name="medo_motivo" placeholder="O que te deixa desconfortável?"></div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label>Qual foi a última visita ao dentista?</label>
+                    <input class="form-control" name="ultima_visita" placeholder="Ex.: há 6 meses"/>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label>Motivo da visita de hoje</label>
+                    <input class="form-control" name="motivo_visita"/>
+                  </div>
+                </div>
+
+                <hr>
+                <div class="form-group">
+                  <label class="d-block font-weight-bold">Declaração</label>
+                  <div class="small muted mb-2">
+                    Declaro que as informações prestadas são verdadeiras e autorizo o uso dos dados para fins clínicos.
+                  </div>
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="consent" required>
+                    <label class="custom-control-label" for="consent">Li e concordo com a declaração.</label>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label>Assinatura (digite seu nome completo)</label>
+                    <input class="form-control" name="assinatura" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label>Data</label>
+                    <input type="date" class="form-control" name="data_assinatura" required>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-pill" id="anm-prev">Anterior</button>
+          <button type="button" class="btn btn-primary btn-pill" id="anm-next">Próximo</button>
+          <button type="submit" class="btn btn-primary btn-pill d-none" id="anm-submit">
+            Enviar anamnese
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
   </main>
 </div>
 <script src="../js/jquery-3.4.1.min.js"></script><script src="../js/bootstrap.js"></script><script src="assets/crm.js"></script>
 </body></html>
+

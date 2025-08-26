@@ -319,8 +319,140 @@
   </div>
 </div>
 
+    
+
   </main>
 </div>
+
+<script>
+(function(){
+  const form = document.getElementById('form-anamnese');
+  const steps = Array.from(document.querySelectorAll('.an-step'));
+  const prevBtn = document.getElementById('anm-prev');
+  const nextBtn = document.getElementById('anm-next');
+  const submitBtn = document.getElementById('anm-submit');
+  const progress = document.getElementById('anm-progress');
+  const stepLbl = document.getElementById('anm-step');
+  const totalLbl = document.getElementById('anm-total');
+  const DRAFT_KEY = 'anamnese_draft_v1';
+
+  let idx = 0;
+  totalLbl.textContent = steps.length;
+
+  function show(i){
+    idx = Math.max(0, Math.min(i, steps.length-1));
+    steps.forEach((s, k)=> s.classList.toggle('active', k===idx));
+    stepLbl.textContent = idx+1;
+    progress.style.width = ((idx)/(steps.length-1))*100 + '%';
+
+    prevBtn.disabled = (idx===0);
+    if (idx === steps.length-1){
+      nextBtn.classList.add('d-none');
+      submitBtn.classList.remove('d-none');
+    } else {
+      nextBtn.classList.remove('d-none');
+      submitBtn.classList.add('d-none');
+    }
+  }
+
+  function validateStep(){
+    // valida apenas campos required visíveis na etapa atual
+    const cur = steps[idx];
+    const reqs = Array.from(cur.querySelectorAll('[required]'));
+    return reqs.every(el=> !!el.value || (el.type==='checkbox' && el.checked));
+  }
+
+  function goNext(){
+    if (!validateStep()){
+      // foca no primeiro required vazio
+      const cur = steps[idx];
+      const first = cur.querySelector('[required]:invalid, [required]:not([value])');
+      (first || cur.querySelector('[required]'))?.focus();
+      cur.querySelectorAll('[required]').forEach(el=>el.classList.add('is-invalid'));
+      return;
+    }
+    saveDraft();
+    show(idx+1);
+  }
+  function goPrev(){ show(idx-1); }
+
+  // autosave
+  function saveDraft(){
+    const data = Object.fromEntries(new FormData(form).entries());
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+  }
+  function restoreDraft(){
+    try{
+      const data = JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}');
+      Object.entries(data).forEach(([k,v])=>{
+        const el = form.elements[k];
+        if (!el) return;
+        if (el.type === 'radio'){ 
+          const r = form.querySelector(`[name="${k}"][value="${v}"]`);
+          r && (r.checked = true);
+        }else{
+          el.value = v;
+        }
+      });
+    }catch{}
+  }
+
+  // toggles condicionais: garantimos "Não" como default
+  form.addEventListener('change', e=>{
+    if (e.target.matches('.yn-opt input') || e.target.matches('[required]')){
+      e.target.classList.remove('is-invalid');
+    }
+  });
+
+  // navegação
+  nextBtn.addEventListener('click', goNext);
+  prevBtn.addEventListener('click', goPrev);
+  form.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      (idx === steps.length-1) ? form.requestSubmit() : goNext();
+    }
+  });
+
+  // envio
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    if (!validateStep()) return;
+
+    const payload = Object.fromEntries(new FormData(form).entries());
+    console.log('ANAMNESE JSON =>', payload);
+
+    // Se você tiver o helper api() do seu crm-api.js, descomente:
+    // try {
+    //   await api('/anamneses', { method:'POST', body: payload });
+    //   localStorage.removeItem(DRAFT_KEY);
+    //   $('#md-anamnese').modal('hide');
+    //   alert('Anamnese enviada ✅');
+    // } catch(err){
+    //   alert('Falha ao enviar: ' + (err.message||''));
+    // }
+
+    // Demo:
+    localStorage.removeItem(DRAFT_KEY);
+    $('#md-anamnese').modal('hide');
+    alert('Anamnese (demo) gerada no console ✅');
+  });
+
+  // ao abrir o modal, restaura
+  $('#md-anamnese').on('shown.bs.modal', ()=>{
+    restoreDraft();
+    show(0);
+  });
+
+  // ao fechar, salva e reseta validações visuais
+  $('#md-anamnese').on('hide.bs.modal', ()=>{
+    saveDraft();
+    form.querySelectorAll('.is-invalid').forEach(el=>el.classList.remove('is-invalid'));
+  });
+})();
+</script>
+
 <script src="../js/jquery-3.4.1.min.js"></script><script src="../js/bootstrap.js"></script><script src="assets/crm.js"></script>
 </body></html>
+
 

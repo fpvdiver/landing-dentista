@@ -507,9 +507,68 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   });
 })();
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(location.search);
+  const preName = params.get('paciente');
+  if (!preName) return;
+
+  // Abre o modal um tiquinho depois do DOM carregar
+  setTimeout(async () => {
+    $('#md-agendamento').modal('show');
+
+    const f = document.getElementById('form-agendamento');
+    if (!f) return;
+
+    // Preenche nome
+    if (f.paciente) f.paciente.value = preName;
+
+    // Tenta buscar dados do paciente no BD para preencher contato
+    try {
+      const results = await (window.CRMApi?.searchPatients
+        ? window.CRMApi.searchPatients(preName)
+        : Promise.resolve([]));
+
+      const p = (results||[]).find(x =>
+        (x.full_name || x.name || '').toLowerCase() === preName.toLowerCase()
+      ) || results?.[0];
+
+      if (p) {
+        if (f.phone) f.phone.value = p.phone || '';
+        if (f.email) f.email.value = p.email || '';
+      }
+    } catch (e) {
+      console.warn('Busca do paciente falhou:', e);
+    }
+
+    // Data/hora padrão: próximo bloco de 30 min (hoje)
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 30);
+    now.setMinutes(now.getMinutes() - (now.getMinutes() % 30), 0, 0);
+
+    const yyyy = now.getFullYear();
+    const mm   = String(now.getMonth() + 1).padStart(2, '0');
+    const dd   = String(now.getDate()).padStart(2, '0');
+    const HH   = String(now.getHours()).padStart(2, '0');
+    const MI   = String(now.getMinutes()).padStart(2, '0');
+
+    if (f.date) f.date.value = `${yyyy}-${mm}-${dd}`;
+    if (f.time) f.time.value = `${HH}:${MI}`;
+
+    // Duração padrão conforme procedimento selecionado
+    const procSel = document.getElementById('ag-proc');
+    const durSel  = document.getElementById('ag-dur');
+    const durOpt  = procSel?.selectedOptions?.[0]?.dataset?.dur;
+    if (durSel && durOpt) durSel.value = `${durOpt} min`;
+  }, 150);
+});
+</script>
+
   
 </body>
 </html>
+
 
 
 

@@ -75,7 +75,7 @@ html,body{height:100%; background:var(--bg); color:var(--ink);}
   position:fixed; left:12px; top:12px;
   z-index:1050;
   left: max(12px, env(safe-area-inset-left));   /* respeita notch/iOS */
-  top: 12px;
+  top: 30px;
   transition: left .25s ease;
 }
 
@@ -198,6 +198,7 @@ html, body { overflow-x: hidden; }
 
 /* evita scroll lateral quando off-canvas existe */
 html,body{overflow-x:hidden;}
+
 
 
 

@@ -9,14 +9,15 @@
 <div class="crm-app">
  <!-- sidebar + shell comum -->
 <div class="crm-app">
-  <aside class="crm-sidebar">
+   <aside class="crm-sidebar" id="crm-sidebar">
     <div class="crm-brand">
       <span class="logo"></span>
       <div>
-        <div style="font-weight:800; font-size:18px;">OdontoCRM</div>
-        <div style="color:var(--muted); font-size:12px;">Clínica Elen Nogata</div>
+        <div style="font-weight:800; font-size:18px;">Clínica</div>
+        <div style="color:var(--muted); font-size:12px;">Elen Nogata</div>
       </div>
     </div>
+
     <nav class="crm-nav">
       <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
       <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
@@ -26,15 +27,15 @@
       <a href="campanhas.html" data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
       <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
     </nav>
+
     <div class="crm-footer">
-      <div>Conectado como <strong>admin@clinica</strong></div>
+      <div>Conectado como <strong>Dra Elen@clinica</strong></div>
       <div>v0.1</div>
     </div>
   </aside>
-  <main class="crm-main">
-    <!-- HERO + CONTENT específicos de cada página aqui -->
-  </main>
-</div>
+
+  <!-- overlay que aparece quando a sidebar é aberta no mobile -->
+  <div class="crm-overlay" id="crm-overlay"></div>
   <main class="crm-main">
     <section class="crm-hero">
       <h1 class="text-center mb-1">Campanhas</h1>
@@ -93,3 +94,4 @@
 </div>
 <script src="../js/jquery-3.4.1.min.js"></script><script src="../js/bootstrap.js"></script><script src="assets/crm.js"></script>
 </body></html>
+

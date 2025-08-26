@@ -1,12 +1,14 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CRM Odonto – Início</title>
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="css/crm.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- Inclua em TODAS as páginas, após Font Awesome / Bootstrap -->
-<script src="js/sidebar.js"></script>
-
+  <!-- Sidebar -->
+  <script src="js/sidebar.js"></script>
 </head>
 <body data-page="inicio">
 
@@ -37,16 +39,16 @@
     </div>
   </aside>
 
-  <!-- overlay que aparece quando a sidebar é aberta no mobile -->
+  <!-- overlay mobile -->
   <div class="crm-overlay" id="crm-overlay"></div>
 
+  <!-- MAIN (único) -->
   <main class="crm-main">
-    <!-- Botão hambúrguer (mostrado apenas no mobile) -->
+    <!-- Burger (mobile) -->
     <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
       <i class="fa-solid fa-bars"></i>
     </button>
 
-  <main class="crm-main">
     <section class="crm-hero">
       <h1 class="text-center mb-1">O que você quer fazer hoje?</h1>
       <div class="tabs justify-content-center">
@@ -76,7 +78,7 @@
             <ul class="list-unstyled mb-0">
               <li class="py-2 border-bottom"><span class="badge-soft bg-soft-green mr-2">Agendado</span> Implante – Emiliane • 23/08 16:45</li>
               <li class="py-2 border-bottom"><span class="badge-soft bg-soft-amber mr-2">Pré-agendamento</span> Clareamento – Felipe • 22/08 17:00</li>
-              <li class="py-2"> <span class="badge-soft bg-soft-purple mr-2">Contato</span> Avaliação – Fúlvio • 21/08 18:00</li>
+              <li class="py-2"><span class="badge-soft bg-soft-purple mr-2">Contato</span> Avaliação – Fúlvio • 21/08 18:00</li>
             </ul>
           </div>
         </div>
@@ -108,21 +110,13 @@
 
 <!-- ====== MODAIS – INÍCIO ====== -->
 <style>
-  /* toque visual dos modais no tema */
-  .modal-header.themed{
-    background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);
-    border-bottom:1px solid var(--ring);
-  }
-  .modal-header .modal-title{font-weight:800; letter-spacing:.2px;}
-  .form-section-title{
-    font-size:12px; color:var(--muted); text-transform:uppercase;
-    letter-spacing:.08em; font-weight:700; margin:8px 0 4px;
-  }
-  .table-mini td,.table-mini th{padding:.55rem .6rem;}
-  .w-44{width:44px;}
-  .btn-pill{border-radius:999px;}
-  .chip-inline{display:inline-flex; align-items:center; gap:8px; padding:6px 10px;
-    border:1px solid var(--ring); border-radius:999px; background:#fff;}
+  .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
+  .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
+  .form-section-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin:8px 0 4px}
+  .table-mini td,.table-mini th{padding:.55rem .6rem}
+  .w-44{width:44px}
+  .btn-pill{border-radius:999px}
+  .chip-inline{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--ring);border-radius:999px;background:#fff}
 </style>
 
 <!-- md: NOVO AGENDAMENTO -->
@@ -401,43 +395,6 @@
     </div>
   </div>
 </div>
-
-<!-- md: PROCEDIMENTOS (gerenciar) -->
-<div class="modal fade" id="md-procedimentos" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header themed">
-        <h5 class="modal-title"><i class="fa-solid fa-tooth mr-2"></i>Procedimentos</h5>
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-      </div>
-      <div class="modal-body">
-        <div class="table-responsive">
-          <table class="table table-mini mb-3" id="proc-table">
-            <thead><tr><th>Nome</th><th>Duração</th><th>Preço (R$)</th><th>Código</th><th style="width:60px"></th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <div class="crm-card">
-          <div class="form-row">
-            <div class="form-group col-md-5"><label>Nome</label><input class="form-control" id="proc-name"></div>
-            <div class="form-group col-md-2"><label>Duração</label>
-              <select class="form-control" id="proc-dur">
-                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
-              </select>
-            </div>
-            <div class="form-group col-md-3"><label>Preço</label><input type="number" class="form-control" id="proc-price" step="0.01" value="0"></div>
-            <div class="form-group col-md-2"><label>Código</label><input class="form-control" id="proc-code" placeholder="EX-001"></div>
-          </div>
-          <button class="btn btn-primary btn-pill" id="proc-add"><i class="fa-solid fa-plus mr-1"></i> Adicionar</button>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Fechar</button>
-      </div>
-    </div>
-  </div>
-</div>
 <!-- ====== MODAIS – FIM ====== -->
 
 <script>
@@ -449,7 +406,7 @@ const PROC_PRECOS = {
   "Implante unitário": 4500.00
 };
 
-/* ===== Wire chips -> abrir modais (mantém seu visual) ===== */
+/* ===== Wire chips -> abrir modais ===== */
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.crm-chip').forEach(ch=>{
     const label = ch.textContent.trim().toLowerCase();
@@ -461,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* Agendamento: set duração padrão ao trocar procedimento */
+  /* Agendamento: duração padrão por procedimento */
   const agProc = document.getElementById('ag-proc');
   const agDur  = document.getElementById('ag-dur');
   if(agProc && agDur){
@@ -488,7 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>
     `;
     tbody.appendChild(tr);
-    // preencher preço padrão
     const select = tr.querySelector('.orc-proc');
     const unit   = tr.querySelector('.orc-unit');
     unit.value = Number(select.selectedOptions[0].dataset.price || 0).toFixed(2);
@@ -529,64 +485,13 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault(); e.target.closest('tr').remove(); calc();
     }
   });
-  // adiciona a 1ª linha por padrão
   addRow();
 
-  /* Procedimentos – lista e inclusão simples */
-  const procTableBody = document.querySelector('#proc-table tbody');
-  const renderProcs = () => {
-    procTableBody.innerHTML = '';
-    Object.entries(PROC_PRECOS).forEach(([nome,preco])=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${nome}</td>
-        <td>60 min</td>
-        <td>${preco.toFixed(2).replace('.',',')}</td>
-        <td>-</td>
-        <td class="text-right">
-          <button class="btn btn-sm btn-outline-secondary btn-pill proc-del" data-name="${nome}">Excluir</button>
-        </td>`;
-      procTableBody.appendChild(tr);
-    });
-  };
-  renderProcs();
-
-  document.getElementById('proc-add').addEventListener('click', ()=>{
-    const name = document.getElementById('proc-name').value.trim();
-    const price= Number(document.getElementById('proc-price').value||0);
-    if(!name){ alert('Informe o nome do procedimento.'); return; }
-    PROC_PRECOS[name] = price;
-    // atualizar selects dependentes
-    const sel = document.getElementById('ag-proc');
-    if(sel && ![...sel.options].some(o=>o.value===name)){
-      const opt = new Option(name, name);
-      opt.dataset.dur="60";
-      sel.add(opt);
-    }
-    renderProcs();
-    // limpar
-    document.getElementById('proc-name').value='';
-    document.getElementById('proc-price').value='0';
-  });
-
-  procTableBody.addEventListener('click', e=>{
-    if(e.target.classList.contains('proc-del')){
-      const name = e.target.dataset.name;
-      delete PROC_PRECOS[name];
-      renderProcs();
-    }
-  });
-
-  /* Submissões simples (mock) */
+  /* Submissões "mock" mantidas para agendamento e orçamento */
   document.getElementById('form-agendamento').addEventListener('submit', e=>{
     e.preventDefault();
     $('#md-agendamento').modal('hide');
     alert('Agendamento salvo e enviado ✅');
-  });
-  document.getElementById('form-paciente').addEventListener('submit', e=>{
-    e.preventDefault();
-    $('#md-paciente').modal('hide');
-    alert('Paciente cadastrado ✅');
   });
   document.getElementById('form-orc').addEventListener('submit', e=>{
     e.preventDefault();
@@ -597,40 +502,81 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* Sidebar mobile */
 (function () {
   const app = document.querySelector('.crm-app');
   const btn = document.getElementById('btn-sidebar');
   const overlay = document.getElementById('crm-overlay');
 
-  function open(){ app.classList.add('sidebar-open'); }
   function close(){ app.classList.remove('sidebar-open'); }
   function toggle(){ app.classList.toggle('sidebar-open'); }
 
   btn?.addEventListener('click', toggle);
   overlay?.addEventListener('click', close);
 
-  // Fecha ao pressionar ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-  });
-
-  // Fecha ao clicar em um item de navegação (no mobile)
-  document.querySelectorAll('.crm-nav a').forEach(a => {
-    a.addEventListener('click', close);
-  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  document.querySelectorAll('.crm-nav a').forEach(a => { a.addEventListener('click', close); });
 })();
 </script>
 
-
+<!-- libs -->
 <script src="../js/jquery-3.4.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
+
+<!-- Config do n8n + API helpers -->
+<script>
+  // ajuste se precisar (sem barra no final)
+  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
+  // opcional: window.CRM_API_KEY = '...';
+</script>
+<script src="js/crm-api.js"></script>
+
+<!-- Submissão REAL do paciente: Supabase via n8n -->
+<script>
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const formPac = document.getElementById('form-paciente');
+    if (formPac) {
+      // CEP -> auto-preenchimento
+      attachCepAutofill(formPac);
+
+      // Popular datalist com pacientes existentes
+      setupPatientsDatalist?.();
+
+      formPac.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const f = e.target;
+        const payload = {
+          org_id: document.getElementById('org-id')?.value || '00000000-0000-0000-0000-000000000000',
+          full_name: f.name.value.trim(),
+          cpf:  f.cpf.value.trim() || null,
+          dob:  f.dob.value || null,
+          sex:  f.gender.value || null,
+          phone:f.phone.value || null,
+          email:f.email.value || null,
+          address:{
+            cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
+            district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
+          },
+          source: f.source.value || null,
+          notes:  f.notes.value  || null
+        };
+
+        try{
+          const saved = await upsertPaciente(payload);
+          $('#md-paciente').modal('hide');
+          alert(`Paciente salvo: ${saved?.full_name || payload.full_name} ✅`);
+          // recarrega datalist para novos registros
+          setupPatientsDatalist?.();
+        }catch(err){
+          console.error(err);
+          alert(err.message || 'Erro ao salvar paciente');
+        }
+      });
+    }
+  });
+</script>
+
+<!-- seu script (se precisar manter) -->
 <script src="assets/crm.js"></script>
-</body></html>
-
-
-
-
-
-
-
-
+</body>
+</html>

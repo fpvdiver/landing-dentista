@@ -185,7 +185,13 @@ function attachCepAutofill(formEl){
   }
 
   /* ===================== AGENDAMENTOS ===================== */
-  async function getAppointmentsByDay(dateStr, tz){ return api('/appointments/day' + qs({ date: dateStr, tz: tz||'America/Sao_Paulo' })); }
+// crm-api.js (ou script da agenda)
+async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
+  const data = await api('/appointments/day' + qs({ date: dateStr, tz }));
+  // Se vier no formato do Code3, devolve só a lista de eventos
+  return Array.isArray(data) ? data : (data?.events || []);
+}
+
   async function createAppointment(payload){ return api('/appointments', { method:'POST', body: payload }); }
   async function rescheduleAppointment({id,date,time,duracaoMin}){ return api('/appointments/reschedule', { method:'POST', body:{ id, date, time, duracaoMin } }); }
   async function cancelAppointment(id){ return api('/appointments/cancel', { method:'POST', body:{ id } }); }
@@ -395,4 +401,5 @@ function attachCepAutofill(formEl){
     createQuote, addOrcRow, calcOrc,
   };
 })();
+
 

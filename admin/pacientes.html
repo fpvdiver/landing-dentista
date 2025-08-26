@@ -299,13 +299,8 @@
         <td>${last}</td>
         <td class="text-right">
           <a class="btn btn-sm btn-outline-secondary btn-pill" href="prontuario.html?id=${id}">Prontuário</a>
-          <button type="button"
-                  class="btn btn-sm btn-primary btn-pill btn-agendar"
-                  data-p-name="${dsName}"
-                  data-p-phone="${dsPhone}"
-                  data-p-email="${dsEmail}">
-            Agendar
-          </button>
+              <a class="btn btn-sm btn-primary btn-pill" href="agenda.html?paciente=${encodeURIComponent(name)}">Agendar</a>
+
         </td>
       </tr>
     `;
@@ -432,6 +427,7 @@
 
 </body>
 </html>
+
 
 
 

@@ -474,7 +474,34 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   });
 });
 </script>
+
+  <script>
+(function () {
+  const app = document.querySelector('.crm-app');
+  const btn = document.getElementById('btn-sidebar');
+  const overlay = document.getElementById('crm-overlay');
+
+  function open(){ app.classList.add('sidebar-open'); }
+  function close(){ app.classList.remove('sidebar-open'); }
+  function toggle(){ app.classList.toggle('sidebar-open'); }
+
+  btn?.addEventListener('click', toggle);
+  overlay?.addEventListener('click', close);
+
+  // Fecha ao pressionar ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+
+  // Fecha ao clicar em um item de navegação (no mobile)
+  document.querySelectorAll('.crm-nav a').forEach(a => {
+    a.addEventListener('click', close);
+  });
+})();
+</script>
+  
 </body>
 </html>
+
 
 

@@ -7,22 +7,24 @@
 
 (function () {
   /* ===================== CONFIG ===================== */
-  // Garante que não exista barra no final
   function getBase() {
     const b = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/odonto');
-    return String(b).replace(/\/+$/, '');
+    return String(b).replace(/\/+$/, '');            // remove barra(s) final(is)
   }
-  function defaultHeaders() {
-    return {
+  function join(path) {
+    return path.startsWith('/') ? path : '/' + path; // garante 1 barra no meio
+  }
+  function buildHeaders(method, hasBody, extra) {
+    const h = {
       'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      ...(window.CRM_API_KEY ? { 'x-crm-key': window.CRM_API_KEY } : {})
+      ...(window.CRM_API_KEY ? { 'x-crm-key': window.CRM_API_KEY } : {}),
+      ...(extra || {})
     };
+    // NÃO mande Content-Type em GET (evita preflight/OPTIONS)
+    if (hasBody && method !== 'GET') h['Content-Type'] = 'application/json';
+    return h;
   }
-  function url(path) {
-    const base = getBase();
-    return base + (path.startsWith('/') ? path : '/' + path);
-  }
+  function url(path) { return getBase() + join(path); }
 
   /* ===================== UTILS ===================== */
   function toBRL(v){ return (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
@@ -37,17 +39,24 @@
   function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms||250); }; }
 
   async function api(path, { method='GET', body, headers } = {}) {
+    const hasBody = body !== undefined && body !== null;
     const res = await fetch(url(path), {
       method,
-      headers: Object.assign({}, defaultHeaders(), headers||{}),
-      body: body ? JSON.stringify(body) : undefined,
+      headers: buildHeaders(method, hasBody, headers),
+      body: hasBody ? JSON.stringify(body) : undefined,
+      mode: 'cors',
       cache: 'no-store',
     });
-    const text = await res.text();
+
+    const text = await res.text(); // lida com JSON e texto
     let data;
     try { data = JSON.parse(text); } catch { data = text; }
+
     if (!res.ok) {
-      const msg = (data && data.message) || (data && data.error && data.error.message) || res.statusText || 'Erro na API';
+      const msg =
+        (data && data.message) ||
+        (data && data.error && data.error.message) ||
+        res.statusText || 'Erro na API';
       throw new Error(msg);
     }
     return data;
@@ -72,7 +81,7 @@
   function attachCepAutofill(formEl){
     const cepIn = formEl?.querySelector('[name="cep"]');
     if (!cepIn) return;
-    cepIn.addEventListener('change', async ()=>{
+    cepIn.addEventListener('blur', async ()=>{
       const addr = await buscaCEP(cepIn.value);
       if (!addr) return;
       formEl.querySelector('[name="street"]')?.value   = addr.street;
@@ -140,7 +149,6 @@
 
   /* ===================== PACIENTES ===================== */
   async function upsertPaciente(payload){
-    // POST /patient/upsert
     return api('/patient/upsert', { method:'POST', body: payload });
   }
   async function listPatients(limit){ return api('/patients' + qs({limit: limit||50})); }
@@ -217,7 +225,7 @@
 
   /* ===================== BOOTSTRAP DE FORMULÁRIOS ===================== */
   document.addEventListener('DOMContentLoaded', ()=>{
-    // Carregamentos iniciais (ignora erros silenciosamente)
+    // Carregamentos iniciais
     Promise.all([ loadProcedures(), setupPatientsDatalist() ]).catch(console.warn);
 
     /* ---- Procedimentos ---- */
@@ -229,9 +237,7 @@
       if (!name) return alert('Informe o nome do procedimento.');
       try{
         await createProcedure({ name, duration:Number(dur), price, code });
-        document.getElementById('proc-name').value='';
-        document.getElementById('proc-price').value='0';
-        document.getElementById('proc-code').value='';
+        document.getElementById('proc-name').value=''; document.getElementById('proc-price').value='0'; document.getElementById('proc-code').value='';
       }catch(err){ alert(err.message); }
     });
 
@@ -369,11 +375,9 @@
   });
 
   /* ===================== EXPOSE ===================== */
-  // Funções que o front usa diretamente:
   window.attachCepAutofill = attachCepAutofill;
   window.upsertPaciente    = upsertPaciente;
 
-  // Extra para debug/uso opcional
   window.CRMApi = {
     api, url, toBRL, qs,
     buscaCEP, attachCepAutofill,

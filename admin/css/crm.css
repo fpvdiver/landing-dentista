@@ -232,6 +232,20 @@ html,body{overflow-x:hidden;}
 }
 
 
+.doc-card:hover{ transform: translateY(-1px); box-shadow:0 8px 30px rgba(15,23,42,.08); }
+.doc-card{ transition:.08s ease; }
+.print-wrap{ max-width:760px; margin:24px auto; color:#111827; font-size:14px; line-height:1.45; }
+.print-wrap h1,.print-wrap h2,.print-wrap h3{ margin:.25rem 0 .5rem; }
+.print-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.print-header .brand{ display:flex; align-items:center; gap:10px; }
+.print-header .logo{ width:36px; height:36px; border-radius:8px; background:#0ea5e9; }
+.print-meta{ font-size:12px; color:#6b7280; }
+.print-box{ border:1px solid #e5e7eb; padding:12px; border-radius:10px; background:#fff; }
+@media print{
+  body{ background:#fff !important; }
+  .print-wrap{ box-shadow:none; margin:0; width:100%; }
+}
+
 
 
 

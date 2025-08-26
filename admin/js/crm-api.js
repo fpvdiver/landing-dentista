@@ -187,7 +187,12 @@ function attachCepAutofill(formEl){
   /* ===================== AGENDAMENTOS ===================== */
 // crm-api.js (ou script da agenda)
 async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
-  const data = await api('/appointments/day' + qs({ date: dateStr, tz }));
+ const bag = await api('/appointments/day' + qs({ date, tz }));
+const events = Array.isArray(bag) ? bag : (bag?.events || []);
+const officeHours = bag?.officeHours || { start:'08:00', end:'19:00' };
+const interval = bag?.intervalMinutes || 60;
+// …renderiza eventos + usa officeHours/interval se quiser
+
   // Se vier no formato do Code3, devolve só a lista de eventos
   return Array.isArray(data) ? data : (data?.events || []);
 }
@@ -401,5 +406,6 @@ async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
     createQuote, addOrcRow, calcOrc,
   };
 })();
+
 
 

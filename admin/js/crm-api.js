@@ -16,9 +16,9 @@
   }
   function buildHeaders(method, hasBody, extra) {
     const h = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       ...(window.CRM_API_KEY ? { 'x-crm-key': window.CRM_API_KEY } : {}),
-      ...(extra || {})
+      ...(extra || {}),
     };
     // NÃO mande Content-Type em GET (evita preflight/OPTIONS)
     if (hasBody && method !== 'GET') h['Content-Type'] = 'application/json';
@@ -37,6 +37,31 @@
     return s ? '?' + s : '';
   }
   function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms||250); }; }
+
+  // Converte qualquer payload "estranho" em array
+  function toArray(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (payload == null) return [];
+    if (Array.isArray(payload.data)) return payload.data;
+    if (Array.isArray(payload.rows)) return payload.rows;
+    if (Array.isArray(payload.items)) return payload.items;
+    if (Array.isArray(payload.result)) return payload.result;
+    if (payload.json && typeof payload.json === 'object') return [payload.json];
+    if (typeof payload === 'object') {
+      const vals = Object.values(payload);
+      if (vals.every(v => typeof v === 'object')) return vals;
+    }
+    return [];
+  }
+
+  // Padroniza campos do paciente
+  function normPatient(p = {}) {
+    const id        = p.id || p.patient_id || p.uuid || p._id || null;
+    const full_name = p.full_name || p.name || p.nome || '';
+    const phone     = p.phone || p.whatsapp || p.celular || p.telefone || '';
+    const email     = p.email || p.mail || '';
+    return { id, full_name, phone, email, ...p };
+  }
 
   async function api(path, { method='GET', body, headers } = {}) {
     const hasBody = body !== undefined && body !== null;
@@ -78,26 +103,24 @@
     };
   }
 
-// substitua a função inteira por esta
-function attachCepAutofill(formEl){
-  const cepIn = formEl?.querySelector('[name="cep"]');
-  if (!cepIn) return;
+  function attachCepAutofill(formEl){
+    const cepIn = formEl?.querySelector('[name="cep"]');
+    if (!cepIn) return;
 
-  const setVal = (sel, val) => {
-    const el = formEl.querySelector(sel);
-    if (el) el.value = val || '';
-  };
+    const setVal = (sel, val) => {
+      const el = formEl.querySelector(sel);
+      if (el) el.value = val || '';
+    };
 
-  cepIn.addEventListener('blur', async ()=>{
-    const addr = await buscaCEP(cepIn.value);
-    if (!addr) return;
-    setVal('[name="street"]',   addr.street);
-    setVal('[name="district"]', addr.district);
-    setVal('[name="city"]',     addr.city);
-    setVal('[name="uf"]',       addr.uf);
-  });
-}
-
+    cepIn.addEventListener('blur', async ()=>{
+      const addr = await buscaCEP(cepIn.value);
+      if (!addr) return;
+      setVal('[name="street"]',   addr.street);
+      setVal('[name="district"]', addr.district);
+      setVal('[name="city"]',     addr.city);
+      setVal('[name="uf"]',       addr.uf);
+    });
+  }
 
   /* ===================== PROCEDURES ===================== */
   let PROCEDURES_CACHE = []; // [{id,name,price,duration,code}]
@@ -156,46 +179,85 @@ function attachCepAutofill(formEl){
   }
 
   /* ===================== PACIENTES ===================== */
-  async function upsertPaciente(payload){
-    return api('/patient/upsert', { method:'POST', body: payload });
-  }
-  async function listPatients(limit){ return api('/patients' + qs({limit: limit||50})); }
-  async function searchPatients(q){ return api('/patients/search' + qs({q})); }
+  // Cache leve para autocomplete e preenchimento
+  let PATIENTS_CACHE = []; // [{id, full_name, phone, email, ...}]
 
+  async function upsertPaciente(payload){
+    const res = await api('/patient/upsert', { method:'POST', body: payload });
+    const arr = toArray(res);
+    const one = arr[0] || res?.record || res;
+    const norm = normPatient(one || {});
+    // atualiza cache (se o nome existir substitui, senão inclui)
+    const idx = PATIENTS_CACHE.findIndex(p => p.id && p.id === norm.id);
+    if (idx >= 0) PATIENTS_CACHE[idx] = norm;
+    else PATIENTS_CACHE.unshift(norm);
+    return norm;
+  }
+
+  async function listPatients(limit){
+    const res = await api('/patients' + qs({limit: limit||50}));
+    const arr = toArray(res).map(normPatient);
+    PATIENTS_CACHE = arr;
+    return arr;
+  }
+
+  async function searchPatients(q){
+    const res = await api('/patients/search' + qs({q}));
+    const arr = toArray(res).map(normPatient);
+    // não perde o cache atual; apenas mescla (por id)
+    arr.forEach(n=>{
+      const i = PATIENTS_CACHE.findIndex(p=>p.id===n.id);
+      if (i>=0) PATIENTS_CACHE[i]=n; else PATIENTS_CACHE.push(n);
+    });
+    return arr;
+  }
+
+  // Preenche datalist e, ao selecionar o paciente, preenche telefone/e-mail
   async function setupPatientsDatalist(){
     const input = document.querySelector('input[name="paciente"]');
     const dl    = document.getElementById('dl-pacientes');
     if (!input || !dl) return;
 
-    // primeiros 50
+    // carrega os primeiros
     try{
       const first = await listPatients(50);
-      dl.innerHTML = (first||[]).map(p=>`<option value="${p.full_name||p.name}" data-id="${p.id}">`).join('');
+      dl.innerHTML = first.map(p=>`<option value="${p.full_name}" data-id="${p.id}">`).join('');
     }catch(e){ console.warn(e); }
 
+    // busca dinâmica
     const fill = debounce(async ()=>{
       const q = input.value.trim();
       if (q.length < 2) return;
       try{
         const res = await searchPatients(q);
-        dl.innerHTML = (res||[]).map(p=>`<option value="${p.full_name||p.name}" data-id="${p.id}">`).join('');
+        dl.innerHTML = res.map(p=>`<option value="${p.full_name}" data-id="${p.id}">`).join('');
       }catch(e){ console.warn(e); }
     }, 220);
     input.addEventListener('input', fill);
+
+    // ao escolher um nome, tente preencher contatos
+    input.addEventListener('change', ()=>{
+      const name = input.value.trim().toLowerCase();
+      if (!name) return;
+      const p = PATIENTS_CACHE.find(x => (x.full_name||'').toLowerCase() === name);
+      const set = (sel,val)=>{ const el = document.querySelector(sel); if (el) el.value = val||''; };
+      if (p){
+        set('#md-agendamento [name="phone"]', p.phone || '');
+        set('#md-agendamento [name="email"]', p.email || '');
+        // se quiser guardar o id para uso posterior:
+        input.dataset.patientId = p.id || '';
+      }
+    });
   }
 
   /* ===================== AGENDAMENTOS ===================== */
-// crm-api.js (ou script da agenda)
-async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
- const bag = await api('/appointments/day' + qs({ date, tz }));
-const events = Array.isArray(bag) ? bag : (bag?.events || []);
-const officeHours = bag?.officeHours || { start:'08:00', end:'19:00' };
-const interval = bag?.intervalMinutes || 60;
-// …renderiza eventos + usa officeHours/interval se quiser
-
-  // Se vier no formato do Code3, devolve só a lista de eventos
-  return Array.isArray(data) ? data : (data?.events || []);
-}
+  async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
+    const bag = await api('/appointments/day' + qs({ date: dateStr, tz }));
+    const events = Array.isArray(bag) ? bag : (bag?.events || []);
+    const officeHours = bag?.officeHours || { start:'08:00', end:'19:00' };
+    const interval = bag?.intervalMinutes || 60;
+    return { events, officeHours, interval, raw: bag };
+  }
 
   async function createAppointment(payload){ return api('/appointments', { method:'POST', body: payload }); }
   async function rescheduleAppointment({id,date,time,duracaoMin}){ return api('/appointments/reschedule', { method:'POST', body:{ id, date, time, duracaoMin } }); }
@@ -406,6 +468,3 @@ const interval = bag?.intervalMinutes || 60;
     createQuote, addOrcRow, calcOrc,
   };
 })();
-
-
-

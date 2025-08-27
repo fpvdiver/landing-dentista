@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="css/crm.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- Sidebar -->
   <script src="js/sidebar.js" defer></script>
 </head>
 <body data-page="inicio">
@@ -22,7 +21,7 @@
       </div>
     </div>
 
-    <!-- ID da organização (fonte única) -->
+    <!-- ID da organização -->
     <input type="hidden" id="org-id" value="6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc" />
 
     <nav class="crm-nav">
@@ -45,9 +44,7 @@
   <!-- overlay mobile -->
   <div class="crm-overlay" id="crm-overlay"></div>
 
-  <!-- MAIN -->
   <main class="crm-main">
-    <!-- Burger (mobile) -->
     <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
       <i class="fa-solid fa-bars"></i>
     </button>
@@ -66,10 +63,10 @@
       </div>
       <div class="search-hint">Dica: “@amanhã” ou “#implante”.</div>
       <div class="crm-quick container-fluid">
-        <div class="crm-chip"><i class="fa-regular fa-calendar-plus"></i> Novo agendamento</div>
-        <div class="crm-chip"><i class="fa-regular fa-user"></i> Novo paciente</div>
-        <div class="crm-chip"><i class="fa-regular fa-clipboard"></i> Novo orçamento</div>
-        <div class="crm-chip"><i class="fa-solid fa-tooth"></i> Procedimentos</div>
+        <div class="crm-chip" data-open="#md-agendamento"><i class="fa-regular fa-calendar-plus"></i> Novo agendamento</div>
+        <div class="crm-chip" data-open="#md-paciente"><i class="fa-regular fa-user"></i> Novo paciente</div>
+        <div class="crm-chip" data-open="#md-orcamento"><i class="fa-regular fa-clipboard"></i> Novo orçamento</div>
+        <div class="crm-chip" data-open="#md-procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</div>
       </div>
     </section>
 
@@ -111,7 +108,7 @@
   </main>
 </div>
 
-<!-- ====== MODAIS – INÍCIO ====== -->
+<!-- ====== MODAIS ====== -->
 <style>
   .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
   .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
@@ -132,25 +129,26 @@
       </div>
       <form id="form-agendamento">
         <div class="modal-body">
+
           <div class="form-section-title">Paciente</div>
           <div class="form-row">
             <div class="form-group col-md-8 position-relative">
-  <label>Nome do paciente</label>
-  <input id="ag-paciente" class="form-control" name="paciente"
-         placeholder="Digite para buscar ou cadastrar" autocomplete="off">
-  <input type="hidden" name="patient_id" id="ag-paciente-id">
-  <div id="ag-paciente-picked" class="paciente-selected d-none">
-    Selecionado: <span class="sel-name"></span>
-    <a id="ag-paciente-trocar">Trocar</a>
-  </div>
-</div>
-<div class="form-group col-md-4 d-flex align-items-end">
-  <button type="button" class="btn btn-outline-secondary btn-pill w-100"
-          data-toggle="modal" data-target="#md-paciente">
-    <i class="fa-regular fa-user mr-1"></i> Novo paciente
-  </button>
-</div>
-
+              <label>Nome do paciente</label>
+              <input id="ag-paciente" class="form-control" name="paciente"
+                     placeholder="Digite para buscar ou cadastrar" autocomplete="off">
+              <input type="hidden" name="patient_id" id="ag-paciente-id">
+              <div id="ag-paciente-picked" class="paciente-selected d-none">
+                Selecionado: <span class="sel-name"></span>
+                <a id="ag-paciente-trocar">Trocar</a>
+              </div>
+            </div>
+            <div class="form-group col-md-4 d-flex align-items-end">
+              <button type="button" class="btn btn-outline-secondary btn-pill w-100"
+                      data-toggle="modal" data-target="#md-paciente">
+                <i class="fa-regular fa-user mr-1"></i> Novo paciente
+              </button>
+            </div>
+          </div>
 
           <div class="form-row">
             <div class="form-group col-md-4">
@@ -169,10 +167,10 @@
             </div>
           </div>
 
-
+          <div class="form-section-title">Atendimento</div>
           <div class="form-row">
             <div class="form-group col-md-5">
-           <label>Procedimento</label>
+              <label>Procedimento</label>
               <select class="form-control" name="proc" id="ag-proc">
                 <option value="Profilaxia" data-dur="30">Profilaxia</option>
                 <option value="Clareamento" data-dur="60">Clareamento</option>
@@ -241,7 +239,6 @@
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <form id="form-paciente">
-        <!-- o org-id é injetado via JS a partir do hidden da sidebar -->
         <div class="modal-body">
           <div class="form-row">
             <div class="form-group col-md-8">
@@ -323,6 +320,7 @@
             <div class="form-group col-md-5">
               <label>Paciente</label>
               <input list="dl-pacientes" class="form-control" name="paciente" required>
+              <datalist id="dl-pacientes"></datalist>
             </div>
             <div class="form-group col-md-3">
               <label>Validade</label>
@@ -400,30 +398,65 @@
     </div>
   </div>
 </div>
+
+<!-- md: PROCEDIMENTOS -->
+<div class="modal fade" id="md-procedimentos" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title"><i class="fa-solid fa-tooth mr-2"></i>Procedimentos</h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-mini mb-3" id="proc-table">
+            <thead>
+              <tr><th>Nome</th><th>Duração</th><th>Preço (R$)</th><th>Código</th><th style="width:60px"></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="crm-card">
+          <div class="form-row">
+            <div class="form-group col-md-5"><label>Nome</label><input class="form-control" id="proc-name"></div>
+            <div class="form-group col-md-2"><label>Duração</label>
+              <select class="form-control" id="proc-dur">
+                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
+              </select>
+            </div>
+            <div class="form-group col-md-3"><label>Preço</label><input type="number" class="form-control" id="proc-price" step="0.01" value="0"></div>
+            <div class="form-group col-md-2"><label>Código</label><input class="form-control" id="proc-code" placeholder="EX-001"></div>
+          </div>
+          <button class="btn btn-primary btn-pill" id="proc-add"><i class="fa-solid fa-plus mr-1"></i> Adicionar</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- ====== MODAIS – FIM ====== -->
 
 <script>
-/* ===== Mini “dados” locais para preço de procedimentos ===== */
-const PROC_PRECOS = {
-  "Profilaxia": 150.00,
-  "Clareamento": 1200.00,
-  "Endodontia": 2900.00,
-  "Implante unitário": 4500.00
-};
+/* ===== dados locais para orçamento (fallback) ===== */
+const PROC_PRECOS = { "Profilaxia":150, "Clareamento":1200, "Endodontia":2900, "Implante unitário":4500 };
 
-/* ===== Wire chips -> abrir modais ===== */
+/* ===== abrir modais com segurança ===== */
+function openModal(id){
+  try{ $('.modal.show').modal('hide'); }catch(e){}
+  document.querySelector('.crm-app')?.classList.remove('sidebar-open');
+  setTimeout(()=>{ $(id).modal('show'); }, 150);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.crm-chip').forEach(ch=>{
-    const label = ch.textContent.trim().toLowerCase();
-    ch.addEventListener('click', ()=>{
-      if(label.includes('agendamento')) $('#md-agendamento').modal('show');
-      else if(label.includes('paciente')) $('#md-paciente').modal('show');
-      else if(label.includes('orçamento')) $('#md-orcamento').modal('show');
-      else if(label.includes('procedimentos')) $('#md-procedimentos').modal('show');
-    });
+  /* chips -> modais */
+  document.querySelectorAll('.crm-chip[data-open]').forEach(ch=>{
+    ch.addEventListener('click', ()=> openModal(ch.getAttribute('data-open')));
   });
 
-  /* Agendamento: duração padrão por procedimento */
+  /* duração padrão por procedimento (fallback) */
   const agProc = document.getElementById('ag-proc');
   const agDur  = document.getElementById('ag-dur');
   if(agProc && agDur){
@@ -434,21 +467,18 @@ document.addEventListener('DOMContentLoaded', () => {
     setDur(); agProc.addEventListener('change', setDur);
   }
 
-  /* Orçamento – tabela dinâmica */
+  /* Orçamento – linhas dinâmicas (fallback se API de procedimentos ainda não carregou) */
   const tbody = document.querySelector('#orc-table tbody');
   const addRow = () => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>
-        <select class="form-control orc-proc">
-          ${Object.entries(PROC_PRECOS).map(([n,v])=>`<option value="${n}" data-price="${v}">${n}</option>`).join('')}
-        </select>
-      </td>
+      <td><select class="form-control orc-proc">
+        ${Object.entries(PROC_PRECOS).map(([n,v])=>`<option value="${n}" data-price="${v}">${n}</option>`).join('')}
+      </select></td>
       <td class="text-center"><input type="number" class="form-control form-control-sm orc-qtd" value="1" min="1"></td>
       <td><input type="number" class="form-control form-control-sm orc-unit" step="0.01" value="0"></td>
       <td class="orc-sub text-right">0,00</td>
-      <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>
-    `;
+      <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>`;
     tbody.appendChild(tr);
     const select = tr.querySelector('.orc-proc');
     const unit   = tr.querySelector('.orc-unit');
@@ -466,59 +496,43 @@ document.addEventListener('DOMContentLoaded', () => {
       subtotal += sub;
     });
     document.getElementById('orc-subtotal').textContent = toBRL(subtotal);
-
     const dval = Number(document.getElementById('orc-desc').value || 0);
     const dtype= document.getElementById('orc-desc-type').value;
     const desconto = (dtype==='pct') ? subtotal*(dval/100) : dval;
     const total = Math.max(0, subtotal - desconto);
     document.getElementById('orc-total').textContent = toBRL(total);
   };
-  document.getElementById('orc-add').addEventListener('click', addRow);
+  document.getElementById('orc-add')?.addEventListener('click', addRow);
   ['change','input'].forEach(ev=>{
-    document.getElementById('orc-desc').addEventListener(ev, calc);
-    document.getElementById('orc-desc-type').addEventListener(ev, calc);
+    document.getElementById('orc-desc')?.addEventListener(ev, calc);
+    document.getElementById('orc-desc-type')?.addEventListener(ev, calc);
   });
-  tbody.addEventListener('input', e=>{
+  document.querySelector('#orc-table tbody')?.addEventListener('input', e=>{
     if(e.target.classList.contains('orc-proc')){
       const unit = e.target.closest('tr').querySelector('.orc-unit');
       unit.value = Number(e.target.selectedOptions[0].dataset.price || 0).toFixed(2);
     }
     calc();
   });
-  tbody.addEventListener('click', e=>{
+  document.querySelector('#orc-table tbody')?.addEventListener('click', e=>{
     if(e.target.classList.contains('orc-del')){
       e.preventDefault(); e.target.closest('tr').remove(); calc();
     }
   });
-  addRow();
-
-  /* Submissões mock (mantidas) */
-  document.getElementById('form-agendamento').addEventListener('submit', e=>{
-    e.preventDefault();
-    $('#md-agendamento').modal('hide');
-    alert('Agendamento salvo e enviado ✅');
-  });
-  document.getElementById('form-orc').addEventListener('submit', e=>{
-    e.preventDefault();
-    $('#md-orcamento').modal('hide');
-    alert('Orçamento finalizado/enviado ✅');
-  });
+  if (tbody && tbody.children.length===0) addRow();
 });
 </script>
 
+<!-- Sidebar mobile -->
 <script>
-/* Sidebar mobile */
 (function () {
   const app = document.querySelector('.crm-app');
   const btn = document.getElementById('btn-sidebar');
   const overlay = document.getElementById('crm-overlay');
-
   function close(){ app.classList.remove('sidebar-open'); }
   function toggle(){ app.classList.toggle('sidebar-open'); }
-
   btn?.addEventListener('click', toggle);
   overlay?.addEventListener('click', close);
-
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
   document.querySelectorAll('.crm-nav a').forEach(a => { a.addEventListener('click', close); });
 })();
@@ -528,193 +542,39 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="../js/jquery-3.4.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
 
-<!-- Config do n8n + API helpers -->
+<!-- Config n8n -->
 <script>
-  // ajuste se precisar (sem barra no final)
   window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
-  // opcional: window.CRM_API_KEY = '...';
+  // window.CRM_API_KEY = '...';
 </script>
 <script src="js/crm-api.js"></script>
 
-
+<!-- Autocomplete + Trocar paciente -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Autocomplete no campo do agendamento
   CRMApi.bindPatientAutocomplete({
     input: '#ag-paciente',
-    onSelect(patient){
-      CRMApi.fillAgendamentoFromPatient(patient);
-    },
+    onSelect(patient){ CRMApi.fillAgendamentoFromPatient(patient); },
     onCreateNew(query){
-      // abre modal de novo paciente já com o nome preenchido
-      $('#md-paciente').modal('show');
+      openModal('#md-paciente');
       const form = document.getElementById('form-paciente');
       form?.querySelector('[name="name"]').focus();
       if (query) form.querySelector('[name="name"]').value = query;
     }
   });
 
-  // “Trocar” paciente
   document.getElementById('ag-paciente-trocar')?.addEventListener('click', (e)=>{
     e.preventDefault();
     CRMApi.clearAgendamentoPatient();
     document.getElementById('ag-paciente').focus();
   });
-});
-</script>
 
-
-<!-- ===== Auto-preencher paciente no agendamento + salvar paciente real ===== -->
-<script>
-/* util */
-function debounce(fn, wait=220){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
-
-/* cache de pacientes para o datalist */
-let PATIENT_CACHE = new Map();
-
-/* Renderiza <option> no datalist e popula cache */
-function renderPatientsIntoDatalist(list){
-  const dl = document.getElementById('dl-pacientes');
-  if(!dl) return;
-  PATIENT_CACHE = PATIENT_CACHE || new Map();
-  const opts = [];
-  for(const p of (list||[])){
-    if(p?.id) PATIENT_CACHE.set(p.id, p);
-    opts.push(
-      `<option value="${(p.full_name||p.name||'').replace(/"/g,'&quot;')}"
-               data-id="${(p.id||'').replace(/"/g,'&quot;')}"
-               data-phone="${(p.phone||'').replace(/"/g,'&quot;')}"
-               data-email="${(p.email||'').replace(/"/g,'&quot;')}">`
-    );
-  }
-  dl.innerHTML = opts.join('');
-}
-
-/* Busca inicial + incremental, hidrata formulário de agendamento */
-async function setupPatientsDatalist(){
-  const formAg = document.getElementById('form-agendamento');
-  const input  = formAg?.querySelector('input[name="paciente"]');
-  const dl     = document.getElementById('dl-pacientes');
-  const phone  = formAg?.querySelector('input[name="phone"]');
-  const email  = formAg?.querySelector('input[name="email"]');
-  const canal  = formAg?.querySelector('select[name="channel"]');
-  const hidden = document.getElementById('ag-patient-id');
-
-  if(!formAg || !input || !dl || !hidden) return;
-
-  // 1) lista inicial
-  try{
-    const first = await (typeof listPatients==='function' ? listPatients(50) : []);
-    renderPatientsIntoDatalist(first);
-  }catch(e){ console.warn('listPatients falhou', e); }
-
-  // 2) busca incremental ao digitar (mín. 2 chars)
-  input.addEventListener('input', debounce(async ()=>{
-    const q = input.value.trim();
-    if(q.length < 2) return;
-    try{
-      const res = await (typeof searchPatients==='function' ? searchPatients(q) : []);
-      renderPatientsIntoDatalist(res);
-    }catch(e){ console.warn('searchPatients falhou', e); }
-  }));
-
-  // 3) quando selecionar/preencher, hidrata
-  function selectedPatient(){
-    const val = input.value.trim().toLowerCase();
-    if(!val) return null;
-    const opt = Array.from(dl.options).find(o => o.value.trim().toLowerCase() === val);
-    if(!opt) return null;
-    const id = opt.dataset.id;
-    return (id && PATIENT_CACHE.get(id)) || null;
-  }
-  function hydrate(){
-    const p = selectedPatient();
-    if(!p){ hidden.value=''; return; }
-    hidden.value = p.id || '';
-    if(phone && !phone.value) phone.value = p.phone || '';
-    if(email && !email.value) email.value = p.email || '';
-    if(canal && !canal.value){
-      if(p.phone) canal.value = 'WhatsApp';
-      else if(p.email) canal.value = 'E-mail';
-    }
-  }
-  input.addEventListener('change', hydrate);
-  input.addEventListener('blur', hydrate);
-}
-
-/* Submissão REAL do paciente: Supabase via n8n */
-document.addEventListener('DOMContentLoaded', ()=>{
-  const formPac = document.getElementById('form-paciente');
-  const orgHidden = document.getElementById('org-id');
-
-  // injeta org_id do header no modal (fonte única)
-  const ORG_ID = orgHidden?.value || '00000000-0000-0000-0000-000000000000';
-
-  // CEP -> auto-preenchimento (se sua helper existir)
-  if (formPac && typeof attachCepAutofill === 'function') attachCepAutofill(formPac);
-
-  // prepara datalist
-  setupPatientsDatalist();
-
-  // submit real
-  formPac?.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const f = e.target;
-    const payload = {
-      org_id: ORG_ID,
-      full_name: f.name.value.trim(),
-      cpf:  f.cpf.value.trim() || null,
-      dob:  f.dob.value || null,
-      sex:  f.gender.value || null,
-      phone:f.phone.value || null,
-      email:f.email.value || null,
-      address:{
-        cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
-        district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
-      },
-      source: f.source.value || null,
-      notes:  f.notes.value  || null
-    };
-
-    try{
-      const btn = f.querySelector('[type="submit"]');
-      btn?.setAttribute('disabled','disabled');
-
-      const saved = await upsertPaciente(payload);
-      $('#md-paciente').modal('hide');
-      alert(`Paciente salvo: ${saved?.full_name || payload.full_name} ✅`);
-
-      // Recarrega o datalist e já preenche o agendamento
-      setupPatientsDatalist();
-
-      const agForm = document.getElementById('form-agendamento');
-      if (agForm){
-        agForm.querySelector('input[name="paciente"]').value = saved?.full_name || payload.full_name;
-        agForm.querySelector('input[name="phone"]').value    = saved?.phone || payload.phone || '';
-        agForm.querySelector('input[name="email"]').value    = saved?.email || payload.email || '';
-        const canalSel = agForm.querySelector('select[name="channel"]');
-        if (canalSel){
-          if(saved?.phone) canalSel.value = 'WhatsApp';
-          else if(saved?.email) canalSel.value = 'E-mail';
-        }
-        const hidden = document.getElementById('ag-patient-id');
-        if(hidden) hidden.value = saved?.id || '';
-        // volta para o modal de agendamento se quiser já marcar horário
-        $('#md-agendamento').modal('show');
-      }
-    }catch(err){
-      console.error(err);
-      alert(err.message || 'Erro ao salvar paciente');
-    }finally{
-      formPac.querySelector('[type="submit"]')?.removeAttribute('disabled');
-    }
+  // Garantia: se abrir qualquer modal via data-target, feche a sidebar
+  $(document).on('show.bs.modal', '.modal', function(){
+    document.querySelector('.crm-app')?.classList.remove('sidebar-open');
   });
 });
 </script>
 
 </body>
 </html>
-
-
-
-

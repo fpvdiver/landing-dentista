@@ -64,30 +64,29 @@
       </div>
     </section>
 
-    <section class="crm-content">
-      <div class="crm-card">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <div class="muted">Lista de procedimentos</div>
-          <button id="proc-refresh" class="btn btn-sm btn-outline-secondary btn-pill">Recarregar</button>
-        </div>
-        <div class="table-responsive">
-          <table class="table mb-0">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th style="width:140px">Duração</th>
-                <th style="width:160px">Preço</th>
-                <th style="width:160px">Código</th>
-                <th style="width:120px"></th>
-              </tr>
-            </thead>
-            <tbody id="proc-tbody">
-              <tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>
-            </tbody>
-          </table>
-        </div>
+<section class="crm-content">
+  <div class="crm-card">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="crm-search" style="flex:1; max-width:520px">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="proc-search" placeholder="Buscar por nome, código, duração..." />
+        <button id="proc-search-btn" class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
       </div>
-    </section>
+      <button id="proc-refresh" class="btn btn-sm btn-outline-secondary btn-pill ml-2">Recarregar</button>
+      <a href="#" class="btn btn-sm btn-primary btn-pill ml-2"><i class="fa-solid fa-tooth mr-1"></i> Novo procedimento</a>
+    </div>
+
+    <table class="table mb-0">
+      <thead>
+        <tr><th>Nome</th><th>Duração</th><th>Preço</th><th>Código</th><th></th></tr>
+      </thead>
+      <tbody id="proc-tbody">
+        <tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
   </main>
 </div>
 
@@ -204,5 +203,6 @@
 
 </body>
 </html>
+
 
 

@@ -554,6 +554,73 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script src="js/crm-api.js"></script>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const f   = document.getElementById('form-agendamento');
+  const dt  = document.getElementById('ag-date');
+  const time= document.getElementById('ag-time');
+  const dur = document.getElementById('ag-dur');
+  const doc = document.getElementById('ag-doctor');
+
+  async function refreshTimes(){
+    const date = dt.value;
+    if (!date) return;
+    time.innerHTML = '<option>Carregando…</option>';
+    try{
+      const bag   = await CRMApi.getAppointmentsByDay(date, doc?.value);
+      const slots = CRMApi.computeAvailableSlots(bag, Number(dur.value || 60));
+      time.innerHTML = slots.length
+        ? slots.map(t=>`<option value="${t}">${t}</option>`).join('')
+        : '<option value="">Sem horários disponíveis</option>';
+    }catch(err){
+      console.error(err);
+      time.innerHTML = '<option value="">Erro ao carregar</option>';
+    }
+  }
+
+  dt?.addEventListener('change', refreshTimes);
+  dur?.addEventListener('change', refreshTimes);
+  doc?.addEventListener('change', refreshTimes);
+
+  // Procedimento define sugestão de duração se houver no banco (data-dur)
+  document.getElementById('ag-proc')?.addEventListener('change', (e)=>{
+    const d = parseInt(e.target.selectedOptions[0]?.dataset?.dur || '60', 10);
+    if ([60,120,180,240].includes(d)) { dur.value = String(d); refreshTimes(); }
+  });
+
+  // Envio real do agendamento (duração em minutos)
+  f?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const procOpt = document.getElementById('ag-proc')?.selectedOptions[0];
+    const payload = {
+      paciente: f.paciente?.value || '',
+      phone:    f.phone?.value || null,
+      email:    f.email?.value || null,
+      canalPreferido: f.channel?.value || 'WhatsApp',
+      procedimento:   f.proc?.value || procOpt?.value || '',
+      procedimentoId: procOpt?.dataset?.id || null,
+      data:      f.date?.value || null,
+      hora:      f.time?.value || null,
+      duracaoMin: Number(f.dur?.value || 60),
+      dentista:  f.doctor?.value || '',
+      obs:       f.notes?.value || '',
+      confirmar: document.getElementById('ag-status')?.checked || false,
+      enviar:{
+        whatsapp: f.querySelector('[name="send_whats"]')?.checked || false,
+        email:    f.querySelector('[name="send_mail"]')?.checked  || false,
+        sms:      f.querySelector('[name="send_sms"]')?.checked   || false
+      }
+    };
+    try{
+      const resp = await CRMApi.createAppointment(payload);
+      $('#md-agendamento').modal('hide');
+      alert(`Agendamento #${resp?.id||'—'} salvo ✅`);
+    }catch(err){ alert(err.message); }
+  });
+});
+</script>
+
+
 <!-- Autocomplete + Trocar paciente -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -583,4 +650,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 

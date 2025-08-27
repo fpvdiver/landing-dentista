@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/crm.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Sidebar -->
-<script src="js/sidebar.js" defer></script>
+  <script src="js/sidebar.js" defer></script>
 </head>
 <body data-page="inicio">
 
@@ -21,7 +21,9 @@
         <div style="color:var(--muted); font-size:12px;">Elen Nogata</div>
       </div>
     </div>
-<input type="hidden" id="org-id" value="6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc" />
+
+    <!-- ID da organização (fonte única) -->
+    <input type="hidden" id="org-id" value="6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc" />
 
     <nav class="crm-nav">
       <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-house"></i> Início</a>
@@ -43,7 +45,7 @@
   <!-- overlay mobile -->
   <div class="crm-overlay" id="crm-overlay"></div>
 
-  <!-- MAIN (único) -->
+  <!-- MAIN -->
   <main class="crm-main">
     <!-- Burger (mobile) -->
     <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
@@ -135,12 +137,7 @@
             <div class="form-group col-md-8">
               <label>Nome do paciente</label>
               <input list="dl-pacientes" class="form-control" name="paciente" placeholder="Digite para buscar ou cadastrar">
-              <datalist id="dl-pacientes">
-                <option value="Felipe Lima">
-                <option value="Amanda">
-                <option value="Bruna">
-                <option value="Emiliane">
-              </datalist>
+              <datalist id="dl-pacientes"></datalist>
             </div>
             <div class="form-group col-md-4 d-flex align-items-end">
               <button type="button" class="btn btn-outline-secondary btn-pill w-100" data-toggle="modal" data-target="#md-paciente">
@@ -219,6 +216,7 @@
           </div>
         </div>
         <div class="modal-footer">
+          <input type="hidden" id="ag-patient-id" name="patient_id" />
           <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
           <button class="btn btn-outline-secondary btn-pill" type="button" id="agendar-salvar">Salvar</button>
           <button class="btn btn-primary btn-pill" type="submit" id="agendar-enviar">Salvar & Enviar</button>
@@ -237,7 +235,7 @@
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <form id="form-paciente">
-        <input type="hidden" id="org-id" value="00000000-0000-0000-0000-000000000000" />
+        <!-- o org-id é injetado via JS a partir do hidden da sidebar -->
         <div class="modal-body">
           <div class="form-row">
             <div class="form-group col-md-8">
@@ -488,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   addRow();
 
-  /* Submissões "mock" mantidas para agendamento e orçamento */
+  /* Submissões mock (mantidas) */
   document.getElementById('form-agendamento').addEventListener('submit', e=>{
     e.preventDefault();
     $('#md-agendamento').modal('hide');
@@ -532,107 +530,153 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script src="js/crm-api.js"></script>
 
-<!-- Submissão REAL do paciente: Supabase via n8n -->
+<!-- ===== Auto-preencher paciente no agendamento + salvar paciente real ===== -->
 <script>
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const formPac = document.getElementById('form-paciente');
-    if (formPac) {
-      // CEP -> auto-preenchimento
-      attachCepAutofill(formPac);
+/* util */
+function debounce(fn, wait=220){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
 
-      // Popular datalist com pacientes existentes
-      setupPatientsDatalist?.();
+/* cache de pacientes para o datalist */
+let PATIENT_CACHE = new Map();
 
-      formPac.addEventListener('submit', async (e)=>{
-        e.preventDefault();
-        const f = e.target;
-        const payload = {
-          org_id: document.getElementById('org-id')?.value || '00000000-0000-0000-0000-000000000000',
-          full_name: f.name.value.trim(),
-          cpf:  f.cpf.value.trim() || null,
-          dob:  f.dob.value || null,
-          sex:  f.gender.value || null,
-          phone:f.phone.value || null,
-          email:f.email.value || null,
-          address:{
-            cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
-            district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
-          },
-          source: f.source.value || null,
-          notes:  f.notes.value  || null
-        };
+/* Renderiza <option> no datalist e popula cache */
+function renderPatientsIntoDatalist(list){
+  const dl = document.getElementById('dl-pacientes');
+  if(!dl) return;
+  PATIENT_CACHE = PATIENT_CACHE || new Map();
+  const opts = [];
+  for(const p of (list||[])){
+    if(p?.id) PATIENT_CACHE.set(p.id, p);
+    opts.push(
+      `<option value="${(p.full_name||p.name||'').replace(/"/g,'&quot;')}"
+               data-id="${(p.id||'').replace(/"/g,'&quot;')}"
+               data-phone="${(p.phone||'').replace(/"/g,'&quot;')}"
+               data-email="${(p.email||'').replace(/"/g,'&quot;')}">`
+    );
+  }
+  dl.innerHTML = opts.join('');
+}
 
-        try{
-          const saved = await upsertPaciente(payload);
-          $('#md-paciente').modal('hide');
-          alert(`Paciente salvo: ${saved?.full_name || payload.full_name} ✅`);
-          // recarrega datalist para novos registros
-          setupPatientsDatalist?.();
-        }catch(err){
-          console.error(err);
-          alert(err.message || 'Erro ao salvar paciente');
-        }
-      });
+/* Busca inicial + incremental, hidrata formulário de agendamento */
+async function setupPatientsDatalist(){
+  const formAg = document.getElementById('form-agendamento');
+  const input  = formAg?.querySelector('input[name="paciente"]');
+  const dl     = document.getElementById('dl-pacientes');
+  const phone  = formAg?.querySelector('input[name="phone"]');
+  const email  = formAg?.querySelector('input[name="email"]');
+  const canal  = formAg?.querySelector('select[name="channel"]');
+  const hidden = document.getElementById('ag-patient-id');
+
+  if(!formAg || !input || !dl || !hidden) return;
+
+  // 1) lista inicial
+  try{
+    const first = await (typeof listPatients==='function' ? listPatients(50) : []);
+    renderPatientsIntoDatalist(first);
+  }catch(e){ console.warn('listPatients falhou', e); }
+
+  // 2) busca incremental ao digitar (mín. 2 chars)
+  input.addEventListener('input', debounce(async ()=>{
+    const q = input.value.trim();
+    if(q.length < 2) return;
+    try{
+      const res = await (typeof searchPatients==='function' ? searchPatients(q) : []);
+      renderPatientsIntoDatalist(res);
+    }catch(e){ console.warn('searchPatients falhou', e); }
+  }));
+
+  // 3) quando selecionar/preencher, hidrata
+  function selectedPatient(){
+    const val = input.value.trim().toLowerCase();
+    if(!val) return null;
+    const opt = Array.from(dl.options).find(o => o.value.trim().toLowerCase() === val);
+    if(!opt) return null;
+    const id = opt.dataset.id;
+    return (id && PATIENT_CACHE.get(id)) || null;
+  }
+  function hydrate(){
+    const p = selectedPatient();
+    if(!p){ hidden.value=''; return; }
+    hidden.value = p.id || '';
+    if(phone && !phone.value) phone.value = p.phone || '';
+    if(email && !email.value) email.value = p.email || '';
+    if(canal && !canal.value){
+      if(p.phone) canal.value = 'WhatsApp';
+      else if(p.email) canal.value = 'E-mail';
     }
-  });
-</script>
+  }
+  input.addEventListener('change', hydrate);
+  input.addEventListener('blur', hydrate);
+}
 
-<!-- seu script (se precisar manter) -->
-<script src="js/crm-api.js"></script>
+/* Submissão REAL do paciente: Supabase via n8n */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const formPac = document.getElementById('form-paciente');
+  const orgHidden = document.getElementById('org-id');
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const formPac = document.getElementById('form-paciente');
-    if (formPac && typeof attachCepAutofill === 'function') {
-      attachCepAutofill(formPac);
-    }
+  // injeta org_id do header no modal (fonte única)
+  const ORG_ID = orgHidden?.value || '00000000-0000-0000-0000-000000000000';
 
-    // datalist dos pacientes para os modais
-    if (typeof setupPatientsDatalist === 'function') {
+  // CEP -> auto-preenchimento (se sua helper existir)
+  if (formPac && typeof attachCepAutofill === 'function') attachCepAutofill(formPac);
+
+  // prepara datalist
+  setupPatientsDatalist();
+
+  // submit real
+  formPac?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const f = e.target;
+    const payload = {
+      org_id: ORG_ID,
+      full_name: f.name.value.trim(),
+      cpf:  f.cpf.value.trim() || null,
+      dob:  f.dob.value || null,
+      sex:  f.gender.value || null,
+      phone:f.phone.value || null,
+      email:f.email.value || null,
+      address:{
+        cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
+        district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
+      },
+      source: f.source.value || null,
+      notes:  f.notes.value  || null
+    };
+
+    try{
+      const btn = f.querySelector('[type="submit"]');
+      btn?.setAttribute('disabled','disabled');
+
+      const saved = await upsertPaciente(payload);
+      $('#md-paciente').modal('hide');
+      alert(`Paciente salvo: ${saved?.full_name || payload.full_name} ✅`);
+
+      // Recarrega o datalist e já preenche o agendamento
       setupPatientsDatalist();
-    }
 
-    // submit real pro n8n/Supabase
-    formPac?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const f = e.target;
-      const payload = {
-        org_id: document.getElementById('org-id')?.value || '00000000-0000-0000-0000-000000000000',
-        full_name: f.name.value.trim(),
-        cpf:  f.cpf.value.trim() || null,
-        dob:  f.dob.value || null,
-        sex:  f.gender.value || null,
-        phone:f.phone.value || null,
-        email:f.email.value || null,
-        address:{
-          cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
-          district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
-        },
-        source: f.source.value || null,
-        notes:  f.notes.value  || null
-      };
-
-      try {
-        const btn = f.querySelector('[type="submit"]');
-        btn?.setAttribute('disabled','disabled');
-        const saved = await upsertPaciente(payload);
-        $('#md-paciente').modal('hide');
-        alert(`Paciente salvo: ${saved?.full_name || payload.full_name} ✅`);
-        if (typeof setupPatientsDatalist === 'function') setupPatientsDatalist();
-      } catch (err) {
-        console.error(err);
-        alert(err.message || 'Erro ao salvar paciente');
-      } finally {
-        f.querySelector('[type="submit"]')?.removeAttribute('disabled');
+      const agForm = document.getElementById('form-agendamento');
+      if (agForm){
+        agForm.querySelector('input[name="paciente"]').value = saved?.full_name || payload.full_name;
+        agForm.querySelector('input[name="phone"]').value    = saved?.phone || payload.phone || '';
+        agForm.querySelector('input[name="email"]').value    = saved?.email || payload.email || '';
+        const canalSel = agForm.querySelector('select[name="channel"]');
+        if (canalSel){
+          if(saved?.phone) canalSel.value = 'WhatsApp';
+          else if(saved?.email) canalSel.value = 'E-mail';
+        }
+        const hidden = document.getElementById('ag-patient-id');
+        if(hidden) hidden.value = saved?.id || '';
+        // volta para o modal de agendamento se quiser já marcar horário
+        $('#md-agendamento').modal('show');
       }
-    });
+    }catch(err){
+      console.error(err);
+      alert(err.message || 'Erro ao salvar paciente');
+    }finally{
+      formPac.querySelector('[type="submit"]')?.removeAttribute('disabled');
+    }
   });
+});
 </script>
-
 
 </body>
 </html>
-
-
-
-

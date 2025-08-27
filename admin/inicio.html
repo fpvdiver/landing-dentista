@@ -576,8 +576,58 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 </script>
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const formPac = document.getElementById('form-paciente');
+    if (formPac && typeof attachCepAutofill === 'function') {
+      attachCepAutofill(formPac);
+    }
+
+    // datalist dos pacientes para os modais
+    if (typeof setupPatientsDatalist === 'function') {
+      setupPatientsDatalist();
+    }
+
+    // submit real pro n8n/Supabase
+    formPac?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const payload = {
+        org_id: document.getElementById('org-id')?.value || '00000000-0000-0000-0000-000000000000',
+        full_name: f.name.value.trim(),
+        cpf:  f.cpf.value.trim() || null,
+        dob:  f.dob.value || null,
+        sex:  f.gender.value || null,
+        phone:f.phone.value || null,
+        email:f.email.value || null,
+        address:{
+          cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
+          district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
+        },
+        source: f.source.value || null,
+        notes:  f.notes.value  || null
+      };
+
+      try {
+        const btn = f.querySelector('[type="submit"]');
+        btn?.setAttribute('disabled','disabled');
+        const saved = await upsertPaciente(payload);
+        $('#md-paciente').modal('hide');
+        alert(`Paciente salvo: ${saved?.full_name || payload.full_name} ✅`);
+        if (typeof setupPatientsDatalist === 'function') setupPatientsDatalist();
+      } catch (err) {
+        console.error(err);
+        alert(err.message || 'Erro ao salvar paciente');
+      } finally {
+        f.querySelector('[type="submit"]')?.removeAttribute('disabled');
+      }
+    });
+  });
+</script>
+
 <!-- seu script (se precisar manter) -->
-<script src="assets/crm.js"></script>
+<script src="js/crm-api.js"></script>
 </body>
 </html>
+
 

@@ -321,6 +321,139 @@ async function setupPatientsDatalist(){
   });
 }
 
+
+/* ===================== AUTOCOMPLETE DE PACIENTES ===================== */
+/**
+ * CRMApi.bindPatientAutocomplete({
+ *   input: '#ag-paciente',
+ *   onSelect(patient){ ...preenche form... },
+ *   onCreateNew(query){ ...abre modal novo paciente... }
+ * })
+ */
+function bindPatientAutocomplete(opts){
+  const input = typeof opts.input === 'string' ? document.querySelector(opts.input) : opts.input;
+  if (!input) return;
+  let box, listEl, current = -1, results = [];
+
+  function initials(name=''){
+    const p = name.trim().split(/\s+/).slice(0,2);
+    return (p[0]?.[0]||'').toUpperCase() + (p[1]?.[0]||'').toUpperCase();
+  }
+  function close(){ box?.remove(); box=null; current=-1; results=[]; }
+  function highlight(i){
+    [...listEl.querySelectorAll('.crm-ac-item')].forEach((el,idx)=>{
+      el.classList.toggle('active', idx===i);
+    });
+    current = i;
+  }
+  function pick(i){
+    const p = results[i]; if(!p) return;
+    opts.onSelect?.(p);
+    close();
+  }
+
+  function render(items, q){
+    if (!box){
+      box = document.createElement('div');
+      box.className = 'crm-ac';
+      box.innerHTML = `
+        <div class="crm-ac-header">Pacientes</div>
+        <div class="crm-ac-list"></div>
+        <div class="crm-ac-footer">
+          <div class="crm-ac-new"><i class="fa-regular fa-square-plus"></i> Cadastrar novo paciente…</div>
+          <div style="font-size:12px;color:var(--muted)">Enter para selecionar</div>
+        </div>`;
+      input.parentElement.appendChild(box);
+      listEl = box.querySelector('.crm-ac-list');
+
+      box.querySelector('.crm-ac-new')?.addEventListener('click', ()=>{
+        const qv = input.value.trim();
+        opts.onCreateNew?.(qv);
+        close();
+      });
+    }
+    // posiciona
+    const r = input.getBoundingClientRect();
+    box.style.minWidth = r.width + 'px';
+
+    // conteudo
+    listEl.innerHTML = items.length
+      ? items.map(p=>`
+          <div class="crm-ac-item" data-id="${p.id}">
+            <div class="crm-ac-avatar">${(p.avatar_url ? `<img src="${p.avatar_url}" style="width:36px;height:36px;border-radius:999px;object-fit:cover">` : initials(p.full_name||p.name))}</div>
+            <div>
+              <div class="crm-ac-name">${p.full_name || p.name}</div>
+              <div class="crm-ac-meta">
+                ${p.cpf ? `CPF ${p.cpf} • ` : ''}${p.phone || ''}${p.phone && p.email ? ' • ' : ''}${p.email || ''}
+              </div>
+            </div>
+          </div>`).join('')
+      : `<div class="crm-ac-empty">Sem resultados para “${q}”.</div>`;
+
+    listEl.querySelectorAll('.crm-ac-item').forEach((el,idx)=>{
+      el.addEventListener('mouseenter',()=>highlight(idx));
+      el.addEventListener('click',()=>pick(idx));
+    });
+  }
+
+  const runSearch = debounce(async ()=>{
+    const q = input.value.trim();
+    let data = [];
+    if (q.length < 2) {
+      try{ data = await listPatients(50); } catch(e){ data=[]; }
+    } else {
+      try{ data = await searchPatients(q); } catch(e){ data=[]; }
+    }
+    results = data || [];
+    render(results, q);
+  }, 200);
+
+  input.addEventListener('focus', runSearch);
+  input.addEventListener('input', runSearch);
+
+  input.addEventListener('keydown', (e)=>{
+    if(!box) return;
+    if (e.key === 'ArrowDown'){ e.preventDefault(); highlight(Math.min(current+1, results.length-1)); }
+    if (e.key === 'ArrowUp'){ e.preventDefault(); highlight(Math.max(current-1, 0)); }
+    if (e.key === 'Enter'){ if(current>=0){ e.preventDefault(); pick(current); } }
+    if (e.key === 'Escape'){ close(); }
+  });
+
+  document.addEventListener('click', (e)=>{
+    if (!box) return;
+    if (!box.contains(e.target) && e.target !== input) close();
+  });
+}
+
+/* Helper para preencher/limpar o agendamento */
+function fillAgendamentoFromPatient(p, form){
+  const f = form || document.getElementById('form-agendamento');
+  if(!f) return;
+  f.paciente.value = p.full_name || p.name || '';
+  f.phone.value    = p.phone || '';
+  f.email.value    = p.email || '';
+  f.querySelector('#ag-paciente-id').value = p.id || '';
+
+  const picked = document.getElementById('ag-paciente-picked');
+  if (picked){
+    picked.querySelector('.sel-name').textContent = f.paciente.value;
+    picked.classList.remove('d-none');
+  }
+}
+function clearAgendamentoPatient(form){
+  const f = form || document.getElementById('form-agendamento');
+  if(!f) return;
+  f.querySelector('#ag-paciente-id').value = '';
+  const picked = document.getElementById('ag-paciente-picked');
+  picked?.classList.add('d-none');
+}
+
+/* Expose */
+window.bindPatientAutocomplete = bindPatientAutocomplete;
+window.fillAgendamentoFromPatient = fillAgendamentoFromPatient;
+window.clearAgendamentoPatient = clearAgendamentoPatient;
+
+
   /* ===================== AGENDAMENTOS ===================== */
   async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
     const bag = await api('/appointments/day' + qs({ date: dateStr, tz }));
@@ -539,4 +672,5 @@ async function setupPatientsDatalist(){
     createQuote, addOrcRow, calcOrc,
   };
 })();
+
 

@@ -285,7 +285,7 @@
       }
     });
 
-<script>
+
   // -------- helpers robustos p/ extrair minuto-do-dia --------
   function minuteOfDayFromISO(s) {
     if (!s) return null;
@@ -356,7 +356,7 @@
       return slots;
     };
   })();
-</script>
+
 
 
 
@@ -398,4 +398,5 @@
     addOrcRow, calcOrc,
   };
 })();
+
 

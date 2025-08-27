@@ -134,17 +134,23 @@
         <div class="modal-body">
           <div class="form-section-title">Paciente</div>
           <div class="form-row">
-            <div class="form-group col-md-8">
-              <label>Nome do paciente</label>
-              <input list="dl-pacientes" class="form-control" name="paciente" placeholder="Digite para buscar ou cadastrar">
-              <datalist id="dl-pacientes"></datalist>
-            </div>
-            <div class="form-group col-md-4 d-flex align-items-end">
-              <button type="button" class="btn btn-outline-secondary btn-pill w-100" data-toggle="modal" data-target="#md-paciente">
-                <i class="fa-regular fa-user mr-1"></i> Novo paciente
-              </button>
-            </div>
-          </div>
+            <div class="form-group col-md-8 position-relative">
+  <label>Nome do paciente</label>
+  <input id="ag-paciente" class="form-control" name="paciente"
+         placeholder="Digite para buscar ou cadastrar" autocomplete="off">
+  <input type="hidden" name="patient_id" id="ag-paciente-id">
+  <div id="ag-paciente-picked" class="paciente-selected d-none">
+    Selecionado: <span class="sel-name"></span>
+    <a id="ag-paciente-trocar">Trocar</a>
+  </div>
+</div>
+<div class="form-group col-md-4 d-flex align-items-end">
+  <button type="button" class="btn btn-outline-secondary btn-pill w-100"
+          data-toggle="modal" data-target="#md-paciente">
+    <i class="fa-regular fa-user mr-1"></i> Novo paciente
+  </button>
+</div>
+
 
           <div class="form-row">
             <div class="form-group col-md-4">
@@ -680,3 +686,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 </html>
+

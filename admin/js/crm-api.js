@@ -212,43 +212,114 @@
     return arr;
   }
 
-  // Preenche datalist e, ao selecionar o paciente, preenche telefone/e-mail
-  async function setupPatientsDatalist(){
-    const input = document.querySelector('input[name="paciente"]');
-    const dl    = document.getElementById('dl-pacientes');
-    if (!input || !dl) return;
+// substitua toda a função setupPatientsDatalist por esta versão
+async function setupPatientsDatalist(){
+  const inputs = Array.from(document.querySelectorAll('input[name="paciente"]'));
+  if (!inputs.length) return;
 
-    // carrega os primeiros
-    try{
-      const first = await listPatients(50);
-      dl.innerHTML = first.map(p=>`<option value="${p.full_name}" data-id="${p.id}">`).join('');
-    }catch(e){ console.warn(e); }
-
-    // busca dinâmica
-    const fill = debounce(async ()=>{
-      const q = input.value.trim();
-      if (q.length < 2) return;
-      try{
-        const res = await searchPatients(q);
-        dl.innerHTML = res.map(p=>`<option value="${p.full_name}" data-id="${p.id}">`).join('');
-      }catch(e){ console.warn(e); }
-    }, 220);
-    input.addEventListener('input', fill);
-
-    // ao escolher um nome, tente preencher contatos
-    input.addEventListener('change', ()=>{
-      const name = input.value.trim().toLowerCase();
-      if (!name) return;
-      const p = PATIENTS_CACHE.find(x => (x.full_name||'').toLowerCase() === name);
-      const set = (sel,val)=>{ const el = document.querySelector(sel); if (el) el.value = val||''; };
-      if (p){
-        set('#md-agendamento [name="phone"]', p.phone || '');
-        set('#md-agendamento [name="email"]', p.email || '');
-        // se quiser guardar o id para uso posterior:
-        input.dataset.patientId = p.id || '';
-      }
-    });
+  // garante que temos algo em cache para mostrar no foco
+  if (PATIENTS_CACHE.length === 0) {
+    try { await listPatients(50); } catch(e) { console.warn(e); }
   }
+
+  inputs.forEach((input) => {
+    // remove o datalist nativo (mantemos o elemento <datalist> só como fallback)
+    if (input.getAttribute('list')) input.removeAttribute('list');
+
+    // cria wrapper / dropdown / botão limpar
+    const box  = document.createElement('div');  box.className = 'acbox';
+    const list = document.createElement('div');  list.className = 'ac-list';
+    const clr  = document.createElement('button'); clr.type='button'; clr.className='ac-clear'; clr.innerHTML='&times;'; clr.title='Limpar seleção';
+
+    // envolve o input no wrapper
+    input.parentNode.insertBefore(box, input);
+    box.appendChild(input);
+    box.appendChild(clr);
+    box.appendChild(list);
+
+    let currentItems = [];
+    let lastQuery = '';
+
+    // helpers
+    const show = () => { list.style.display = 'block'; };
+    const hide = () => { list.style.display = 'none'; };
+    const render = (items) => {
+      currentItems = items || [];
+      if (!currentItems.length) { hide(); return; }
+      list.innerHTML = currentItems.map(p => `
+        <div class="ac-item" data-id="${p.id||''}">
+          <div class="ac-title">${p.full_name || ''}</div>
+          <div class="ac-sub">${p.phone ? p.phone : ''}${p.email ? (p.phone ? ' • ' : '') + p.email : ''}</div>
+        </div>`).join('');
+      show();
+    };
+    const showInitial = () => render(PATIENTS_CACHE.slice(0, 12));
+
+    const select = (p) => {
+      input.value = p.full_name || '';
+      input.dataset.patientId = p.id || '';
+      const modal = input.closest('.modal-content') || document;
+      const set = (sel,val)=>{ const el = modal.querySelector(sel); if (el) el.value = val || ''; };
+      set('[name="phone"]', p.phone || '');
+      set('[name="email"]', p.email || '');
+      box.classList.add('has-selection');
+      hide();
+    };
+
+    // eventos
+    list.addEventListener('click', (ev)=>{
+      const row = ev.target.closest('.ac-item');
+      if (!row) return;
+      const id = row.dataset.id;
+      const p = PATIENTS_CACHE.find(x => (x.id||'')===id) || currentItems.find(x => (x.id||'')===id);
+      if (p) select(p);
+    });
+
+    input.addEventListener('focus', ()=>{ if (!input.value) showInitial(); });
+
+    input.addEventListener('input', debounce(async ()=>{
+      const q = (input.value||'').trim();
+      box.classList.remove('has-selection');
+      input.dataset.patientId = '';
+      if (!q) { showInitial(); return; }
+
+      const qlc = q.toLowerCase();
+      // primeiro, filtra localmente
+      let items = PATIENTS_CACHE
+        .filter(p => (p.full_name||'').toLowerCase().includes(qlc))
+        .slice(0, 12);
+      render(items);
+
+      // depois, busca no servidor se tiver 2+ chars
+      if (q.length >= 2) {
+        lastQuery = q;
+        try {
+          const remote = await searchPatients(q); // já normaliza + mescla o cache
+          if (lastQuery !== q) return; // evita sobrescrever com resposta antiga
+          const map = new Map();
+          [...remote, ...items].forEach(p => map.set(p.id||p.full_name, p));
+          render(Array.from(map.values()).slice(0, 20));
+        } catch(e) { /* silencia */ }
+      }
+    }, 180));
+
+    clr.addEventListener('click', ()=>{
+      input.value = '';
+      input.dataset.patientId = '';
+      const modal = input.closest('.modal-content') || document;
+      ['[name="phone"]','[name="email"]'].forEach(sel=>{
+        const el = modal.querySelector(sel); if (el) el.value='';
+      });
+      box.classList.remove('has-selection');
+      input.focus();
+      showInitial();
+    });
+
+    document.addEventListener('click', (e)=>{
+      if (!box.contains(e.target)) hide();
+    });
+  });
+}
 
   /* ===================== AGENDAMENTOS ===================== */
   async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
@@ -468,3 +539,4 @@
     createQuote, addOrcRow, calcOrc,
   };
 })();
+

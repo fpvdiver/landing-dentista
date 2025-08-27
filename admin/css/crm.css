@@ -423,10 +423,46 @@ html{font-size:16px;}
 }
 
 
+/* ===== MODAL: rolagem perfeita no mobile e telas pequenas ===== */
+.modal { 
+  overflow-x: hidden; 
+  overflow-y: auto;                 /* garante rolagem do modal */
+  -webkit-overflow-scrolling: touch;/* inércia no iOS */
+}
+
+/* Alturas responsivas para modais com conteúdo longo  */
+@media (max-width: 768px){
+  .modal-dialog{
+    margin: 0;                      /* encosta nas bordas */
+    max-width: 100%;
+    height: 100%;                   /* ocupa a viewport */
+  }
+  .modal-dialog-scrollable{
+    height: 100%;                   /* herda 100% da viewport */
+  }
+  .modal-dialog-scrollable .modal-content{
+    height: 100%;                   /* conteúdo acompanha */
+    border-radius: 0;               /* visual mais “app” */
+  }
+  .modal-dialog-scrollable .modal-body{
+    overflow-y: auto;
+    max-height: calc(100vh - 120px);/* sobra p/ header+footer */
+    padding-bottom: 12px;
+  }
+}
+
+/* Força especificamente no modal de agendamento (se quiser) */
+#md-agendamento .modal-body{
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+}
+
+
 
 /* ===================================================================
    FIM
    =================================================================== */
+
 
 
 

@@ -285,6 +285,81 @@
       }
     });
 
+<script>
+  // -------- helpers robustos p/ extrair minuto-do-dia --------
+  function minuteOfDayFromISO(s) {
+    if (!s) return null;
+
+    // tenta ISO/ISO com offset: 2025-08-29T16:00:00-03:00
+    let m = String(s).match(/T(\d{2}):(\d{2})/);
+    if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+
+    // tenta "16:00" simples
+    m = String(s).match(/^(\d{2}):(\d{2})/);
+    if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+
+    return null;
+  }
+  function minuteOfDayFromHHMM(hhmm) {
+    if (!hhmm) return null;
+    const m = String(hhmm).match(/^(\d{2}):(\d{2})$/);
+    if (!m) return null;
+    return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+  }
+  function minToHHMM(min) {
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  }
+
+  // -------- versão corrigida do cálculo de horários livres --------
+  (function ensureCompute() {
+    const overlap = (a1, a2, b1, b2) => a1 < b2 && a2 > b1; // [a1,a2) x [b1,b2)
+
+    window.CRMApi = window.CRMApi || {};
+    CRMApi.computeAvailableSlots = function computeAvailableSlots(bag, durationMinInput) {
+      const officeStart = minuteOfDayFromHHMM(bag?.officeHours?.start || '08:00');
+      const officeEnd   = minuteOfDayFromHHMM(bag?.officeHours?.end   || '19:00');
+      const interval    = Number(bag?.intervalMinutes || 60);
+      const durationMin = Math.max(1, Number(durationMinInput || 60));
+
+      // normaliza eventos -> pares [startMin, endMin]
+      const busy = (bag?.events || []).map(ev => {
+        const s = minuteOfDayFromISO(ev.start || ev.start_time || ev.startAt);
+        const e = minuteOfDayFromISO(ev.end   || ev.end_time   || ev.endAt);
+        return (s != null && e != null) ? [s, e] : null;
+      }).filter(Boolean);
+
+      const needBlocks = Math.max(1, Math.ceil(durationMin / interval));
+      const slots = [];
+
+      for (let start = officeStart; start + durationMin <= officeEnd; start += interval) {
+        let ok = true;
+        let cur = start;
+
+        // precisa de N blocos contíguos de 'interval'
+        for (let i = 0; i < needBlocks; i++) {
+          const end = cur + interval;          // bloco [cur, end)
+          // algum evento colide com este bloco?
+          if (busy.some(([bs, be]) => overlap(cur, end, bs, be))) {
+            ok = false; break;
+          }
+          cur += interval;
+        }
+
+        if (ok) slots.push(minToHHMM(start));
+      }
+
+      // DEBUG opcional (ajuda a validar no console)
+      // console.table(busy.map(([s,e])=>({s:minToHHMM(s), e:minToHHMM(e)})));
+
+      return slots;
+    };
+  })();
+</script>
+
+
+
     // Orçamento
     document.getElementById('orc-add')?.addEventListener('click', addOrcRow);
     document.querySelector('#orc-table tbody')?.addEventListener('input',(e)=>{
@@ -323,3 +398,4 @@
     addOrcRow, calcOrc,
   };
 })();
+

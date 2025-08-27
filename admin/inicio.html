@@ -536,6 +536,34 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script src="js/crm-api.js"></script>
 
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Autocomplete no campo do agendamento
+  CRMApi.bindPatientAutocomplete({
+    input: '#ag-paciente',
+    onSelect(patient){
+      CRMApi.fillAgendamentoFromPatient(patient);
+    },
+    onCreateNew(query){
+      // abre modal de novo paciente já com o nome preenchido
+      $('#md-paciente').modal('show');
+      const form = document.getElementById('form-paciente');
+      form?.querySelector('[name="name"]').focus();
+      if (query) form.querySelector('[name="name"]').value = query;
+    }
+  });
+
+  // “Trocar” paciente
+  document.getElementById('ag-paciente-trocar')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    CRMApi.clearAgendamentoPatient();
+    document.getElementById('ag-paciente').focus();
+  });
+});
+</script>
+
+
 <!-- ===== Auto-preencher paciente no agendamento + salvar paciente real ===== -->
 <script>
 /* util */
@@ -686,4 +714,5 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 </html>
+
 

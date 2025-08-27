@@ -1,12 +1,16 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CRM Odonto – Início</title>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRM Odonto – Procedimentos</title>
+
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="css/crm.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- Inclua em TODAS as páginas, após Font Awesome / Bootstrap -->
-<script src="js/sidebar.js"></script>
 
+  <!-- Sidebar -->
+  <script src="js/sidebar.js" defer></script>
 </head>
 <body data-page="procedimentos">
 
@@ -21,7 +25,7 @@
     </div>
 
     <nav class="crm-nav">
-      <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
+      <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-house"></i> Início</a>
       <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
       <a href="pacientes.html" data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
       <a href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
@@ -30,78 +34,167 @@
       <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
     </nav>
 
-   <div class="crm-footer">
+    <div class="crm-footer">
       <div>Conectado como <strong>admin@clinica</strong></div>
       <div>v0.1</div>
     </div>
   </aside>
 
-  <!-- overlay que aparece quando a sidebar é aberta no mobile -->
+  <!-- overlay mobile -->
   <div class="crm-overlay" id="crm-overlay"></div>
 
+  <!-- MAIN -->
   <main class="crm-main">
-    <!-- Botão hambúrguer (mostrado apenas no mobile) -->
+    <!-- Burger (mobile) -->
     <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
       <i class="fa-solid fa-bars"></i>
     </button>
 
-  <main class="crm-main">
     <section class="crm-hero">
       <h1 class="text-center mb-1">Procedimentos</h1>
       <div class="crm-search">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input placeholder="Buscar por nome, código, duração..." />
-        <button class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
-        <a href="#" class="btn btn-sm btn-primary btn-pill ml-auto"><i class="fa-solid fa-tooth mr-1"></i> Novo procedimento</a>
+        <input id="proc-search" placeholder="Buscar por nome, código, duração..." />
+        <button id="proc-search-btn" class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
+        <a href="#" id="btn-new-proc" class="btn btn-sm btn-primary btn-pill ml-auto">
+          <i class="fa-solid fa-tooth mr-1"></i> Novo procedimento
+        </a>
       </div>
     </section>
 
     <section class="crm-content">
       <div class="crm-card">
-        <table class="table mb-0">
-          <thead><tr><th>Nome</th><th>Duração</th><th>Preço</th><th>Código</th><th></th></tr></thead>
-          <tbody>
-            <tr><td>Profilaxia</td><td>30 min</td><td>R$ 150,00</td><td>PRF-001</td><td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Editar</a></td></tr>
-            <tr><td>Clareamento</td><td>60 min</td><td>R$ 1.200,00</td><td>CLR-010</td><td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Editar</a></td></tr>
-            <tr><td>Implante unitário</td><td>90 min</td><td>R$ 4.500,00</td><td>IMP-100</td><td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Editar</a></td></tr>
-          </tbody>
-        </table>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="muted">Lista de procedimentos</div>
+          <button id="proc-refresh" class="btn btn-sm btn-outline-secondary btn-pill">Recarregar</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th style="width:140px">Duração</th>
+                <th style="width:160px">Preço</th>
+                <th style="width:160px">Código</th>
+                <th style="width:120px"></th>
+              </tr>
+            </thead>
+            <tbody id="proc-tbody">
+              <tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   </main>
 </div>
 
-  <script>
+<!-- ===== Scripts ===== -->
+<script>
+/* Sidebar mobile */
 (function () {
   const app = document.querySelector('.crm-app');
   const btn = document.getElementById('btn-sidebar');
   const overlay = document.getElementById('crm-overlay');
 
-  function open(){ app.classList.add('sidebar-open'); }
   function close(){ app.classList.remove('sidebar-open'); }
   function toggle(){ app.classList.toggle('sidebar-open'); }
 
   btn?.addEventListener('click', toggle);
   overlay?.addEventListener('click', close);
-
-  // Fecha ao pressionar ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-  });
-
-  // Fecha ao clicar em um item de navegação (no mobile)
-  document.querySelectorAll('.crm-nav a').forEach(a => {
-    a.addEventListener('click', close);
-  });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+  document.querySelectorAll('.crm-nav a').forEach(a=> a.addEventListener('click', close));
 })();
 </script>
 
+<!-- libs -->
 <script src="../js/jquery-3.4.1.min.js"></script>
-  <script src="../js/bootstrap.js"></script>
-  <script src="assets/crm.js"></script>
-</body></html>
+<script src="../js/bootstrap.js"></script>
 
+<!-- Config do n8n + helpers -->
+<script>
+  // ajuste se precisar (sem barra no final)
+  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
+  // opcional: window.CRM_API_KEY = '...';
+</script>
+<script src="js/crm-api.js"></script>
 
+<script>
+(function () {
+  const tbody = document.getElementById('proc-tbody');
+  const searchInput = document.getElementById('proc-search');
 
+  let PROCEDURES = [];
 
+  const esc = (s)=> String(s||'').replace(/[&<>"']/g, m => (
+    { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]
+  ));
 
+  function durFmt(min){ const m = Number(min||0); return `${m} min`; }
+  function render(list){
+    if (!tbody) return;
+    if (!list?.length){
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(p=>`
+      <tr data-id="${esc(p.id)}">
+        <td>${esc(p.name)}</td>
+        <td>${durFmt(p.default_duration_min ?? p.duration ?? 60)}</td>
+        <td>${CRMApi.toBRL(Number(p.price||0))}</td>
+        <td>${esc(p.code||'-')}</td>
+        <td class="text-right">
+          <button class="btn btn-sm btn-outline-secondary btn-pill btn-edit" data-id="${esc(p.id)}">Editar</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function applyFilter(){
+    const q = (searchInput.value||'').trim().toLowerCase();
+    if(!q){ render(PROCEDURES); return; }
+    const filtered = PROCEDURES.filter(p=>{
+      const name = (p.name||'').toLowerCase();
+      const code = (p.code||'').toLowerCase();
+      const dur  = String(p.default_duration_min ?? p.duration ?? '').toLowerCase();
+      const price= String(p.price ?? '').toLowerCase();
+      return name.includes(q) || code.includes(q) || dur.includes(q) || price.includes(q);
+    });
+    render(filtered);
+  }
+
+  async function load(){
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>';
+    try{
+      const raw = await CRMApi.listProcedures?.() ?? [];
+      const arr = Array.isArray(raw) ? raw : (raw.items || raw.data || []);
+      PROCEDURES = arr;
+      render(PROCEDURES);
+    }catch(e){
+      console.error(e);
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erro ao carregar procedimentos</td></tr>';
+    }
+  }
+
+  // eventos
+  document.getElementById('proc-refresh')?.addEventListener('click', load);
+  document.getElementById('proc-search-btn')?.addEventListener('click', applyFilter);
+  searchInput?.addEventListener('input', CRMApi ? (function(){ let t; return ()=>{ clearTimeout(t); t=setTimeout(applyFilter, 200); }; })() : null);
+
+  // “Novo procedimento” (se existir modal #md-procedimentos)
+  document.getElementById('btn-new-proc')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const modal = document.getElementById('md-procedimentos');
+    if (modal && typeof $ === 'function') { $('#md-procedimentos').modal('show'); }
+    else { alert('Em breve: cadastro de procedimento.'); }
+  });
+
+  // inicia
+  document.addEventListener('DOMContentLoaded', load);
+  // para garantir caso o script carregue após DOM
+  if (document.readyState === 'complete' || document.readyState === 'interactive') load();
+})();
+</script>
+
+</body>
+</html>

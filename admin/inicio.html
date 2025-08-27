@@ -555,6 +555,19 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="js/crm-api.js"></script>
 
 <script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  const ORG_ID = document.getElementById('org-id')?.value;
+  // Preenche o select de procedimentos e configura a duração
+  CRMApi.loadProceduresSelect({
+    select:'#ag-proc',
+    dur:'#ag-dur',
+    orgId: ORG_ID
+  });
+});
+</script>
+
+
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   const f   = document.getElementById('form-agendamento');
   const dt  = document.getElementById('ag-date');
@@ -650,5 +663,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 

@@ -26,6 +26,72 @@ html{font-size:16px;}
   html{font-size:clamp(15px,1.02vw,18px);} /* tipografia fluida em telas grandes */
 }
 
+
+/* ==== PATCH: Barra de busca (UX melhor) ==== */
+.crm-search{
+  position: relative;
+  display: flex !important;        /* volta para flex */
+  align-items: center;
+  gap: 10px;
+  background:#fff;
+  border:1px solid var(--ring);
+  border-radius: 999px;
+  padding: 8px 12px;
+  box-shadow:0 8px 30px rgba(15,23,42,.06);
+}
+
+/* Ícone dentro do input */
+.crm-search .fa-magnifying-glass{
+  position:absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Campo ocupa tudo e dá espaço para o ícone */
+.crm-search input{
+  flex: 1 1 auto;
+  min-width: 180px;
+  height: 42px;
+  padding-left: 38px;              /* espaço pro ícone */
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+}
+
+/* Botão mais “cta” e altura igual ao input */
+.crm-search .btn{
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
+/* Hover do botão */
+.crm-search .btn:hover{
+  filter: brightness(0.95);
+}
+
+/* Mobile: botão desce e ocupa 100% */
+@media (max-width: 576px){
+  .crm-search{
+    flex-wrap: wrap;
+    border-radius: 14px;
+  }
+  .crm-search .btn{
+    width: 100%;
+    margin-top: 6px;
+    height: 44px;
+  }
+}
+
+
 /* ===================================================================
    LAYOUT
    =================================================================== */
@@ -233,3 +299,4 @@ html{font-size:16px;}
 /* ===================================================================
    FIM
    =================================================================== */
+

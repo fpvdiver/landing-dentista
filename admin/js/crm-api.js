@@ -355,7 +355,76 @@
 
       return slots;
     };
-  })();
+  })();\
+
+     // --- PROCS: buscar no backend (n8n) e popular o <select> ---
+async function listProcedures(orgId){
+  // seu webhook deve aceitar org_id; adapte se o seu n8n usar outro nome
+  return api('/procedures' + qs({ org_id: orgId }));
+}
+
+function buildDurationSelect(durSel, maxHours=4){
+  if(!durSel) return;
+  durSel.innerHTML = '';
+  for(let h=1; h<=maxHours; h++){
+    durSel.insertAdjacentHTML('beforeend', `<option value="${h*60}">${h} h</option>`);
+  }
+}
+
+async function loadProceduresSelect({ select='#ag-proc', dur='#ag-dur', orgId } = {}){
+  const sel = document.querySelector(select);
+  const durSel = document.querySelector(dur);
+  if(!sel) return;
+
+  // deixa um estado de carregamento
+  sel.innerHTML = '<option value="" disabled selected>Carregando…</option>';
+
+  try{
+    const res  = await listProcedures(orgId);
+    // aceitamos tanto array puro quanto {items:[...]}
+    const items = Array.isArray(res) ? res : (res?.items || []);
+    if(!items.length){
+      sel.innerHTML = '<option value="" disabled>Sem procedimentos</option>';
+      return;
+    }
+
+    // monta options (id é o value; duração e preço vão como data-*)
+    sel.innerHTML = items.map(p => `
+      <option value="${p.id}"
+              data-name="${p.name}"
+              data-dur="${p.default_duration_min || 60}"
+              data-price="${p.price || 0}">
+        ${p.name}
+      </option>
+    `).join('');
+
+    // monta o <select> de duração em horas (1h..4h)
+    buildDurationSelect(durSel, 4);
+
+    // sempre que trocar o procedimento, ajusta a duração sugerida
+    const setDur = () => {
+      const d = parseInt(sel.selectedOptions[0]?.dataset?.dur || 60, 10);
+      if(!durSel) return;
+      // escolhe a opção equivalente (em horas) se existir
+      const h = Math.max(1, Math.round(d/60));
+      const opt = durSel.querySelector(`option[value="${h*60}"]`);
+      if(opt) durSel.value = String(h*60);
+    };
+    setDur();
+    sel.addEventListener('change', setDur);
+  }catch(err){
+    console.error(err);
+    sel.innerHTML = '<option value="" disabled>Erro ao carregar</option>';
+  }
+}
+
+// --- expor na API pública ---
+window.CRMApi = {
+  ...(window.CRMApi || {}),
+  listProcedures,
+  loadProceduresSelect,
+};
+
 
 
 
@@ -398,5 +467,6 @@
     addOrcRow, calcOrc,
   };
 })();
+
 
 

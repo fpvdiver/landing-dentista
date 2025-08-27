@@ -1,50 +1,159 @@
-:root{
-  --primary:#0ea5e9; --accent:#fbbf24; --ink:#0f172a; --muted:#64748b;
-  --bg:#f7f8fb; --panel:#ffffff; --chip:#f1f5f9; --ring:#e2e8f0;
-  --sidebar-w: 215px; 
-}
-html,body{height:100%; background:var(--bg); color:var(--ink);}
+/* ===================================================================
+   CRM Odonto — crm.css
+   Responsivo, mobile-first, sidebar off-canvas, grids fluidas
+   =================================================================== */
 
-/* Shell */
-.crm-app{display:flex; min-height:100%;}
-.crm-sidebar{ width: var(--sidebar-w); background:#fff; border-right:1px solid var(--ring);
-  padding:16px 12px; position:sticky; top:0; height:100vh;}
+/* ---------- Tokens / Theme ---------- */
+:root{
+  --primary:#0ea5e9;
+  --accent:#fbbf24;
+  --ink:#0f172a;
+  --muted:#64748b;
+
+  --bg:#f7f8fb;
+  --panel:#ffffff;
+  --chip:#f1f5f9;
+  --ring:#e2e8f0;
+
+  --sidebar-w: 260px;           /* largura da sidebar no desktop */
+  --radius:16px;
+}
+
+/* ---------- Base ---------- */
+html,body{height:100%;overflow-x:hidden;background:var(--bg);color:var(--ink);}
+html{font-size:16px;}
+@media (min-width:1200px){
+  html{font-size:clamp(15px,1.02vw,18px);} /* tipografia fluida em telas grandes */
+}
+
+/* ===================================================================
+   LAYOUT
+   =================================================================== */
+.crm-app{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height:100vh;
+}
+
+/* Sidebar (desktop) */
+.crm-sidebar{
+  width:var(--sidebar-w);
+  background:#fff;
+  border-right:1px solid var(--ring);
+  padding:16px 12px;
+  position:sticky; top:0; height:100vh;
+  z-index:10;
+}
 .crm-brand{display:flex; align-items:center; gap:10px; padding:10px 12px;}
 .crm-brand .logo{width:32px; height:32px; border-radius:8px; background:var(--primary); display:inline-block}
-.crm-nav{margin-top:8px;}
-.crm-nav a{display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px;
-  color:var(--ink); text-decoration:none;}
+.crm-nav{margin-top:8px; display:flex; flex-direction:column; gap:4px;}
+.crm-nav a{
+  display:flex; align-items:center; gap:12px;
+  padding:10px 12px; border-radius:10px;
+  color:var(--ink); text-decoration:none;
+}
 .crm-nav a.active, .crm-nav a:hover{background:#eff6ff; color:#0369a1;}
 .crm-footer{margin-top:auto; padding:8px 12px; font-size:12px; color:var(--muted);}
+
+/* Conteúdo */
 .crm-main{flex:1; min-width:0;}
 
-/* Hero */
-.crm-hero{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);
-  border-bottom:1px solid var(--ring); padding:24px 28px 18px;}
-.crm-hero h1{font-weight:800; letter-spacing:.2px;}
-.crm-hero .tabs{display:flex; gap:10px; margin:10px 0 14px;}
-.pill{padding:6px 12px; background:#fff; border:1px solid var(--ring);
-  border-radius:999px; font-size:14px; color:#0f172a; cursor:pointer;}
+/* Botão hamburguer (mostrado só no mobile) */
+.crm-burger{
+  width:40px;height:40px;border-radius:10px;border:1px solid var(--ring);
+  background:#fff;display:none;align-items:center;justify-content:center;
+  position:fixed;left:max(12px, env(safe-area-inset-left));top:30px;
+  z-index:1050;box-shadow:0 1px 2px rgba(0,0,0,.06);
+}
+
+/* Overlay do off-canvas */
+.crm-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.45);
+  opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1030;
+}
+
+/* ----- Off-canvas (mobile) ----- */
+@media (max-width: 992px){
+  .crm-app{ grid-template-columns: 1fr; }
+
+  .crm-burger{display:inline-flex;}
+
+  .crm-sidebar{
+    position:fixed; left:0; top:0; bottom:0;
+    width:280px; height:100vh;
+    transform:translateX(-100%);
+    transition:transform .25s ease; will-change:transform;
+    box-shadow:0 0 0 rgba(0,0,0,0); z-index:1040;
+  }
+  .crm-app.sidebar-open .crm-sidebar{
+    transform:translateX(0);
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+  }
+  .crm-app.sidebar-open .crm-overlay{
+    opacity:1; pointer-events:auto;
+  }
+}
+
+/* ===================================================================
+   HERO / TOPO
+   =================================================================== */
+.crm-hero{
+  background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);
+  border-bottom:1px solid var(--ring);
+  padding:clamp(14px,3vw,24px) clamp(12px,3vw,28px) clamp(10px,2.2vw,18px);
+  border-radius:24px; box-shadow:0 1px 0 #fff inset;
+}
+.crm-hero h1{
+  font-weight:800; letter-spacing:.2px; margin:0 0 8px;
+  text-align:center; font-size:clamp(1.4rem,2.4vw,2.2rem);
+}
+.crm-hero .tabs{
+  display:grid; grid-auto-flow:column; gap:10px; justify-content:center;
+  margin:10px 0 14px;
+}
+.pill{
+  padding:6px 12px; background:#fff; border:1px solid var(--ring);
+  border-radius:999px; font-size:14px; color:#0f172a; cursor:pointer;
+}
 .pill.active{border-color:var(--primary); color:#0369a1;}
-.crm-search{max-width:760px; margin:auto; display:flex; align-items:center; gap:10px;
-  background:#fff; border:1px solid var(--ring); border-radius:999px; padding:10px 16px;
-  box-shadow:0 8px 30px rgba(15,23,42,.06);}
+
+.crm-search{
+  max-width:780px; margin-inline:auto;
+  display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center;
+  background:#fff; border:1px solid var(--ring); border-radius:999px;
+  padding:10px 12px;
+  box-shadow:0 8px 30px rgba(15,23,42,.06);
+}
 .crm-search input{border:0; outline:0; width:100%; font-size:16px; background:transparent;}
 .search-hint{font-size:12px; color:var(--muted); margin-top:6px; text-align:center;}
-.crm-quick{display:flex; gap:18px; overflow:auto; padding:16px 4px;}
-.crm-chip{background:#fff; border:1px solid var(--ring); border-radius:16px; padding:10px 12px;
-  min-width:120px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 30px rgba(15,23,42,.05);
-  cursor:pointer; transition:transform .05s ease-in-out;}
+
+/* Chips de ações */
+.crm-quick{
+  display:grid; gap:12px;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  padding:16px 4px;
+}
+.crm-chip{
+  background:#fff; border:1px solid var(--ring); border-radius:16px; padding:10px 12px;
+  display:flex; align-items:center; gap:10px;
+  box-shadow:0 8px 30px rgba(15,23,42,.05);
+  cursor:pointer; transition:transform .05s ease-in-out;
+}
 .crm-chip:hover{transform:translateY(-1px);}
 .crm-chip i{width:28px; height:28px; display:grid; place-items:center; border-radius:10px; background:var(--chip); color:#0f172a;}
 
-.crm-content{padding:22px 28px;}
-.crm-card{background:#fff; border:1px solid var(--ring); border-radius:16px; padding:16px; box-shadow:0 8px 30px rgba(15,23,42,.05);}
-.crm-head-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+/* ===================================================================
+   CONTEÚDO / CARDS / LISTAS
+   =================================================================== */
+.crm-content{padding:clamp(14px,2.2vw,22px) clamp(12px,2.2vw,28px);}
+.crm-card{
+  background:#fff; border:1px solid var(--ring); border-radius:16px;
+  padding:16px; box-shadow:0 8px 30px rgba(15,23,42,.05);
+}
+.crm-head-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;}
 .btn-pill{border-radius:999px;}
-.btn-pill-enviar{border-radius:10px; margin-right: 0rem !important;}
+.btn-pill-enviar{border-radius:10px; margin-right:0 !important;}
 
-/* Pequenos utilitários */
 .muted{color:var(--muted);}
 .badge-soft{padding:4px 10px; border-radius:999px; font-weight:600; font-size:12px;}
 .bg-soft-green{background:#dcfce7; color:#166534;}
@@ -53,154 +162,25 @@ html,body{height:100%; background:var(--bg); color:var(--ink);}
 .table thead th{border-bottom:1px solid var(--ring);}
 .table td, .table th{vertical-align:middle;}
 
+/* Grade responsiva para 4 métricas (Negociações/Contatos/Conversão/Receita) */
+.stats-4{
+  display:grid; gap:12px; align-items:stretch;
+  grid-template-columns:repeat(4,1fr);
+}
+@media (max-width:720px){ .stats-4{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:420px){ .stats-4{ grid-template-columns:1fr; } }
+
+/* Ajustes em telas menores */
 @media (max-width: 992px){
-  .crm-hero{padding:22px 16px;}
+  .crm-hero{padding:22px 16px; border-radius:16px;}
   .crm-content{padding:16px;}
+  .crm-search{ grid-template-columns:1fr; border-radius:12px; }
+  .crm-search button{ width:100%; }
 }
 
-/* ====== layout base ====== */
-.crm-app{ display:flex; min-height:100vh; }
-.crm-sidebar{ width:260px; flex-shrink:0; }
-.crm-main{ flex:1; min-width:0; }
-
-/* ====== botão hambúrguer ====== */
-.crm-burger{
-  width:40px; height:40px;
-  border-radius:10px;
-  border:1px solid var(--ring);
-  background:#fff;
-  display:none;             /* desktop esconde */
-  align-items:center; justify-content:center;
-  box-shadow:0 1px 2px rgba(0,0,0,.06);
-  position:fixed; left:12px; top:12px;
-  z-index:1050;
-  left: max(12px, env(safe-area-inset-left));   /* respeita notch/iOS */
-  top: 30px;
-  transition: left .25s ease;
-}
-
-/* ====== overlay (escurece o fundo no mobile) ====== */
-.crm-overlay{
-  position:fixed; inset:0;
-  background:rgba(15,23,42,.45);
-  opacity:0; pointer-events:none;
-  transition:opacity .2s ease;
-  z-index:1030;
-}
-
-/* ====== off-canvas no mobile ====== */
-@media (max-width: 992px){
-  .crm-sidebar{
-    position:fixed; left:0; top:0; bottom:0;
-    width:280px; height:100vh;
-    background:#fff;
-    border-right:1px solid var(--ring);
-    transform:translateX(-102%);
-    transition:transform .25s ease, box-shadow .25s ease;
-    z-index:1040;
-  }
-  .crm-app.sidebar-open .crm-sidebar{
-    transform:translateX(0);
-    box-shadow:0 10px 30px rgba(0,0,0,.18);
-  }
-  .crm-app.sidebar-open .crm-burger{
-    left: calc(var(--sidebar-w) + max(2px, env(safe-area-inset-left)));
-  }
-
-  .crm-burger{ display:inline-flex; }   /* exibe botão no mobile */
-  .crm-app.sidebar-open .crm-overlay{
-    opacity:1; pointer-events:auto;
-  }
-}
-
-/* desktop: overlay e hamburger somem */
-@media (min-width: 993px){
-  .crm-overlay{ display:none; }
-  .crm-burger{ display:none; }
-}
-
-/* === FIX: OFF-CANVAS MOBILE – colocar no FINAL do crm.css === */
-@media (max-width: 992px){
-
-  /* base da sidebar off-canvas */
-  .crm-sidebar{
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 280px;
-    background: #fff;
-    border-right: 1px solid var(--ring);
-    transform: translateX(-100%);       /* escondida por padrão */
-    transition: transform .25s ease;
-    z-index: 1040;                       /* acima do overlay */
-    will-change: transform;
-  }
-
-  /* QUANDO ABERTA */
-  .crm-app.sidebar-open .crm-sidebar{
-    transform: translateX(0) !important; /* força ganhar da base */
-  }
-
-  /* overlay por baixo da sidebar */
-  .crm-overlay{
-    position: fixed; inset: 0;
-    background: rgba(15,23,42,.45);
-    opacity: 0; pointer-events: none;
-    transition: opacity .2s ease;
-    z-index: 1030;
-  }
-  .crm-app.sidebar-open .crm-overlay{
-    opacity: 1; pointer-events: auto;
-  }
-
-  /* botão hambúrguer visível no mobile */
-  .crm-burger{ display: inline-flex; }
-}
-
-/* evita scroll lateral quando o off-canvas existe */
-html, body { overflow-x: hidden; }
-
-
-/* ===== HAMBURGER + OVERLAY ===== */
-.crm-burger{
-  width:40px;height:40px;border-radius:10px;border:1px solid var(--ring);
-  background:#fff;display:none;align-items:center;justify-content:center;
-  position:fixed;left:12px;top:30px;z-index:1050;box-shadow:0 1px 2px rgba(0,0,0,.06);
-}
-.crm-overlay{
-  position:fixed;inset:0;background:rgba(15,23,42,.45);
-  opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1030;
-}
-
-/* ===== OFF-CANVAS MOBILE ===== */
-@media (max-width: 992px){
-  .crm-burger{display:inline-flex;}
-
-  .crm-sidebar{
-    display:block;                    /* <-- garante que aparece no mobile */
-    position:fixed;left:0;top:0;bottom:0;
-    width:280px;height:100vh;background:#fff;
-    border-right:1px solid var(--ring);
-    transform:translateX(-100%);      /* fica escondida por padrão */
-    transition:transform .25s ease;z-index:1040;will-change:transform;
-  }
-  .crm-app.sidebar-open .crm-sidebar{
-    transform:translateX(0);          /* entra na tela */
-    box-shadow:0 10px 30px rgba(0,0,0,.18);
-  }
-  .crm-app.sidebar-open .crm-overlay{
-    opacity:1;pointer-events:auto;    /* ativa overlay clicável */
-  }
-
-  /* ajustes usuais de padding quando sidebar está off-canvas */
-  .crm-hero{padding:22px 16px;}
-  .crm-content{padding:16px;}
-}
-
-/* evita scroll lateral quando off-canvas existe */
-html,body{overflow-x:hidden;}
-
-
-/* ---- ANAMNESE (slides) ---- */
+/* ===================================================================
+   ANAMNESE (slides) – mantém seus estilos e melhora responsividade
+   =================================================================== */
 .anm-modal { border-radius:16px; overflow:hidden; }
 .anm-progress { height:6px; background:#eef2ff; }
 .anm-progress-bar { height:6px; width:0; background:var(--primary); transition:width .2s ease; }
@@ -216,7 +196,7 @@ html,body{overflow-x:hidden;}
 @keyframes anmFade { from{opacity:.6; transform:translateY(4px)} to{opacity:1; transform:none} }
 
 /* sim/não estilo chip */
-.yn { display:flex; gap:8px; margin:.25rem 0 .5rem; }
+.yn { display:flex; gap:8px; margin:.25rem 0 .5rem; flex-wrap:wrap; }
 .yn-opt { border:1px solid var(--ring); border-radius:999px; padding:6px 10px; cursor:pointer; user-select:none; }
 .yn-opt input { display:none; }
 .yn-opt:has(input:checked) { background:#fff; border-color:var(--primary); color:#0369a1; }
@@ -225,35 +205,31 @@ html,body{overflow-x:hidden;}
 .if-yes { display:none; }
 .q:has(.yn-opt input[value="Sim"]:checked) .if-yes { display:block; margin-top:6px; }
 
-/* responsividade */
+/* responsividade modal */
 @media (max-width: 576px){
   .anm-modal .modal-dialog { margin:0; max-width:100%; }
   .anm-modal .modal-content { min-height:100vh; border-radius:0; }
 }
 
-
-.doc-card:hover{ transform: translateY(-1px); box-shadow:0 8px 30px rgba(15,23,42,.08); }
+/* ===================================================================
+   DOCUMENTOS / PRINT
+   =================================================================== */
 .doc-card{ transition:.08s ease; }
+.doc-card:hover{ transform: translateY(-1px); box-shadow:0 8px 30px rgba(15,23,42,.08); }
+
 .print-wrap{ max-width:760px; margin:24px auto; color:#111827; font-size:14px; line-height:1.45; }
 .print-wrap h1,.print-wrap h2,.print-wrap h3{ margin:.25rem 0 .5rem; }
-.print-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.print-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:12px; flex-wrap:wrap; }
 .print-header .brand{ display:flex; align-items:center; gap:10px; }
 .print-header .logo{ width:36px; height:36px; border-radius:8px; background:#0ea5e9; }
 .print-meta{ font-size:12px; color:#6b7280; }
 .print-box{ border:1px solid #e5e7eb; padding:12px; border-radius:10px; background:#fff; }
+
 @media print{
   body{ background:#fff !important; }
   .print-wrap{ box-shadow:none; margin:0; width:100%; }
 }
 
-
-
-
-
-
-
-
-
-
-
-
+/* ===================================================================
+   FIM
+   =================================================================== */

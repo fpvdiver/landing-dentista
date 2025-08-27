@@ -296,7 +296,60 @@ html{font-size:16px;}
   .print-wrap{ box-shadow:none; margin:0; width:100%; }
 }
 
+/* ==== PATCH: Botões pill com ícone (evitar quebra e alinhar) ==== */
+.btn-pill{
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;                     /* espaço entre ícone e texto */
+  padding: 10px 16px;           /* mesma altura do input da busca */
+  border-radius: 999px;
+  line-height: 1.1;
+  white-space: nowrap;          /* NÃO quebra linha */
+  max-width: 100%;
+}
+
+.btn-pill i,
+.btn-pill .fa, 
+.btn-pill .fa-regular, 
+.btn-pill .fa-solid{
+  display: inline-grid;
+  place-items: center;
+  width: 18px; height: 18px;    /* garante centro vertical */
+}
+
+/* Estética do CTA primário (fica mais “botão” e menos comprimido) */
+.btn-primary.btn-pill{
+  background: var(--primary);
+  border: 0;
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+.btn-primary.btn-pill:hover{ filter: brightness(.95); }
+
+/* Se o espaço for MUITO curto (telinhas minúsculas), 
+   permitimos quebrar pra não estourar layout */
+@media (max-width: 360px){
+  .btn-pill{ white-space: normal; padding: 10px 14px; }
+}
+
+/* Se esse “botão” for, na verdade, um chip de ação azul,
+   aplicamos o mesmo comportamento para não quebrar */
+.crm-chip--cta{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  white-space: nowrap;
+}
+.crm-chip--cta i{ width:18px;height:18px; display:inline-grid; place-items:center; }
+
+
 /* ===================================================================
    FIM
    =================================================================== */
+
 

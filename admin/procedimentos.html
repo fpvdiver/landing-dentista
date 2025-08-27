@@ -125,14 +125,15 @@
 (function () {
   const tbody = document.getElementById('proc-tbody');
   const searchInput = document.getElementById('proc-search');
+  const ORG_ID = document.getElementById('org-id')?.value || '';
 
   let PROCEDURES = [];
 
   const esc = (s)=> String(s||'').replace(/[&<>"']/g, m => (
     { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]
   ));
+  const durFmt = (min)=> `${Number(min||0)} min`;
 
-  function durFmt(min){ const m = Number(min||0); return `${m} min`; }
   function render(list){
     if (!tbody) return;
     if (!list?.length){
@@ -156,21 +157,30 @@
     const q = (searchInput.value||'').trim().toLowerCase();
     if(!q){ render(PROCEDURES); return; }
     const filtered = PROCEDURES.filter(p=>{
-      const name = (p.name||'').toLowerCase();
-      const code = (p.code||'').toLowerCase();
-      const dur  = String(p.default_duration_min ?? p.duration ?? '').toLowerCase();
-      const price= String(p.price ?? '').toLowerCase();
-      return name.includes(q) || code.includes(q) || dur.includes(q) || price.includes(q);
+      const name=(p.name||'').toLowerCase();
+      const code=(p.code||'').toLowerCase();
+      const dur =String(p.default_duration_min ?? p.duration ?? '').toLowerCase();
+      const price=String(p.price ?? '').toLowerCase();
+      return name.includes(q)||code.includes(q)||dur.includes(q)||price.includes(q);
     });
     render(filtered);
+  }
+
+  // pega a primeira propriedade que seja array, se o n8n devolver objetos diferentes
+  function pickArray(raw){
+    if (Array.isArray(raw)) return raw;
+    const keys = ['items','data','rows','result','procedures','records'];
+    for (const k of keys) if (Array.isArray(raw?.[k])) return raw[k];
+    const firstArr = Object.values(raw||{}).find(Array.isArray);
+    return firstArr || [];
   }
 
   async function load(){
     tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>';
     try{
-      const raw = await CRMApi.listProcedures?.() ?? [];
-      const arr = Array.isArray(raw) ? raw : (raw.items || raw.data || []);
-      PROCEDURES = arr;
+      const raw = await CRMApi.listProcedures?.(ORG_ID);
+      console.log('procedures raw →', raw); // ajuda caso precise depurar
+      PROCEDURES = pickArray(raw);
       render(PROCEDURES);
     }catch(e){
       console.error(e);
@@ -178,26 +188,21 @@
     }
   }
 
-  // eventos
   document.getElementById('proc-refresh')?.addEventListener('click', load);
   document.getElementById('proc-search-btn')?.addEventListener('click', applyFilter);
-  searchInput?.addEventListener('input', CRMApi ? (function(){ let t; return ()=>{ clearTimeout(t); t=setTimeout(applyFilter, 200); }; })() : null);
-
-  // “Novo procedimento” (se existir modal #md-procedimentos)
-  document.getElementById('btn-new-proc')?.addEventListener('click', (e)=>{
-    e.preventDefault();
-    const modal = document.getElementById('md-procedimentos');
-    if (modal && typeof $ === 'function') { $('#md-procedimentos').modal('show'); }
-    else { alert('Em breve: cadastro de procedimento.'); }
-  });
+  searchInput?.addEventListener('input', (function(){ let t; return ()=>{ clearTimeout(t); t=setTimeout(applyFilter,200); }; })());
 
   // inicia
-  document.addEventListener('DOMContentLoaded', load);
-  // para garantir caso o script carregue após DOM
-  if (document.readyState === 'complete' || document.readyState === 'interactive') load();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load);
+  } else {
+    load();
+  }
 })();
 </script>
 
+
 </body>
 </html>
+
 

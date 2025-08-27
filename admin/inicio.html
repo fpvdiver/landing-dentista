@@ -127,9 +127,9 @@
         <h5 class="modal-title"><i class="fa-regular fa-calendar-plus mr-2"></i>Novo agendamento</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
       </div>
+
       <form id="form-agendamento">
         <div class="modal-body">
-
           <div class="form-section-title">Paciente</div>
           <div class="form-row">
             <div class="form-group col-md-8 position-relative">
@@ -143,8 +143,7 @@
               </div>
             </div>
             <div class="form-group col-md-4 d-flex align-items-end">
-              <button type="button" class="btn btn-outline-secondary btn-pill w-100"
-                      data-toggle="modal" data-target="#md-paciente">
+              <button type="button" class="btn btn-outline-secondary btn-pill w-100" data-toggle="modal" data-target="#md-paciente">
                 <i class="fa-regular fa-user mr-1"></i> Novo paciente
               </button>
             </div>
@@ -171,25 +170,30 @@
           <div class="form-row">
             <div class="form-group col-md-5">
               <label>Procedimento</label>
-              <select class="form-control" name="proc" id="ag-proc">
-                <option value="Profilaxia" data-dur="30">Profilaxia</option>
-                <option value="Clareamento" data-dur="60">Clareamento</option>
-                <option value="Endodontia" data-dur="60">Endodontia</option>
-                <option value="Implante unitário" data-dur="90">Implante unitário</option>
-              </select>
+              <!-- será preenchido pelo JS com os procedimentos do banco -->
+              <select class="form-control" name="proc" id="ag-proc"></select>
             </div>
+
             <div class="form-group col-md-3">
               <label>Data</label>
-              <input type="date" class="form-control" name="date" required>
+              <input type="date" class="form-control" name="date" id="ag-date" required>
             </div>
+
             <div class="form-group col-md-2">
               <label>Hora</label>
-              <input type="time" class="form-control" name="time" step="1800" required>
+              <!-- será preenchido com os horários disponíveis -->
+              <select class="form-control" name="time" id="ag-time" required>
+                <option value="">Selecione a data…</option>
+              </select>
             </div>
+
             <div class="form-group col-md-2">
               <label>Duração</label>
               <select class="form-control" name="dur" id="ag-dur">
-                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
+                <option value="60">1 h</option>
+                <option value="120">2 h</option>
+                <option value="180">3 h</option>
+                <option value="240">4 h</option>
               </select>
             </div>
           </div>
@@ -197,7 +201,7 @@
           <div class="form-row">
             <div class="form-group col-md-6">
               <label>Dentista</label>
-              <select class="form-control" name="doctor">
+              <select class="form-control" name="doctor" id="ag-doctor">
                 <option>Dra. Elen Nogata</option>
               </select>
             </div>
@@ -219,8 +223,8 @@
             </div>
           </div>
         </div>
+
         <div class="modal-footer">
-          <input type="hidden" id="ag-patient-id" name="patient_id" />
           <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
           <button class="btn btn-outline-secondary btn-pill" type="button" id="agendar-salvar">Salvar</button>
           <button class="btn btn-primary btn-pill" type="submit" id="agendar-enviar">Salvar & Enviar</button>
@@ -229,6 +233,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- md: NOVO PACIENTE -->
 <div class="modal fade" id="md-paciente" tabindex="-1" aria-hidden="true">
@@ -578,3 +583,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+

@@ -457,11 +457,59 @@ html{font-size:16px;}
   max-height: calc(100vh - 120px);
 }
 
+/* ===== Fix: botões do modal sempre visíveis em telas pequenas ===== */
+
+/* Para qualquer modal com .modal-dialog-scrollable */
+.modal-dialog.modal-dialog-scrollable{
+  height: calc(100vh - 2rem);            /* ocupa a viewport com respiro do Bootstrap */
+}
+.modal-dialog.modal-dialog-scrollable .modal-content{
+  height: 100%;
+  display: flex;
+  flex-direction: column;                 /* header | body (flex:1) | footer */
+}
+.modal-dialog.modal-dialog-scrollable .modal-body{
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;      /* inércia no iOS */
+}
+
+/* Mobile full-screen: remove margens, e footer fica colado e sempre visível */
+@media (max-width: 576px){
+  .modal-dialog{
+    margin: 0 !important;
+    max-width: 100%;
+  }
+  .modal-content{
+    min-height: 100vh;
+    border-radius: 0;
+  }
+  /* footer 'gruda' no fundo quando o corpo rola */
+  .modal-footer{
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    z-index: 2;
+    box-shadow: 0 -6px 12px rgba(15,23,42,.06);
+    /* respeita área segura (notch) */
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .modal-header{
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 2;
+    box-shadow: 0 6px 12px rgba(15,23,42,.04);
+  }
+}
+
+
 
 
 /* ===================================================================
    FIM
    =================================================================== */
+
 
 
 

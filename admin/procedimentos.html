@@ -169,29 +169,73 @@
 
 <script>
 (function () {
-  const API_BASE = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/odonto').replace(/\/+$/,'');
+  // ====== CONFIG & HELPERS ======
+  const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,'');
   const ORG_ID   = document.getElementById('org-id')?.value || null;
 
-  // ---- helpers
+  const qs = (o)=>{ const p=new URLSearchParams(); Object.entries(o||{}).forEach(([k,v])=>{ if(v!==undefined&&v!==null&&v!=='') p.append(k,String(v));}); return p.toString()?('?'+p.toString()):''; }
   const toBRL = v => (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-  const qs = (o)=>{ const p=new URLSearchParams(); Object.entries(o||{}).forEach(([k,v])=>{ if(v!==undefined&&v!==null&&v!=='') p.append(k,String(v));}); return p.toString()?('?'+p.toString()):'';}
-  const unwrap = (data)=>{
-    if(Array.isArray(data)){
-      if(data.length && data[0] && typeof data[0]==='object' && 'json' in data[0]) return data.map(x=>x.json);
-      return data;
-    }
-    if(!data || typeof data!=='object') return [];
-    const cand = data.items || data.data || data.result || data.records || data.rows || data.list;
-    if(Array.isArray(cand)){
-      if(cand.length && typeof cand[0]==='object' && 'json' in cand[0]) return cand.map(x=>x.json);
-      return cand;
-    }
-    if(data.json && typeof data.json==='object') return [data.json];
-    const arrLike = Object.values(data).find(v=>Array.isArray(v) && v.length && typeof v[0]==='object');
-    return arrLike || [];
-  };
 
-  // ---- elementos
+  // aceita praticamente tudo que o n8n possa devolver
+  function unwrap(data){
+    try{
+      if(Array.isArray(data)){
+        if(data.length && data[0] && typeof data[0]==='object' && 'json' in data[0]) return data.map(x=>x.json);
+        return data;
+      }
+      if(!data || typeof data!=='object') return [];
+      const cand = data.items || data.data || data.result || data.records || data.rows || data.list;
+      if(Array.isArray(cand)){
+        if(cand.length && cand[0] && typeof cand[0]==='object' && 'json' in cand[0]) return cand.map(x=>x.json);
+        return cand;
+      }
+      if(data.json && typeof data.json==='object') return [data.json];
+
+      const anyArray = Object.values(data).find(v=>Array.isArray(v));
+      if(anyArray) return anyArray;
+
+      return [];
+    }catch(e){ console.warn('unwrap falhou', e); return []; }
+  }
+
+  async function http(url, opts={}){
+    console.log('[procedures] GET →', url);
+    const res  = await fetch(url, { headers:{Accept:'application/json'}, cache:'no-store', ...opts });
+    const text = await res.text();
+    let data; try{ data = JSON.parse(text); }catch{ data = text; }
+    console.log('[procedures] status:', res.status, 'payload:', data);
+    if(!res.ok){
+      const msg = (data && (data.message || data.error?.message)) || res.statusText || 'Erro';
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  async function getProcedures(){
+    if(!API_BASE) throw new Error('CRM_API_BASE não definido');
+    const url = API_BASE + '/procedures' + qs({ org_id: ORG_ID });
+    const data = await http(url);
+    return unwrap(data);
+  }
+
+  async function postProcedure(payload){
+    const url = API_BASE + '/procedures';
+    console.log('[procedures] POST →', url, payload);
+    const res = await fetch(url, {
+      method:'POST',
+      headers:{ 'Accept':'application/json', 'Content-Type':'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const txt = await res.text(); let data; try{ data=JSON.parse(txt);}catch{ data=txt; }
+    console.log('[procedures] POST status:', res.status, data);
+    if(!res.ok){
+      const msg = (data && (data.message || data.error?.message)) || res.statusText || 'Erro ao salvar';
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  // ====== ELEMENTOS ======
   const tbody      = document.getElementById('proc-tbody');
   const qInput     = document.getElementById('proc-q');
   const btnClear   = document.getElementById('proc-clear');
@@ -199,34 +243,16 @@
   const pagerInfo  = document.getElementById('pager-info');
   const pagerBtns  = document.getElementById('pager-buttons');
   const pageSizeEl = document.getElementById('page-size');
+  const formProc   = document.getElementById('form-proc');
 
-  // ---- estado
-  let all = [];          // todos do backend
-  let filtered = [];     // aplicando busca
+  // ====== STATE ======
+  let all = [];
+  let filtered = [];
   let page = 1;
-  let pageSize = Number(pageSizeEl.value || 25);
+  let pageSize = Number(pageSizeEl?.value || 25);
 
-  // ---- API
-  async function listProcedures(){
-    const url = API_BASE + '/procedures' + qs({ org_id: ORG_ID });
-    const res = await fetch(url, { headers:{Accept:'application/json'}, cache:'no-store' });
-    const text= await res.text(); let data; try{ data=JSON.parse(text);}catch{ data=text; }
-    if(!res.ok){ const msg=(data && (data.message||data.error?.message))||res.statusText||'Erro'; throw new Error(msg); }
-    return unwrap(data);
-  }
-  async function createProcedure(payload){
-    const res = await fetch(API_BASE + '/procedures', {
-      method:'POST',
-      headers:{ 'Accept':'application/json', 'Content-Type':'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const text = await res.text(); let data; try{ data=JSON.parse(text);}catch{ data=text; }
-    if(!res.ok){ const msg=(data && (data.message||data.error?.message))||res.statusText||'Erro ao salvar'; throw new Error(msg); }
-    return data;
-  }
-
-  // ---- renderização
-  function renderTable(rows){
+  // ====== RENDER ======
+  function renderRows(rows){
     tbody.innerHTML = '';
     if(!rows || rows.length===0){
       tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
@@ -248,47 +274,41 @@
   }
 
   function renderPager(total){
+    if(!pagerInfo || !pagerBtns) return;
     const pages = Math.max(1, Math.ceil(total / pageSize));
     if(page > pages) page = pages;
 
-    const startIdx = (page-1)*pageSize + 1;
-    const endIdx   = Math.min(total, page*pageSize);
+    const startIdx = total? ((page-1)*pageSize+1) : 0;
+    const endIdx   = total? Math.min(total, page*pageSize) : 0;
     pagerInfo.textContent = total ? `Exibindo ${startIdx}–${endIdx} de ${total}` : '—';
 
-    // botões
     pagerBtns.innerHTML = '';
-    const prev = document.createElement('button');
-    prev.className = 'btn btn-sm btn-outline-secondary btn-pill page-btn';
-    prev.textContent = '«';
-    prev.disabled = page===1;
-    prev.onclick = ()=>{ page--; apply(); };
-    pagerBtns.appendChild(prev);
+    const addBtn = (label, disabled, cb)=>{
+      const b = document.createElement('button');
+      b.className = 'btn btn-sm btn-outline-secondary btn-pill page-btn';
+      b.textContent = label;
+      b.disabled = disabled;
+      b.onclick = cb;
+      pagerBtns.appendChild(b);
+    };
+    addBtn('«', page===1, ()=>{ page--; apply(); });
 
-    const pagesToShow = 5;
-    const half = Math.floor(pagesToShow/2);
-    let a = Math.max(1, page-half), b = Math.min(pages, a+pagesToShow-1);
-    a = Math.max(1, b-pagesToShow+1);
-
+    const max = 5, half = Math.floor(max/2);
+    let a = Math.max(1, page-half), b = Math.min(pages, a+max-1);
+    a = Math.max(1, b-max+1);
     for(let i=a;i<=b;i++){
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-sm btn-outline-secondary btn-pill page-btn';
-      btn.textContent = i;
-      if(i===page) btn.classList.add('active');
-      btn.onclick = ()=>{ page=i; apply(); };
-      pagerBtns.appendChild(btn);
+      const btt = document.createElement('button');
+      btt.className = 'btn btn-sm btn-outline-secondary btn-pill page-btn';
+      btt.textContent = i;
+      if(i===page) btt.classList.add('active');
+      btt.onclick = ()=>{ page=i; apply(); };
+      pagerBtns.appendChild(btt);
     }
-
-    const next = document.createElement('button');
-    next.className = 'btn btn-sm btn-outline-secondary btn-pill page-btn';
-    next.textContent = '»';
-    next.disabled = page===pages;
-    next.onclick = ()=>{ page++; apply(); };
-    pagerBtns.appendChild(next);
+    addBtn('»', page===pages, ()=>{ page++; apply(); });
   }
 
-  // ---- filtro + paginação
   function apply(){
-    const q = (qInput.value || '').trim().toLowerCase();
+    const q = (qInput?.value || '').trim().toLowerCase();
     filtered = !q ? all : all.filter(p=>{
       const name=(p.name||'').toLowerCase();
       const code=(p.code||'').toLowerCase();
@@ -300,73 +320,68 @@
     renderPager(total);
 
     const start = (page-1)*pageSize;
-    const slice = filtered.slice(start, start+pageSize);
-    renderTable(slice);
+    renderRows(filtered.slice(start, start+pageSize));
   }
 
   async function load(){
     try{
-      btnReload.setAttribute('disabled','disabled');
+      btnReload?.setAttribute('disabled','disabled');
       tbody.innerHTML = '<tr><td colspan="5" class="text-center">Carregando…</td></tr>';
-      all = await listProcedures();
+      all = await getProcedures();   // <— pega do webhook
       page = 1;
       apply();
     }catch(err){
       console.error(err);
-      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${err.message||'Erro ao carregar'}</td></tr>`;
-      pagerInfo.textContent = '—';
-      pagerBtns.innerHTML = '';
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${err.message || 'Erro ao carregar'}</td></tr>`;
+      pagerInfo && (pagerInfo.textContent = '—');
+      pagerBtns  && (pagerBtns.innerHTML  = '');
     }finally{
-      btnReload.removeAttribute('disabled');
+      btnReload?.removeAttribute('disabled');
     }
   }
 
-  // ---- eventos
-  qInput.addEventListener('input', ()=>{ page=1; apply(); });
-  btnClear.addEventListener('click', ()=>{ qInput.value=''; page=1; apply(); });
-  btnReload.addEventListener('click', e=>{ e.preventDefault(); load(); });
-  pageSizeEl.addEventListener('change', ()=>{
-    pageSize = Number(pageSizeEl.value||25);
-    page = 1; apply();
-  });
+  // ====== EVENTS ======
+  qInput?.addEventListener('input', ()=>{ page=1; apply(); });
+  btnClear?.addEventListener('click', ()=>{ if(qInput){ qInput.value=''; page=1; apply(); }});
+  btnReload?.addEventListener('click', e=>{ e.preventDefault(); load(); });
+  pageSizeEl?.addEventListener('change', ()=>{ pageSize = Number(pageSizeEl.value||25); page=1; apply(); });
 
-  // submit do modal
-  document.getElementById('form-proc').addEventListener('submit', async (e)=>{
+  formProc?.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const f = e.target;
     const payload = {
       org_id: ORG_ID,
       name: f.name.value.trim(),
-      default_duration_min: Number(f.duration.value||60),
-      price: Number(f.price.value||0),
+      default_duration_min: Number(f.duration.value || 60),
+      price: Number(f.price.value || 0),
       code: f.code.value.trim() || null,
-      active: document.getElementById('proc-active').checked
+      active: document.getElementById('proc-active')?.checked !== false
     };
     if(!payload.name){ alert('Informe o nome.'); return; }
-
     try{
       const btn = f.querySelector('[type="submit"]');
       btn.setAttribute('disabled','disabled');
-      await createProcedure(payload);
+      await postProcedure(payload);
       $('#md-proc').modal('hide');
-      f.reset();
-      f.duration.value = '60';
+      f.reset(); f.duration.value = '60';
       document.getElementById('proc-active').checked = true;
       await load();
     }catch(err){
       console.error(err);
-      alert(err.message || 'Erro ao salvar procedimento');
+      alert(err.message || 'Erro ao salvar');
     }finally{
       f.querySelector('[type="submit"]').removeAttribute('disabled');
     }
   });
 
-  // 1ª carga
+  // kick-off
   load();
 })();
 </script>
+
 
 <script src="../js/jquery-3.4.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
 </body>
 </html>
+

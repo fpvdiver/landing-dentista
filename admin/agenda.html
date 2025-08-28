@@ -115,6 +115,40 @@
   </main>
 </div>
 
+<!-- ===== AGENDA – MOBILE ===== -->
+<div class="mob-agenda">
+  <div class="crm-card">
+    <div class="cal-head">
+      <button class="btn-link-icon" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+      <div class="month" id="cal-month">—</div>
+      <button class="btn-link-icon" id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <div class="cal">
+      <div class="dow">
+        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+      </div>
+      <div class="grid" id="cal-grid"></div>
+    </div>
+
+    <div class="slots" id="mob-slots"></div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <div class="font-weight-bold">Eventos do dia <span id="mob-day-label" class="muted"></span></div>
+      <a href="../book.html" class="btn-link-icon"><i class="fa-regular fa-calendar-plus"></i> Novo</a>
+    </div>
+    <ul class="list list-unstyled mb-0" id="mob-day-events"></ul>
+  </div>
+</div>
+
+<!-- ===== AGENDA – DESKTOP (SEU BLOCO EXISTENTE) ===== -->
+<div class="desk-agenda">
+  <!-- deixe a sua grade/tabela já existente aqui -->
+</div>
+
+
 <!-- ================= MODAL: VER AGENDAMENTO ================ -->
 <div class="modal fade" id="md-agenda-ver" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -568,6 +602,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
 </body>
 </html>
+
 
 
 

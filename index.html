@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <!-- Basic -->
   <meta charset="utf-8" />
@@ -18,10 +17,10 @@
   <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
   <!--owl slider stylesheet -->
   <link rel="stylesheet" type="text/css"
-    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
   <!-- nice select  -->
   <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
+        href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
   <!-- font awesome style -->
   <link href="css/font-awesome.min.css" rel="stylesheet" />
   <!-- Custom styles for this template -->
@@ -35,8 +34,9 @@
   <div class="hero_area">
     <div class="bg-box">
       <img src="images/hero-bg.jpg" alt="">
-      <div class="overlay"></div> <!-- overlay escuro -->
+      <div class="overlay"></div>
     </div>
+
     <!-- header section -->
     <header class="header_section">
       <div class="container">
@@ -45,23 +45,15 @@
             <span>Elen Nogata</span>
           </a>
           <button class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent">
-            <span class=""> </span>
+                  data-target="#navbarSupportedContent">
+            <span class=""></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mx-auto ">
-              <li class="nav-item active">
-                <a class="nav-link" href="index.html">Início</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="menu.html">Serviços</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="about.html">Profissional</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="book.html">Agendar Consulta</a>
-              </li>
+              <li class="nav-item active"><a class="nav-link" href="index.html">Início</a></li>
+              <li class="nav-item"><a class="nav-link" href="menu.html">Serviços</a></li>
+              <li class="nav-item"><a class="nav-link" href="about.html">Profissional</a></li>
+              <li class="nav-item"><a class="nav-link" href="book.html">Agendar Consulta</a></li>
             </ul>
             <div class="user_option">
               <a href="tel:+5511999999999" class="order_online">Ligue Agora</a>
@@ -70,6 +62,7 @@
         </nav>
       </div>
     </header>
+
     <!-- slider section -->
     <section class="slider_section">
       <div id="customCarousel1" class="carousel slide" data-ride="carousel">
@@ -187,7 +180,7 @@
       <div class="row align-items-stretch">
         <div class="col-12 col-md-6 d-flex">
 
-          <!-- ===== BOOKING WIDGET: calendário + horários; dados só no modal ===== -->
+          <!-- ===== BOOKING WIDGET ===== -->
           <style>
             .bk-card{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:14px}
             .bk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -212,11 +205,13 @@
             .bk-slot[disabled]{opacity:.35;cursor:not-allowed}
             .bk-slot.active{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
             .bk-actions{display:flex;gap:10px;margin-top:12px}
+            /* deixa o btn1 (tema) com estado "desabilitado" para o agendamento */
+            .bk-actions .btn1.disabled{opacity:.55;pointer-events:none;filter:grayscale(.1)}
             @media(min-width:992px){.bk-wrap{display:grid;grid-template-columns:360px 1fr;gap:16px}}
           </style>
 
           <div class="bk-wrap w-100">
-            <!-- Coluna esquerda: calendário -->
+            <!-- calendário -->
             <div class="bk-card">
               <div class="bk-head">
                 <button class="bk-btn-link" id="bk-prev" aria-label="Mês anterior">
@@ -236,7 +231,7 @@
               </div>
             </div>
 
-            <!-- Coluna direita: horários -->
+            <!-- horários -->
             <div class="bk-card">
               <div class="bk-slots-title">
                 Horários <span id="bk-day-label" class="text-muted" style="font-weight:500"></span>
@@ -244,14 +239,15 @@
               <div id="bk-slots" class="bk-slots">Selecione um dia do calendário…</div>
 
               <div class="bk-actions">
-                <button id="bk-submit" class="btn btn-primary" disabled>Agendar Agora</button>
+                <!-- Estilo do tema (btn1) + controle de disabled via classe -->
+                <a id="bk-submit" class="btn1 disabled" href="javascript:void(0)">Agendar Agora</a>
                 <a id="bk-chat" class="btn btn-outline-secondary" target="_blank" rel="noopener">Agendar via Chat</a>
               </div>
               <div id="bk-feedback" class="mt-2"></div>
             </div>
           </div>
 
-          <!-- Modal: captar dados do paciente somente ao confirmar -->
+          <!-- Modal: dados do paciente apenas ao confirmar -->
           <div class="modal fade" id="md-lead" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
               <form class="modal-content" id="lead-form">
@@ -280,114 +276,89 @@
             /* ===== CONFIG ===== */
             const TZ = 'America/Sao_Paulo';
             const AVAILABILITY_URL = 'https://allnsnts.app.n8n.cloud/webhook/availability/';
-            const BOOK_URL = 'https://allnsnts.app.n8n.cloud/webhook/odonto/book'; // ajuste se usar outro
+            const BOOK_URL = 'https://allnsnts.app.n8n.cloud/webhook/odonto/book';
 
             /* ===== HELPERS ===== */
             const el=(q,r=document)=>r.querySelector(q), els=(q,r=document)=>Array.from(r.querySelectorAll(q));
             const pad2=n=>String(n).padStart(2,'0');
             const ymd=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
             const fmtBR=iso=>{try{const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;}catch{return iso;}};
-            function rangeToSlots(start,end,step){const out=[],[sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number);let d=new Date();d.setHours(sh,sm,0,0);const z=new Date();z.setHours(eh,em,0,0);while(d<z){out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`);d=new Date(d.getTime()+step*60000)}return out}
-            function blockByBusy(slots,busy){const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};return slots.map(t=>{const tm=toMin(t);const kk=(busy||[]).some(([a,b])=>tm>=toMin(a)&&tm<toMin(b));return {time:t,available:!kk}})}
+            // Cria Date LOCAL para 'YYYY-MM-DD' (evita bug de fuso voltando um dia)
+            const parseLocalYMD = s => { const [y,m,d]=s.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setHours(0,0,0,0); return dt; };
 
-  async function fetchAvailability(dateStr){
-  const url = `${AVAILABILITY_URL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
-  const res = await fetch(url, { headers:{ Accept:'application/json' } });
-  if (!res.ok) throw new Error(await res.text());
+            function rangeToSlots(start,end,step){
+              const out=[],[sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number);
+              let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
+              while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+step*60000); }
+              return out;
+            }
+            function blockByBusy(slots,busy){
+              const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};
+              return slots.map(t=>{
+                const tm=toMin(t);
+                const kk=(busy||[]).some(([a,b])=>tm>=toMin(a)&&tm<toMin(b));
+                return {time:t,available:!kk};
+              });
+            }
 
-  const data = await res.json();
+            // Busca disponibilidade do dia no seu webhook
+            async function fetchAvailability(dateStr){
+              const url = `${AVAILABILITY_URL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
+              const res = await fetch(url, { headers:{ Accept:'application/json' } });
+              if (!res.ok) throw new Error(await res.text());
+              const data = await res.json();
 
-  // Normaliza "busy" quando vier em ISO (start/end) para HH:mm no fuso da clínica
-  const toHM = (iso) => new Intl.DateTimeFormat('pt-BR', {
-    hour:'2-digit', minute:'2-digit', hour12:false, timeZone: TZ
-  }).format(new Date(iso));
+              // Normaliza busy quando vier em ISO
+              const toHM = (iso) => new Intl.DateTimeFormat('pt-BR',{
+                hour:'2-digit', minute:'2-digit', hour12:false, timeZone: TZ
+              }).format(new Date(iso));
 
-  if (Array.isArray(data?.busy) && data.busy.length) {
-    if (typeof data.busy[0] === 'object') {
-      // [{start, end}] -> [["HH:mm","HH:mm"], ...]
-      data.busy = data.busy.map(x => [toHM(x.start), toHM(x.end)]);
-    }
-  } else {
-    data.busy = [];
-  }
-  return data;
-}
-
-async function loadSlotsForDay(){
-  const ds = ymd(selDate);
-  labDay.textContent = '• ' + fmtBR(ds);
-  selTime = '';
-  btnGo.disabled = true;
-  fb.textContent = '';
-  slotsEl.innerHTML = 'Carregando horários…';
-
-  try{
-    const bag  = await fetchAvailability(ds);
-    const step = bag?.intervalMinutes || 60;
-    const ohS  = bag?.officeHours?.start || '08:00';
-    const ohE  = bag?.officeHours?.end   || '18:00';
-
-    // 1) Se o webhook já devolve os horários prontos, use-os
-    const base = (Array.isArray(bag.slots) && bag.slots.length)
-      ? bag.slots
-      : rangeToSlots(ohS, ohE, step);
-
-    // 2) Se "slots" veio do backend, consideramos todos disponíveis;
-    //    caso contrário, removemos intervalos "busy".
-    const withStatus = (Array.isArray(bag.slots) && bag.slots.length)
-      ? base.map(t => ({ time: t, available: true }))
-      : blockByBusy(base, bag.busy);
-
-    if (!withStatus.some(s => s.available)) {
-      slotsEl.innerHTML = '<div class="text-muted">Sem horários disponíveis neste dia.</div>';
-      return;
-    }
-
-    slotsEl.innerHTML = withStatus.map(s =>
-      `<button class="bk-slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'} data-time="${s.time}">${s.time}</button>`
-    ).join('');
-
-    // Seleção de horário
-    slotsEl.querySelectorAll('.bk-slot:not(.disabled)').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        els('.bk-slot.active', slotsEl).forEach(x=>x.classList.remove('active'));
-        b.classList.add('active');
-        selTime = b.dataset.time;
-        btnGo.disabled = false;
-        const msg = encodeURIComponent(`Olá! Quero agendar ${fmtBR(ds)} às ${selTime}.`);
-        chatA.href = `https://wa.me/5511987562810?text=${msg}`;
-      });
-    });
-
-    // DEBUG opcional no console
-    console.log('[booking] availability', { date: ds, received: bag, rendered: withStatus });
-  }catch(e){
-    console.error(e);
-    slotsEl.innerHTML = '<div class="text-danger">Erro ao carregar horários.</div>';
-  }
-}
+              if (Array.isArray(data?.busy) && data.busy.length) {
+                if (typeof data.busy[0] === 'object') {
+                  data.busy = data.busy.map(x => [toHM(x.start), toHM(x.end)]);
+                }
+              } else {
+                data.busy = [];
+              }
+              return data;
+            }
 
             /* ===== STATE/ELS ===== */
             const gMonth=el('#bk-month'), gGrid=el('#bk-grid'), btnPrev=el('#bk-prev'), btnNext=el('#bk-next');
-            const labDay=el('#bk-day-label'), slotsEl=el('#bk-slots'), btnGo=el('#bk-submit'), chatA=el('#bk-chat'), fb=el('#bk-feedback');
-            const leadModal=el('#md-lead'), leadForm=el('#lead-form'), inName=el('#lead-name'), inPhone=el('#lead-phone'), inEmail=el('#lead-email'), leadWhen=el('#lead-when');
+            const labDay=el('#bk-day-label'), slotsEl=el('#bk-slots'), linkGo=el('#bk-submit'), chatA=el('#bk-chat'), fb=el('#bk-feedback');
+            const leadForm=el('#lead-form'), inName=el('#lead-name'), inPhone=el('#lead-phone'), inEmail=el('#lead-email'), leadWhen=el('#lead-when');
 
             let anchor=new Date();   // mês corrente
             let selDate=new Date();  // dia selecionado
             let selTime='';          // horário selecionado
 
-            function dayHTML(d,{out=false,avail=false,sel=false}={}){return `<div class="bk-day ${out?'out':''} ${avail?'avail':''} ${sel?'sel':''}" data-date="${ymd(d)}" ${out?'data-out="1"':''}><span class="num">${d.getDate()}</span><span class="dot"></span></div>`}
-            function startOfMonth(d){return new Date(d.getFullYear(),d.getMonth(),1)}
-            function endOfMonth(d){return new Date(d.getFullYear(),d.getMonth()+1,0)}
-            function headerMonth(){const m=anchor.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});gMonth.textContent=m.charAt(0).toUpperCase()+m.slice(1)}
+            const dayHTML=(d,{out=false,avail=false,sel=false}={}) =>
+              `<div class="bk-day ${out?'out':''} ${avail?'avail':''} ${sel?'sel':''}" data-date="${ymd(d)}" ${out?'data-out="1"':''}>
+                 <span class="num">${d.getDate()}</span><span class="dot"></span>
+               </div>`;
+
+            const startOfMonth=d=>new Date(d.getFullYear(),d.getMonth(),1);
+            const endOfMonth=d=>new Date(d.getFullYear(),d.getMonth()+1,0);
+            function headerMonth(){
+              const m=anchor.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+              gMonth.textContent=m.charAt(0).toUpperCase()+m.slice(1);
+            }
 
             async function availabilityMapForMonth(days){
               const map={}, chunks=[]; for(let i=0;i<days.length;i+=14) chunks.push(days.slice(i,i+14));
-              for(const ch of chunks){ await Promise.all(ch.map(async d=>{ try{
-                const a=await fetchAvailability(ymd(d));
-                const base=rangeToSlots(a?.officeHours?.start||'08:00',a?.officeHours?.end||'18:00',a?.intervalMinutes||30);
-                map[ymd(d)]=blockByBusy(base,a?.busy||[]).some(s=>s.available);
-              }catch{} })); }
+              for(const ch of chunks){
+                await Promise.all(ch.map(async d=>{
+                  try{
+                    const a=await fetchAvailability(ymd(d));
+                    const base = (Array.isArray(a.slots) && a.slots.length)
+                      ? a.slots
+                      : rangeToSlots(a?.officeHours?.start||'08:00', a?.officeHours?.end||'18:00', a?.intervalMinutes||30);
+                    map[ymd(d)] = (Array.isArray(a.slots) && a.slots.length)
+                      ? base.length>0
+                      : blockByBusy(base,a?.busy||[]).some(s=>s.available);
+                  }catch{}
+                }));
+              }
               return map;
             }
 
@@ -395,44 +366,80 @@ async function loadSlotsForDay(){
               headerMonth();
               const first=startOfMonth(anchor), last=endOfMonth(anchor), pad=first.getDay(), total=last.getDate();
               const cells=[]; const prev=new Date(first); prev.setDate(1-pad);
-              for(let i=0;i<pad;i++){const d=new Date(prev);d.setDate(prev.getDate()+i);cells.push({date:d,out:true})}
+              for(let i=0;i<pad;i++){const d=new Date(prev);d.setDate(prev.getDate()+i);cells.push({date:d,out:true});}
               for(let i=1;i<=total;i++) cells.push({date:new Date(first.getFullYear(),first.getMonth(),i),out:false});
-              while(cells.length%7!==0){const d=new Date(last);d.setDate(last.getDate()+(cells.length%7));cells.push({date:d,out:true})}
+              while(cells.length%7!==0){const d=new Date(last);d.setDate(last.getDate()+(cells.length%7));cells.push({date:d,out:true});}
               const avMap=await availabilityMapForMonth(cells.filter(c=>!c.out).map(c=>c.date));
-              gGrid.innerHTML=cells.map(c=>{const id=ymd(c.date),sel=id===ymd(selDate);return dayHTML(c.date,{out:c.out,avail:!!avMap[id],sel})}).join('');
+              gGrid.innerHTML=cells.map(c=>{
+                const id=ymd(c.date),sel=id===ymd(selDate);
+                return dayHTML(c.date,{out:c.out,avail:!!avMap[id],sel});
+              }).join('');
               gGrid.querySelectorAll('.bk-day').forEach(div=>{
                 if(div.dataset.out==='1') return;
-                div.addEventListener('click',()=>{selDate=new Date(div.dataset.date);els('.bk-day.sel',gGrid).forEach(x=>x.classList.remove('sel'));div.classList.add('sel');loadSlotsForDay();});
+                div.addEventListener('click',()=>{
+                  selDate = parseLocalYMD(div.dataset.date); // <<<<<< evita voltar um dia
+                  els('.bk-day.sel',gGrid).forEach(x=>x.classList.remove('sel'));
+                  div.classList.add('sel');
+                  loadSlotsForDay();
+                });
               });
             }
 
             async function loadSlotsForDay(){
-              const ds=ymd(selDate); labDay.textContent='• '+fmtBR(ds); selTime=''; btnGo.disabled=true; fb.textContent='';
+              const ds=ymd(selDate);
+              labDay.textContent='• '+fmtBR(ds);
+              selTime=''; linkGo.classList.add('disabled'); fb.textContent='';
               slotsEl.innerHTML='Carregando horários…';
+
               try{
-                const bag=await fetchAvailability(ds);
-                const start=bag?.officeHours?.start||'08:00', end=bag?.officeHours?.end||'18:00', step=bag?.intervalMinutes||30;
-                const base=rangeToSlots(start,end,step); const withStatus=blockByBusy(base,bag?.busy||[]);
-                if(!withStatus.some(s=>s.available)){ slotsEl.innerHTML='<div class="text-muted">Sem horários disponíveis neste dia.</div>'; return; }
-                slotsEl.innerHTML=withStatus.map(s=>`<button class="bk-slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'} data-time="${s.time}">${s.time}</button>`).join('');
+                const bag = await fetchAvailability(ds);
+                const step = bag?.intervalMinutes || 60;                 // fallback
+                const start= bag?.officeHours?.start || '08:00';
+                const end  = bag?.officeHours?.end   || '18:00';
+
+                const base = (Array.isArray(bag.slots) && bag.slots.length)
+                  ? bag.slots
+                  : rangeToSlots(start,end,step);
+
+                const withStatus = (Array.isArray(bag.slots) && bag.slots.length)
+                  ? base.map(t => ({ time:t, available:true }))
+                  : blockByBusy(base, bag.busy);
+
+                if(!withStatus.some(s=>s.available)){
+                  slotsEl.innerHTML = '<div class="text-muted">Sem horários disponíveis neste dia.</div>';
+                  return;
+                }
+
+                slotsEl.innerHTML = withStatus.map(s =>
+                  `<button class="bk-slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'} data-time="${s.time}">${s.time}</button>`
+                ).join('');
+
+                // seleção
                 slotsEl.querySelectorAll('.bk-slot:not(.disabled)').forEach(b=>{
-                  b.addEventListener('click',()=>{
+                  b.addEventListener('click', ()=>{
                     els('.bk-slot.active',slotsEl).forEach(x=>x.classList.remove('active'));
-                    b.classList.add('active'); selTime=b.dataset.time; btnGo.disabled=false;
+                    b.classList.add('active');
+                    selTime=b.dataset.time;
+                    linkGo.classList.remove('disabled');
                     const msg=encodeURIComponent(`Olá! Quero agendar ${fmtBR(ds)} às ${selTime}.`);
-                    chatA.href=`https://wa.me/5511987562810?text=${msg}`; // ajuste o número, se quiser
+                    chatA.href=`https://wa.me/5511987562810?text=${msg}`;
                   });
                 });
-              }catch(e){ console.error(e); slotsEl.innerHTML='<div class="text-danger">Erro ao carregar horários.</div>'; }
+
+              }catch(e){
+                console.error(e);
+                slotsEl.innerHTML='<div class="text-danger">Erro ao carregar horários.</div>';
+              }
             }
 
-            /* abrir modal para dados */
-            btnGo.addEventListener('click',()=>{
+            // Abrir modal quando clicar em "Agendar Agora"
+            linkGo.addEventListener('click', ()=>{
+              if (linkGo.classList.contains('disabled')) return;
               leadWhen.textContent = `Você está marcando para ${fmtBR(ymd(selDate))} às ${selTime}.`;
               $('#md-lead').modal('show');
             });
 
-            /* enviar agendamento */
+            // Enviar agendamento ao webhook
             leadForm.addEventListener('submit', async (e)=>{
               e.preventDefault();
               const name=inName.value.trim(), phone=inPhone.value.trim(), email=inEmail.value.trim();
@@ -460,11 +467,11 @@ async function loadSlotsForDay(){
               }
             });
 
-            /* navegação do mês */
-            btnPrev.addEventListener('click',()=>{anchor=new Date(anchor.getFullYear(),anchor.getMonth()-1,1);renderMonth();});
-            btnNext.addEventListener('click',()=>{anchor=new Date(anchor.getFullYear(),anchor.getMonth()+1,1);renderMonth();});
+            // navegação do mês
+            btnPrev.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anchor.getMonth()-1,1); renderMonth(); });
+            btnNext.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anchor.getMonth()+1,1); renderMonth(); });
 
-            /* boot */
+            // boot
             (async function init(){ await renderMonth(); await loadSlotsForDay(); })();
           </script>
 
@@ -474,30 +481,15 @@ async function loadSlotsForDay(){
   </section>
 
   <!-- WhatsApp flutuante -->
-  <a href="https://wa.me/5511987562810?text=Olá%20quero%20agendar%20uma%20consulta" 
-     target="_blank" 
-     id="whatsapp-btn">
+  <a href="https://wa.me/5511987562810?text=Olá%20quero%20agendar%20uma%20consulta"
+     target="_blank" id="whatsapp-btn">
     <img src="images/whatsappgif.gif" alt="WhatsApp" />
   </a>
 
   <style>
-    #whatsapp-btn {
-      position: fixed;
-      bottom: 35px;
-      right: 30px;
-      z-index: 9999;
-      width: 85px;
-      height: 85px;
-    }
-    #whatsapp-btn img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-    #whatsapp-btn img:hover { transform: scale(1.15); }
+    #whatsapp-btn{position:fixed;bottom:35px;right:30px;z-index:9999;width:85px;height:85px}
+    #whatsapp-btn img{width:100%;height:100%;object-fit:contain;border-radius:50%;cursor:pointer;transition:transform .3s ease}
+    #whatsapp-btn img:hover{transform:scale(1.15)}
   </style>
 
   <!-- footer section -->
@@ -543,17 +535,15 @@ async function loadSlotsForDay(){
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstrap.js"></script>
 
-  <!-- Plugins usados pelo tema (carregar ANTES do custom.js para evitar erros) -->
+  <!-- Plugins do tema (carregar ANTES do custom.js) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/jquery.nice-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js"></script>
 
-  <!-- Seu JS do tema -->
+  <!-- JS do tema -->
   <script src="js/custom.js"></script>
 
-  <!-- Google Maps (se o custom.js chama myMap) -->
+  <!-- Google Maps (se o custom.js usa myMap) -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap" async defer></script>
 </body>
 </html>
-
-

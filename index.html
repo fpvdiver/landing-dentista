@@ -174,6 +174,20 @@
     </div>
   </section>
 
+<!-- book section -->
+<section class="book_section layout_padding" id="booking">
+  <div class="container">
+    <div class="heading_container">
+      <h2>Agende sua Consulta</h2>
+      <p style="max-width:720px;color:#64748b">
+        Escolha uma data para ver os horários disponíveis em tempo real. Você também pode conversar com nosso agente para agendar.
+      </p>
+    </div>
+
+    <!-- lado a lado a partir de md (>=768px) -->
+    <div class="row align-items-stretch">
+      <!-- Coluna do formulário -->
+      <div class="col-12 col-md-6 d-flex">
 <!-- ===== BOOKING WIDGET: calendário + horários; dados só no modal ===== -->
 <style>
   .bk-card{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:14px}
@@ -396,8 +410,11 @@ btnNext.addEventListener('click',()=>{anchor=new Date(anchor.getFullYear(),ancho
 (async function init(){ await renderMonth(); await loadSlotsForDay(); })();
 </script>
 
-<!-- ================== /BOOKING WIDGET ================== -->
-
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 
 <a href="https://wa.me/5511987562810?text=Olá%20quero%20agendar%20uma%20consulta" 
@@ -482,8 +499,6 @@ btnNext.addEventListener('click',()=>{anchor=new Date(anchor.getFullYear(),ancho
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 </body>
 </html>
-
-
 
 
 

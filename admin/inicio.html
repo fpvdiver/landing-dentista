@@ -787,9 +787,73 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
+<script>
+(function(){
+  const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,'');
+  const UL = document.getElementById('upcoming-list');
+
+  const qs = o => {
+    const p = new URLSearchParams();
+    Object.entries(o||{}).forEach(([k,v])=>{
+      if(v!==undefined && v!==null && v!=='') p.append(k, String(v));
+    });
+    return p.toString() ? '?' + p.toString() : '';
+  };
+
+  function labelData(startISO, allDay){
+    const d  = new Date(startISO);
+    const n  = new Date();
+    const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const n0 = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    const diffDays = Math.round((d0 - n0)/86400000);
+
+    const hhmm = allDay ? '' : ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    if (diffDays === 0) return 'Hoje'    + hhmm;
+    if (diffDays === 1) return 'Amanhã'  + hhmm;
+    return d.toLocaleDateString('pt-BR', { weekday:'short' }) + hhmm; // ex: seg., ter., qua...
+  }
+
+  function render(items){
+    UL.innerHTML = '';
+    if(!items || !items.length){
+      UL.innerHTML = '<li class="py-2 text-muted">Sem próximos agendamentos</li>';
+      return;
+    }
+    items.forEach(ev=>{
+      const when = labelData(ev.start, ev.allDay);
+      const li = document.createElement('li');
+      li.className = 'py-2 border-bottom';
+      li.innerHTML = `
+        <i class="fa-regular fa-clock mr-2" style="color:#10b981"></i>
+        <strong>${when}</strong> – ${ev.title || '(sem título)'}
+      `;
+      UL.appendChild(li);
+    });
+  }
+
+  async function loadUpcoming(){
+    try{
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const url = API_BASE + '/calendar/upcoming' + qs({ days: 7, limit: 3, tz });
+      const res = await fetch(url, { headers:{Accept:'application/json'}, cache:'no-store' });
+      const data = await res.json();
+      const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+      render(items);
+    }catch(err){
+      console.error(err);
+      UL.innerHTML = '<li class="py-2 text-danger">Erro ao carregar agenda</li>';
+    }
+  }
+
+  loadUpcoming();
+})();
+</script>
+
+
 
 </body>
 </html>
+
 
 
 

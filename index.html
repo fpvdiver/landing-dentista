@@ -279,8 +279,8 @@
 
 <script>
 /* ===== CONFIG ===== */
-window.CRM_API_BASE = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/odonto').replace(/\/+$/,'');
 const TZ = 'America/Sao_Paulo';
+const AVAILABILITY_URL = 'https://allnsnts.app.n8n.cloud/webhook/availability/'; // <- seu hook (com / no final)
 
 /* ===== HELPERS ===== */
 const el=(q,r=document)=>r.querySelector(q), els=(q,r=document)=>Array.from(r.querySelectorAll(q));
@@ -290,28 +290,24 @@ const fmtBR=iso=>{try{const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;}catc
 function rangeToSlots(start,end,step){const out=[],[sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number);let d=new Date();d.setHours(sh,sm,0,0);const z=new Date();z.setHours(eh,em,0,0);while(d<z){out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`);d=new Date(d.getTime()+step*60000)}return out}
 function blockByBusy(slots,busy){const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};return slots.map(t=>{const tm=toMin(t);const kk=(busy||[]).some(([a,b])=>tm>=toMin(a)&&tm<toMin(b));return {time:t,available:!kk}})}
 
-/* ===== CORS-SAFE fetch (usa proxy /api/odonto se o n8n bloquear) ===== */
+/* CORS-safe fetch (opcional: tenta proxy se houver bloqueio) */
 async function corsFetch(url){
   try{ return await fetch(url,{headers:{Accept:'application/json'}}) }catch(e){}
-  // fallback: proxy em /api/odonto?url=...
   return fetch(`/api/odonto?u=${encodeURIComponent(url)}`,{headers:{Accept:'application/json'}});
 }
 
-/* ===== API ===== */
+/* ===== API: usa o SEU webhook de disponibilidade ===== */
 async function fetchAvailability(dateStr){
-  const u=`${window.CRM_API_BASE}/availability?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
-  const res=await corsFetch(u);
-  if(!res.ok) throw new Error('Falha ao consultar disponibilidade');
-  return res.json();
-}
-async function createAppointment(payload){
-  // se tiver seu CRMApi, usamos ele; senão vai direto ao webhook
-  if (window.CRMApi?.createAppointment) return CRMApi.createAppointment(payload);
-  const res=await fetch(`${window.CRM_API_BASE}/appointments/create`,{
-    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
-  });
-  const data=await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data?.message||'Erro ao agendar');
+  const url = `${AVAILABILITY_URL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
+  const res = await corsFetch(url);
+  if (!res.ok) throw new Error('Falha ao consultar disponibilidade');
+  const data = await res.json();
+
+  // normalização opcional: caso o n8n devolva busy com ISO datetime
+  const toHHMM = s => new Date(s).toTimeString().slice(0,5);
+  if (Array.isArray(data?.busy) && data.busy.length && typeof data.busy[0] === 'object') {
+    data.busy = data.busy.map(x => [toHHMM(x.start), toHHMM(x.end)]);
+  }
   return data;
 }
 
@@ -499,6 +495,7 @@ btnNext.addEventListener('click',()=>{anchor=new Date(anchor.getFullYear(),ancho
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 </body>
 </html>
+
 
 
 

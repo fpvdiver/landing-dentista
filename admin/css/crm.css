@@ -593,12 +593,119 @@ html{font-size:16px;}
 .crm-action-sheet .sheet-item i{ width: 20px; }
 .crm-action-sheet .sheet-item:hover{ background: #f8fafc; }
 
+/* == Tema / variáveis == */
+:root{
+  --bb-h: 80px;                        /* altura total da barra */
+  --bb-bg: #ffffff;                    /* fundo da barra */
+  --bb-shadow: 0 14px 34px rgba(15,23,42,.12), 0 6px 14px rgba(15,23,42,.08);
+  --bb-active: #0ea5e9;                /* cor de destaque */
+  --bb-fab: #0ea5e9;                   /* FAB */
+  --bb-icon: #64748b;                  /* ícone normal */
+  --bb-icon-active: #0ea5e9;           /* ícone ativo */
+  --bb-radius: 22px;
+
+  --fab-size: 62px;
+  --fab-shadow: 0 22px 36px rgba(14,165,233,.35);
+
+  --side-gap: 14px;                    /* espaçamento lateral */
+  --maxw: 980px;                       /* largura máxima no mobile largo */
+}
+
+/* esconder o hambúrguer, como combinado */
+.crm-burger{ display:none !important; }
+
+/* ===== Bottom bar líquida ===== */
+@media (max-width: 991px){
+  .bb-liquid{
+    position: fixed; left: 0; right: 0; bottom: 0;
+    height: var(--bb-h);
+    display: grid; place-items: end center;
+    z-index: 1030; isolation: isolate;
+    pointer-events: none;               /* apenas botões “reativam” */
+  }
+
+  .bb-liquid .bb-bg{
+    position: absolute; inset: 0 auto 0 auto;
+    width: min(100%, var(--maxw));
+    height: 100%;
+    filter: drop-shadow(0 10px 24px rgba(15,23,42,.12)) drop-shadow(0 3px 8px rgba(15,23,42,.08));
+  }
+
+  .bb-liquid .bb-item{
+    pointer-events: auto;
+    position: absolute; bottom: 10px;
+    width: calc(50% - var(--fab-size)/2 - var(--side-gap));
+    height: calc(var(--bb-h) - 20px);
+    background: var(--bb-bg);
+    border-radius: var(--bb-radius);
+    box-shadow: var(--bb-shadow);
+    display: inline-flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 6px; color: var(--bb-icon);
+    font-size: 12px; line-height: 1;
+    transition: color .18s ease, transform .18s ease;
+  }
+  .bb-liquid .bb-item i{ font-size: 20px; }
+
+  .bb-liquid .bb-item:first-of-type{ left: var(--side-gap); }
+  .bb-liquid .bb-item:last-of-type{ right: var(--side-gap); }
+
+  .bb-liquid .bb-item:active{ transform: translateY(1px) scale(.98); }
+
+  /* FAB no notch */
+  .bb-liquid .bb-fab{
+    pointer-events: auto;
+    position: absolute; left: 50%; transform: translateX(-50%) translateY(-14%);
+    bottom: calc(var(--bb-h) - var(--fab-size)/2 - 6px);
+    width: var(--fab-size); height: var(--fab-size);
+    border-radius: 999px;
+    background: var(--bb-fab); color: #fff;
+    display: grid; place-items: center; font-size: 24px;
+    box-shadow: var(--fab-shadow);
+    transition: transform .22s cubic-bezier(.2,.9,.2,1);
+  }
+  .bb-liquid .bb-fab:active{ transform: translateX(-50%) translateY(-16%) scale(.96); }
+
+  /* Indicador sob o item ativo (pílula) */
+  .bb-liquid .bb-indicator{
+    position: absolute; bottom: 18px; height: 38px; width: 90px;
+    background: rgba(14,165,233,.12); border-radius: 999px;
+    transform: translateX(-50%); left: 50%;
+    transition: left .4s cubic-bezier(.2,.9,.2,1), width .3s ease;
+    pointer-events: none;
+  }
+
+  /* Estados de ativo (cor do ícone) */
+  .bb-liquid .bb-item.active,
+  .bb-liquid .bb-item.active i{ color: var(--bb-icon-active); }
+
+  /* Bounce sutil de ícones */
+  .bb-bounce{ animation: bb-bounce .32s cubic-bezier(.25,.6,.35,1) both; }
+  @keyframes bb-bounce{
+    0%{ transform: translateY(0) }
+    30%{ transform: translateY(-7px) }
+    60%{ transform: translateY(1px) }
+    100%{ transform: translateY(0) }
+  }
+
+  /* Pop + rotação do FAB */
+  .bb-fab-pop{ animation: bb-fab-pop .36s cubic-bezier(.25,.8,.25,1) both; }
+  @keyframes bb-fab-pop{
+    0%{ transform: translateX(-50%) translateY(-14%) scale(1) rotate(0deg) }
+    50%{ transform: translateX(-50%) translateY(-16%) scale(1.08) rotate(90deg) }
+    100%{ transform: translateX(-50%) translateY(-14%) scale(1) rotate(0deg) }
+  }
+}
+@media (min-width: 992px){ .bb-liquid{ display:none; } }
+
+
 
 
 
 /* ===================================================================
    FIM
    =================================================================== */
+
 
 
 

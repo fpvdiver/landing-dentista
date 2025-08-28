@@ -1,16 +1,12 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CRM Odonto – Procedimentos</title>
-
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRM Odonto – Início</title>
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="css/crm.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Inclua em TODAS as páginas, após Font Awesome / Bootstrap -->
+<script src="js/sidebar.js"></script>
 
-  <!-- Sidebar -->
-  <script src="js/sidebar.js" defer></script>
 </head>
 <body data-page="procedimentos">
 
@@ -23,11 +19,9 @@
         <div style="color:var(--muted); font-size:12px;">Elen Nogata</div>
       </div>
     </div>
-<!-- ID da organização (fonte única para os fetches) -->
-<input type="hidden" id="org-id" value="6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc">
 
     <nav class="crm-nav">
-      <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-house"></i> Início</a>
+      <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
       <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
       <a href="pacientes.html" data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
       <a href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
@@ -36,254 +30,77 @@
       <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
     </nav>
 
-    <div class="crm-footer">
+   <div class="crm-footer">
       <div>Conectado como <strong>admin@clinica</strong></div>
       <div>v0.1</div>
     </div>
   </aside>
 
-  <!-- overlay mobile -->
+  <!-- overlay que aparece quando a sidebar é aberta no mobile -->
   <div class="crm-overlay" id="crm-overlay"></div>
 
-  <!-- MAIN -->
   <main class="crm-main">
-    <!-- Burger (mobile) -->
+    <!-- Botão hambúrguer (mostrado apenas no mobile) -->
     <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
       <i class="fa-solid fa-bars"></i>
     </button>
 
+  <main class="crm-main">
     <section class="crm-hero">
       <h1 class="text-center mb-1">Procedimentos</h1>
       <div class="crm-search">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input id="proc-search" placeholder="Buscar por nome, código, duração..." />
-        <button id="proc-search-btn" class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
-        <a href="#" id="btn-new-proc" class="btn btn-sm btn-primary btn-pill ml-auto">
-          <i class="fa-solid fa-tooth mr-1"></i> Novo procedimento
-        </a>
+        <input placeholder="Buscar por nome, código, duração..." />
+        <button class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
+        <a href="#" class="btn btn-sm btn-primary btn-pill ml-auto"><i class="fa-solid fa-tooth mr-1"></i> Novo procedimento</a>
       </div>
     </section>
 
-<section class="crm-content">
-  <div class="crm-card">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <div class="crm-search" style="flex:1; max-width:520px">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input id="proc-search" placeholder="Buscar por nome, código, duração..." />
-        <button id="proc-search-btn" class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
+    <section class="crm-content">
+      <div class="crm-card">
+        <table class="table mb-0">
+          <thead><tr><th>Nome</th><th>Duração</th><th>Preço</th><th>Código</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Profilaxia</td><td>30 min</td><td>R$ 150,00</td><td>PRF-001</td><td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Editar</a></td></tr>
+            <tr><td>Clareamento</td><td>60 min</td><td>R$ 1.200,00</td><td>CLR-010</td><td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Editar</a></td></tr>
+            <tr><td>Implante unitário</td><td>90 min</td><td>R$ 4.500,00</td><td>IMP-100</td><td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill">Editar</a></td></tr>
+          </tbody>
+        </table>
       </div>
-      <button id="proc-refresh" class="btn btn-sm btn-outline-secondary btn-pill ml-2">Recarregar</button>
-      <a href="#" class="btn btn-sm btn-primary btn-pill ml-2"><i class="fa-solid fa-tooth mr-1"></i> Novo procedimento</a>
-    </div>
-
-    <table class="table mb-0">
-      <thead>
-        <tr><th>Nome</th><th>Duração</th><th>Preço</th><th>Código</th><th></th></tr>
-      </thead>
-      <tbody id="proc-tbody">
-        <tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
+    </section>
   </main>
 </div>
 
-<!-- ===== Scripts ===== -->
-<script>
-/* Sidebar mobile */
+  <script>
 (function () {
   const app = document.querySelector('.crm-app');
   const btn = document.getElementById('btn-sidebar');
   const overlay = document.getElementById('crm-overlay');
 
+  function open(){ app.classList.add('sidebar-open'); }
   function close(){ app.classList.remove('sidebar-open'); }
   function toggle(){ app.classList.toggle('sidebar-open'); }
 
   btn?.addEventListener('click', toggle);
   overlay?.addEventListener('click', close);
-  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
-  document.querySelectorAll('.crm-nav a').forEach(a=> a.addEventListener('click', close));
+
+  // Fecha ao pressionar ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+
+  // Fecha ao clicar em um item de navegação (no mobile)
+  document.querySelectorAll('.crm-nav a').forEach(a => {
+    a.addEventListener('click', close);
+  });
 })();
 </script>
 
-<!-- libs -->
 <script src="../js/jquery-3.4.1.min.js"></script>
-<script src="../js/bootstrap.js"></script>
+  <script src="../js/bootstrap.js"></script>
+  <script src="assets/crm.js"></script>
+</body></html>
 
-<!-- Config do n8n + helpers -->
-<script>
-  // ajuste se precisar (sem barra no final)
-  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
-  // opcional: window.CRM_API_KEY = '...';
-</script>
-<script src="js/crm-api.js"></script>
-
-<script>
-(function () {
-  const tbody = document.getElementById('proc-tbody');
-  const searchInput = document.getElementById('proc-search');
-  const ORG_ID = document.getElementById('org-id')?.value || '';
-
-  let PROCEDURES = [];
-
-  const esc  = (s)=> String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const dur  = (m)=> `${Number(m||0)} min`;
-  const toBRL= (v)=> (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-
-  function render(list){
-    if (!tbody) return;
-    if (!list?.length){
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
-      return;
-    }
-    tbody.innerHTML = list.map(p => `
-      <tr data-id="${esc(p.id)}">
-        <td>${esc(p.name)}</td>
-        <td>${dur(p.default_duration_min ?? p.duration ?? 60)}</td>
-        <td>${toBRL(p.price)}</td>
-        <td>${esc(p.code || '-')}</td>
-        <td class="text-right">
-          <button class="btn btn-sm btn-outline-secondary btn-pill btn-edit" data-id="${esc(p.id)}">Editar</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  // Aceita vários formatos comuns que o n8n pode devolver
-  function pickArray(raw){
-    if (Array.isArray(raw)) return raw;
-    const keys = ['items','data','rows','result','procedures','records'];
-    for (const k of keys) if (Array.isArray(raw?.[k])) return raw[k];
-    // procura a primeira propriedade que seja array
-    const firstArr = Object.values(raw||{}).find(Array.isArray);
-    return firstArr || [];
-  }
-
-  async function load(){
-    if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>';
-    try{
-      // usa org_id (RLS / filtro do seu Supabase)
-      const raw = await (window.CRMApi?.listProcedures?.(ORG_ID) || []);
-      console.log('procedures raw →', raw);
-      PROCEDURES = pickArray(raw);
-      render(PROCEDURES);
-    }catch(e){
-      console.error(e);
-      if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erro ao carregar procedimentos</td></tr>';
-    }
-  }
-
-  function applyFilter(){
-    const q = (searchInput?.value||'').trim().toLowerCase();
-    if(!q){ render(PROCEDURES); return; }
-    const filtered = PROCEDURES.filter(p=>{
-      const name=(p.name||'').toLowerCase();
-      const code=(p.code||'').toLowerCase();
-      const d   = String(p.default_duration_min ?? p.duration ?? '').toLowerCase();
-      const pr  = String(p.price ?? '').toLowerCase();
-      return name.includes(q)||code.includes(q)||d.includes(q)||pr.includes(q);
-    });
-    render(filtered);
-  }
-
-  // UI
-  document.getElementById('proc-refresh')?.addEventListener('click', load);
-  document.getElementById('proc-search-btn')?.addEventListener('click', applyFilter);
-  searchInput?.addEventListener('input', (function(){ let t; return ()=>{ clearTimeout(t); t=setTimeout(applyFilter,200); }; })());
-
-  // boot
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
-  else load();
-})();
-</script>
-
-
-
-<script>
-(function () {
-  const tbody = document.getElementById('proc-tbody');
-  const searchInput = document.getElementById('proc-search');
-  const ORG_ID = document.getElementById('org-id')?.value || '';
-
-  let PROCEDURES = [];
-
-  const esc = (s)=> String(s||'').replace(/[&<>"']/g, m => (
-    { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]
-  ));
-  const durFmt = (min)=> `${Number(min||0)} min`;
-
-  function render(list){
-    if (!tbody) return;
-    if (!list?.length){
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
-      return;
-    }
-    tbody.innerHTML = list.map(p=>`
-      <tr data-id="${esc(p.id)}">
-        <td>${esc(p.name)}</td>
-        <td>${durFmt(p.default_duration_min ?? p.duration ?? 60)}</td>
-        <td>${CRMApi.toBRL(Number(p.price||0))}</td>
-        <td>${esc(p.code||'-')}</td>
-        <td class="text-right">
-          <button class="btn btn-sm btn-outline-secondary btn-pill btn-edit" data-id="${esc(p.id)}">Editar</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  function applyFilter(){
-    const q = (searchInput.value||'').trim().toLowerCase();
-    if(!q){ render(PROCEDURES); return; }
-    const filtered = PROCEDURES.filter(p=>{
-      const name=(p.name||'').toLowerCase();
-      const code=(p.code||'').toLowerCase();
-      const dur =String(p.default_duration_min ?? p.duration ?? '').toLowerCase();
-      const price=String(p.price ?? '').toLowerCase();
-      return name.includes(q)||code.includes(q)||dur.includes(q)||price.includes(q);
-    });
-    render(filtered);
-  }
-
-  // pega a primeira propriedade que seja array, se o n8n devolver objetos diferentes
-  function pickArray(raw){
-    if (Array.isArray(raw)) return raw;
-    const keys = ['items','data','rows','result','procedures','records'];
-    for (const k of keys) if (Array.isArray(raw?.[k])) return raw[k];
-    const firstArr = Object.values(raw||{}).find(Array.isArray);
-    return firstArr || [];
-  }
-
-  async function load(){
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>';
-    try{
-      const raw = await CRMApi.listProcedures?.(ORG_ID);
-      console.log('procedures raw →', raw); // ajuda caso precise depurar
-      PROCEDURES = pickArray(raw);
-      render(PROCEDURES);
-    }catch(e){
-      console.error(e);
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erro ao carregar procedimentos</td></tr>';
-    }
-  }
-
-  document.getElementById('proc-refresh')?.addEventListener('click', load);
-  document.getElementById('proc-search-btn')?.addEventListener('click', applyFilter);
-  searchInput?.addEventListener('input', (function(){ let t; return ()=>{ clearTimeout(t); t=setTimeout(applyFilter,200); }; })());
-
-  // inicia
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', load);
-  } else {
-    load();
-  }
-})();
-</script>
-
-
-</body>
-</html>
 
 
 

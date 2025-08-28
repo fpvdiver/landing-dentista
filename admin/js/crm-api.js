@@ -321,6 +321,18 @@ async function setupPatientsDatalist(){
   });
 }
 
+   // dentro do IIFE do crm-api.js
+async function getCalendarUpcoming({days=7, limit=3, tz} = {}){
+  const timezone = tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return api('/calendar/upcoming' + qs({ days, limit, tz: timezone }));
+}
+
+window.CRMApi = {
+  ...(window.CRMApi||{}),
+  getCalendarUpcoming
+};
+
+
   /* ===================== AGENDAMENTOS ===================== */
   async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
     const bag = await api('/appointments/day' + qs({ date: dateStr, tz }));
@@ -539,4 +551,5 @@ async function setupPatientsDatalist(){
     createQuote, addOrcRow, calcOrc,
   };
 })();
+
 

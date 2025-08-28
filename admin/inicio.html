@@ -703,32 +703,51 @@ document.addEventListener('DOMContentLoaded', () => {
   <a class="sheet-item" href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
 </div>
 
-<!-- BOTTOM BAR • LIQUID -->
-<!-- Bottom Bar curvada -->
-<nav class="bb-curved" id="bb-curved" aria-label="Navegação rápida">
-  <!-- área esquerda -->
-  <button class="bb-item" data-act="agenda" aria-label="Agenda">
+<!-- BOTTOM BAR • DRIBBBLE-LIKE -->
+<nav class="bb-dribbble" id="bbBar" aria-label="Navegação rápida">
+  <!-- fundo com onda + notch -->
+  <svg class="bb-bg" viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="bbShadow" x="-20%" y="-50%" width="140%" height="200%">
+        <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="rgba(15,23,42,.10)"/>
+        <feDropShadow dx="0" dy="4"  stdDeviation="6"  flood-color="rgba(15,23,42,.08)"/>
+      </filter>
+    </defs>
+
+    <!-- Path com notch (estado “em repouso”) -->
+    <path id="bbPath" class="bb-path" filter="url(#bbShadow)"
+      d="M18,26
+         H360
+         C420,26 440,6 500,6
+         C560,6 580,26 640,26
+         H982 Q994,26 994,38 V140
+         Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
+
+    <!-- Morph da onda ao tocar -->
+    <animate id="bbMorph" xlink:href="#bbPath" attributeName="d" dur="420ms" fill="freeze"
+      values="
+        M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
+        M18,26 H330 C400,26 440,-18 500,-18 C560,-18 600,26 670,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
+        M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z
+      " />
+  </svg>
+
+  <!-- Slots (mesma “placa”, sem borda) -->
+  <button class="bb-tab" data-act="agenda" aria-label="Agenda">
     <i class="fa-regular fa-calendar-days"></i>
     <span>Agenda</span>
   </button>
 
-  <!-- shape da curva/notch -->
-  <svg class="bb-shape" viewBox="0 0 100 25" preserveAspectRatio="none" aria-hidden="true">
-    <!-- curva côncava no topo para “abraçar” o FAB -->
-    <path d="M0,0 H34 C40,0 44,10 50,10 C56,10 60,0 66,0 H100 V25 H0 Z" />
-  </svg>
-
-  <!-- FAB central -->
   <button class="bb-fab" data-act="quick" aria-label="Ações rápidas">
     <i class="fa-solid fa-plus"></i>
   </button>
 
-  <!-- área direita -->
-  <button class="bb-item" data-act="menu" aria-label="Menu">
+  <button class="bb-tab" data-act="menu" aria-label="Menu">
     <i class="fa-solid fa-list-ul"></i>
     <span>Menu</span>
   </button>
 </nav>
+
 
 <script>
 (function () {
@@ -860,48 +879,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 (function(){
-  const bar     = document.getElementById('bb-curved');
+  const bar = document.getElementById('bbBar');
   if(!bar) return;
 
+  const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]');
+  const tabMenu   = bar.querySelector('.bb-tab[data-act="menu"]');
+  const fab       = bar.querySelector('.bb-fab');
+  const morph     = document.getElementById('bbMorph');
+
+  // seus sheets existentes
   const overlay = document.getElementById('crm-sheet-overlay');
   const quick   = document.getElementById('crm-quick-sheet');
   const menu    = document.getElementById('crm-menu-sheet');
-
-  const openSheet = (sheet)=>{
-    if(!overlay || !sheet) return;
-    overlay.classList.add('show');
-    sheet.classList.add('show');
-  };
-  const closeSheets = ()=>{
-    overlay?.classList.remove('show');
-    quick?.classList.remove('show');
-    menu?.classList.remove('show');
-  };
+  const openSheet = el => { overlay?.classList.add('show'); el?.classList.add('show'); };
+  const closeSheets = () => { overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
   overlay?.addEventListener('click', closeSheets);
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
 
-  bar.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button');
-    if(!btn) return;
+  function wave(){ try{ morph.beginElement(); }catch(e){} }
+  function bounce(el){
+    const i = el.querySelector('i'), s=el.querySelector('span');
+    i?.classList.remove('bb-bounce'); s?.classList.remove('bb-bounce');
+    void i?.offsetWidth; void s?.offsetWidth; // reflow
+    i?.classList.add('bb-bounce'); s?.classList.add('bb-bounce');
+  }
+  function setActive(btn){
+    [tabAgenda, tabMenu].forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
 
-    switch(btn.dataset.act){
-      case 'agenda':
-        window.location.href = 'agenda.html';
-        break;
-      case 'menu':
-        openSheet(menu);
-        break;
-      case 'quick':
-        openSheet(quick);
-        break;
-    }
+  tabAgenda.addEventListener('click', ()=>{
+    setActive(tabAgenda); wave(); bounce(tabAgenda);
+    setTimeout(()=> location.href='agenda.html', 120);
   });
+
+  tabMenu.addEventListener('click', ()=>{
+    setActive(tabMenu); wave(); bounce(tabMenu);
+    openSheet(menu);
+  });
+
+  fab.addEventListener('click', ()=>{
+    wave(); fab.classList.remove('bb-fab-pop'); void fab.offsetWidth; fab.classList.add('bb-fab-pop');
+    openSheet(quick);
+  });
+
+  // estado inicial
+  setActive(tabAgenda);
 })();
 </script>
 
-
 </body>
 </html>
+
 
 
 

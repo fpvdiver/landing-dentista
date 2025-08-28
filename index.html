@@ -290,18 +290,82 @@
             function rangeToSlots(start,end,step){const out=[],[sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number);let d=new Date();d.setHours(sh,sm,0,0);const z=new Date();z.setHours(eh,em,0,0);while(d<z){out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`);d=new Date(d.getTime()+step*60000)}return out}
             function blockByBusy(slots,busy){const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};return slots.map(t=>{const tm=toMin(t);const kk=(busy||[]).some(([a,b])=>tm>=toMin(a)&&tm<toMin(b));return {time:t,available:!kk}})}
 
-            async function fetchAvailability(dateStr){
-              const url = `${AVAILABILITY_URL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
-              const res = await fetch(url,{headers:{Accept:'application/json'}});
-              if (!res.ok) throw new Error('Falha ao consultar disponibilidade');
-              const data = await res.json();
-              // normalização: se busy vier como objetos ISO
-              const toHM = s => new Date(s).toTimeString().slice(0,5);
-              if (Array.isArray(data?.busy) && data.busy.length && typeof data.busy[0] === 'object') {
-                data.busy = data.busy.map(x => [toHM(x.start), toHM(x.end)]);
-              }
-              return data;
-            }
+  async function fetchAvailability(dateStr){
+  const url = `${AVAILABILITY_URL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
+  const res = await fetch(url, { headers:{ Accept:'application/json' } });
+  if (!res.ok) throw new Error(await res.text());
+
+  const data = await res.json();
+
+  // Normaliza "busy" quando vier em ISO (start/end) para HH:mm no fuso da clínica
+  const toHM = (iso) => new Intl.DateTimeFormat('pt-BR', {
+    hour:'2-digit', minute:'2-digit', hour12:false, timeZone: TZ
+  }).format(new Date(iso));
+
+  if (Array.isArray(data?.busy) && data.busy.length) {
+    if (typeof data.busy[0] === 'object') {
+      // [{start, end}] -> [["HH:mm","HH:mm"], ...]
+      data.busy = data.busy.map(x => [toHM(x.start), toHM(x.end)]);
+    }
+  } else {
+    data.busy = [];
+  }
+  return data;
+}
+
+async function loadSlotsForDay(){
+  const ds = ymd(selDate);
+  labDay.textContent = '• ' + fmtBR(ds);
+  selTime = '';
+  btnGo.disabled = true;
+  fb.textContent = '';
+  slotsEl.innerHTML = 'Carregando horários…';
+
+  try{
+    const bag  = await fetchAvailability(ds);
+    const step = bag?.intervalMinutes || 30;
+    const ohS  = bag?.officeHours?.start || '08:00';
+    const ohE  = bag?.officeHours?.end   || '18:00';
+
+    // 1) Se o webhook já devolve os horários prontos, use-os
+    const base = (Array.isArray(bag.slots) && bag.slots.length)
+      ? bag.slots
+      : rangeToSlots(ohS, ohE, step);
+
+    // 2) Se "slots" veio do backend, consideramos todos disponíveis;
+    //    caso contrário, removemos intervalos "busy".
+    const withStatus = (Array.isArray(bag.slots) && bag.slots.length)
+      ? base.map(t => ({ time: t, available: true }))
+      : blockByBusy(base, bag.busy);
+
+    if (!withStatus.some(s => s.available)) {
+      slotsEl.innerHTML = '<div class="text-muted">Sem horários disponíveis neste dia.</div>';
+      return;
+    }
+
+    slotsEl.innerHTML = withStatus.map(s =>
+      `<button class="bk-slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'} data-time="${s.time}">${s.time}</button>`
+    ).join('');
+
+    // Seleção de horário
+    slotsEl.querySelectorAll('.bk-slot:not(.disabled)').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        els('.bk-slot.active', slotsEl).forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        selTime = b.dataset.time;
+        btnGo.disabled = false;
+        const msg = encodeURIComponent(`Olá! Quero agendar ${fmtBR(ds)} às ${selTime}.`);
+        chatA.href = `https://wa.me/5511987562810?text=${msg}`;
+      });
+    });
+
+    // DEBUG opcional no console
+    console.log('[booking] availability', { date: ds, received: bag, rendered: withStatus });
+  }catch(e){
+    console.error(e);
+    slotsEl.innerHTML = '<div class="text-danger">Erro ao carregar horários.</div>';
+  }
+}
 
             /* ===== STATE/ELS ===== */
             const gMonth=el('#bk-month'), gGrid=el('#bk-grid'), btnPrev=el('#bk-prev'), btnNext=el('#bk-next');
@@ -491,3 +555,4 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap" async defer></script>
 </body>
 </html>
+

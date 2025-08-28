@@ -274,6 +274,121 @@
   async function rescheduleAppointment({ id, date, time, duracaoMin }) { return api('/appointments/reschedule', { method: 'POST', body: { id, date, time, duracaoMin } }); }
   async function cancelAppointment(id) { return api('/appointments/cancel', { method: 'POST', body: { id } }); }
 
+   /* ====== CONTATO: travar/destravar Telefone/E-mail ====== */
+function attachContactEditToggles() {
+  const f = document.getElementById('form-agendamento');
+  if (!f) return;
+  ['phone','email'].forEach(name => {
+    const input = f.querySelector(`[name="${name}"]`);
+    if (!input || input.parentElement.querySelector('.toggle-edit')) return;
+    input.parentElement.classList.add('field-lock');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'toggle-edit';
+    btn.textContent = 'Editar';
+    btn.addEventListener('click', () => {
+      const locking = input.readOnly;
+      input.readOnly = !locking ? true : false;   // alterna OK/Editar
+      if (!input.readOnly) input.focus();
+      btn.textContent = input.readOnly ? 'Editar' : 'OK';
+    });
+    input.parentElement.appendChild(btn);
+  });
+}
+function lockContactFields(lock = true) {
+  const f = document.getElementById('form-agendamento');
+  if (!f) return;
+  ['phone','email'].forEach(name => {
+    const input = f.querySelector(`[name="${name}"]`);
+    if (input) input.readOnly = lock;
+    const btn = input?.parentElement.querySelector('.toggle-edit');
+    if (btn) btn.textContent = lock ? 'Editar' : 'OK';
+  });
+}
+function fillAgendamentoFromPatient(p) {
+  const f = document.getElementById('form-agendamento');
+  if (!f) return;
+  f.querySelector('input[name="paciente"]').value = p.full_name || p.name || '';
+  f.querySelector('input[name="phone"]').value    = p.phone || '';
+  f.querySelector('input[name="email"]').value    = p.email || '';
+  lockContactFields(true);
+}
+function clearAgendamentoPatient() {
+  const f = document.getElementById('form-agendamento');
+  if (!f) return;
+  f.querySelector('input[name="paciente"]').value = '';
+  f.querySelector('input[name="phone"]').value = '';
+  f.querySelector('input[name="email"]').value = '';
+  lockContactFields(false);
+}
+
+/* ====== HORÁRIOS DISPONÍVEIS (Hora como <select>) ====== */
+async function refreshAvailableTimes() {
+  const f = document.getElementById('form-agendamento');
+  const timeSel = document.getElementById('ag-time');
+  if (!f || !timeSel) return;
+
+  const date = f.querySelector('[name="date"]')?.value;
+  const dentist = f.querySelector('[name="doctor"]')?.value || '';
+  const durMin = parseInt(f.querySelector('#ag-dur')?.value || '60', 10);
+
+  if (!date) { timeSel.innerHTML = '<option value="" disabled selected>Selecione</option>'; return; }
+
+  timeSel.innerHTML = '<option value="" disabled selected>Carregando…</option>';
+  try {
+    const bag = await CRMApi.getAppointmentsByDay(date, dentist);
+    const slots = CRMApi.computeAvailableSlots(bag, durMin);
+    if (!slots.length) {
+      timeSel.innerHTML = '<option value="" disabled selected>Sem horários</option>';
+      return;
+    }
+    timeSel.innerHTML = slots.map(h => `<option value="${h}">${h}</option>`).join('');
+  } catch (e) {
+    console.error(e);
+    timeSel.innerHTML = '<option value="" disabled selected>Erro ao carregar</option>';
+  }
+}
+
+/* ====== DURAÇÃO: sugerir pela do procedimento ====== */
+function wireProcedureSuggestedDuration() {
+  const selAg = document.getElementById('ag-proc');
+  const durSel = document.getElementById('ag-dur');
+  if (!selAg || !durSel) return;
+
+  const setDur = () => {
+    const d = parseInt(selAg.selectedOptions[0]?.dataset?.dur || '60', 10);
+    const h = Math.max(1, Math.round(d / 60)); // 1..4
+    const opt = durSel.querySelector(`option[value="${h*60}"]`);
+    if (opt) durSel.value = String(h * 60);
+    refreshAvailableTimes();
+  };
+
+  selAg.addEventListener('change', setDur);
+  setDur(); // inicial
+}
+
+/* ====== BOOT: ligar tudo quando a página carregar ====== */
+document.addEventListener('DOMContentLoaded', () => {
+  attachContactEditToggles();
+
+  // Hora dinâmica
+  document.getElementById('ag-dur')?.addEventListener('change', refreshAvailableTimes);
+  document.querySelector('#form-agendamento [name="date"]')?.addEventListener('change', refreshAvailableTimes);
+  document.querySelector('#form-agendamento [name="doctor"]')?.addEventListener('change', refreshAvailableTimes);
+
+  // Sugestão de duração pelo procedimento
+  wireProcedureSuggestedDuration();
+});
+
+/* ====== expor helpers (caso já use no seu HTML) ====== */
+window.CRMApi = {
+  ...(window.CRMApi || {}),
+  fillAgendamentoFromPatient,
+  clearAgendamentoPatient,
+  refreshAvailableTimes,
+};
+
+
   /* ===================== ORÇAMENTO (dinâmico) ===================== */
   function addOrcRow() {
     const tbody = document.querySelector('#orc-table tbody');
@@ -383,3 +498,4 @@
     addOrcRow, calcOrc,
   };
 })();
+

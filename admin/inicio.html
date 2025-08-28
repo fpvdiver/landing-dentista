@@ -835,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try{
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const url = API_BASE + '/calendar/upcoming' + qs({ days: 7, limit: 3, tz });
-      const res = await fetch(url, { headers:{Accept:'application/json'}, cache:'no-store' });
+      const data = await CRMApi.getCalendarUpcoming({days:7, limit:3});
       const data = await res.json();
       const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
       render(items);
@@ -853,6 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 

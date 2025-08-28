@@ -174,73 +174,324 @@
     </div>
   </section>
 
-<!-- book section -->
-<section class="book_section layout_padding" id="booking">
-  <div class="container">
-    <div class="heading_container">
-      <h2>Agende sua Consulta</h2>
-      <p style="max-width:720px;color:#64748b">
-        Escolha uma data para ver os horários disponíveis em tempo real. Você também pode conversar com nosso agente para agendar.
-      </p>
+<!-- ================== BOOKING WIDGET (calendário + slots) ================== -->
+<style>
+  .bk-card{border:1px solid var(--ring,#e5e7eb); border-radius:16px; background:#fff; padding:14px}
+  .bk-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+  .bk-head .month{font-weight:800}
+  .bk-btn-link{background:none; border:0; padding:6px 10px; border-radius:10px}
+  .bk-cal{user-select:none}
+  .bk-dow, .bk-grid{display:grid; grid-template-columns:repeat(7,1fr)}
+  .bk-dow{gap:4px; color:#6b7280; font-size:.8rem; margin:6px 0}
+  .bk-dow div{padding:6px; text-align:center}
+  .bk-grid{gap:6px}
+  .bk-day{position:relative; text-align:center; padding:10px 0; border-radius:12px; cursor:pointer; transition:.2s}
+  .bk-day:hover{background:#f3f4f6}
+  .bk-day.out{opacity:.35; cursor:default}
+  .bk-day .num{font-weight:600}
+  .bk-day .dot{position:absolute; left:50%; transform:translateX(-50%); bottom:6px; width:6px; height:6px; border-radius:999px; background:#22c55e; opacity:.15}
+  .bk-day.avail .dot{opacity:1}
+  .bk-day.sel{background:#e0f2fe; outline:2px solid #bae6fd}
+  .bk-slots-title{font-weight:700; margin:12px 0 6px}
+  .bk-slots{display:flex; flex-wrap:wrap; gap:8px}
+  .bk-slot{border:1px solid #e5e7eb; background:#fff; padding:.45rem .7rem; border-radius:999px; font-size:.95rem}
+  .bk-slot:hover{border-color:#cbd5e1}
+  .bk-slot[disabled]{opacity:.35; cursor:not-allowed}
+  .bk-slot.active{background:#0ea5e9; border-color:#0ea5e9; color:#fff}
+  .bk-actions{display:flex; gap:10px; margin-top:12px}
+  @media (min-width: 992px){
+    .bk-wrap{display:grid; grid-template-columns: 360px 1fr; gap:16px}
+  }
+</style>
+
+<div class="bk-wrap">
+  <!-- Coluna esquerda: calendário -->
+  <div class="bk-card">
+    <div class="bk-head">
+      <button class="bk-btn-link" id="bk-prev" aria-label="Mês anterior">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <div class="month" id="bk-month">—</div>
+      <button class="bk-btn-link" id="bk-next" aria-label="Próximo mês">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
     </div>
 
-    <!-- lado a lado a partir de md (>=768px) -->
-    <div class="row align-items-stretch">
-      <!-- Coluna do formulário -->
-      <div class="col-12 col-md-6 d-flex">
-<form id="booking-form" class="w-100" autocomplete="on" method="POST" action="https://allnsnts.app.n8n.cloud/webhook/availability">
-          <div><input type="text" class="form-control" name="name" placeholder="Seu Nome" required /></div>
-          <div><input type="tel" class="form-control" name="phone" placeholder="Telefone (WhatsApp)" required /></div>
-          <div><input type="email" class="form-control" name="email" placeholder="Email" required /></div>
-          <div><input type="date" class="form-control" name="date" id="booking-date" required /></div>
-
-          <!-- Grade de horários -->
-          <div id="slot-container" style="margin-top:14px;">
-            <div style="font-weight:700;margin-bottom:8px;">Horários</div>
-            <div id="slots" class="d-flex flex-wrap" style="gap:8px;"></div>
-            <small id="slot-hint" style="display:block;margin-top:6px;color:#64748b">Selecione um horário disponível.</small>
-            <input type="hidden" name="time" id="selected-time" />
-          </div>
-
-          <div class="btn_box" style="margin-top:14px;">
-            <button type="submit" class="btn btn-primary">Agendar Agora</button>
-            <button type="button" id="open-agent" class="btn btn-outline-secondary" style="margin-left:8px;">Agendar via Chat</button>
-          </div>
-          <div id="booking-feedback" style="margin-top:10px;"></div>
-        </form>
+    <div class="bk-cal">
+      <div class="bk-dow">
+        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
       </div>
-      
-<!-- Coluna do chat -->
-      <div class="col-12 col-md-6 d-flex">
-        <!-- CHAT -->
-        <div id="agent-widget" class="lead-chat w-100">
-          <div class="lead-header">
-            <div class="lead-header-left">
-              <img src="images/recepcionista.png" class="lead-avatar" alt="Assistente" />
-              <div>
-                <div class="lead-name">Recepcionista</div>
-                <div class="lead-status"><span class="dot"></span> Online agora</div>
-              </div>
-            </div>
-            <button id="agent-minimize" class="lead-min-btn" aria-label="Minimizar">–</button>
-          </div>
+      <div class="bk-grid" id="bk-grid"></div>
+    </div>
+  </div>
 
-          <div id="agent-thread" class="lead-body"></div>
+  <!-- Coluna direita: dados + horários + ação -->
+  <div>
+    <div class="bk-card">
+      <div class="form-group mb-2">
+        <input id="bk-name" class="form-control" placeholder="Seu Nome">
+      </div>
+      <div class="form-group mb-2">
+        <input id="bk-phone" class="form-control" placeholder="Telefone (WhatsApp)">
+      </div>
+      <div class="form-group mb-2">
+        <input id="bk-email" class="form-control" placeholder="Email">
+      </div>
 
-          <form id="agent-form" class="lead-inputbar" onsubmit="return false;">
-            <input id="agent-input" class="lead-input" placeholder="Digite aqui..." />
-            <button id="agent-send" class="lead-send" type="button" aria-label="Enviar">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" fill="none" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </form>
-        </div>
+      <div class="bk-slots-title">
+        Horários <span id="bk-day-label" class="text-muted" style="font-weight:500"></span>
+      </div>
+      <div id="bk-slots" class="bk-slots">Selecione um dia do calendário…</div>
+
+      <div class="bk-actions">
+        <button id="bk-submit" class="btn btn-primary btn-pill" disabled>Agendar Agora</button>
+        <a id="bk-chat" class="btn btn-outline-secondary btn-pill" target="_blank" rel="noopener">Agendar via Chat</a>
       </div>
     </div>
   </div>
-</section>
+</div>
+
+<script>
+(function(){
+  // ========= CONFIG =========
+  const BASE = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/odonto').replace(/\/+$/,'');
+  const TZ   = window.TIMEZONE || 'America/Sao_Paulo';
+
+  // ========= HELPERS =========
+  const el  = (q,root=document)=>root.querySelector(q);
+  const els = (q,root=document)=>Array.from(root.querySelectorAll(q));
+  const pad2 = n => String(n).padStart(2,'0');
+  const ymd  = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  const fmtBR = iso => { try{const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;}catch{return iso;} };
+
+  function rangeToSlots(start,end,stepMin){
+    const out=[], [sh,sm]=start.split(':').map(Number), [eh,em]=end.split(':').map(Number);
+    let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
+    while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+stepMin*60000); }
+    return out;
+  }
+  function blockByBusy(slots, busy){
+    const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m;};
+    return slots.map(t=>{
+      const tm=toMin(t);
+      const busyNow=(busy||[]).some(([bStart,bEnd])=>tm>=toMin(bStart)&&tm<toMin(bEnd));
+      return { time:t, available:!busyNow };
+    });
+  }
+
+  // ========= API =========
+  async function fetchAvailability(dateStr){
+    const url=`${BASE}/availability?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
+    const res=await fetch(url,{headers:{Accept:'application/json'}});
+    if(!res.ok) throw new Error('Falha ao consultar disponibilidade');
+    return res.json();
+  }
+  async function submitBooking(payload){
+    // Usa CRMApi se existir, senão cai no endpoint do n8n
+    if (window.CRMApi?.createAppointment) {
+      return CRMApi.createAppointment(payload);
+    }
+    const res = await fetch(`${BASE}/appointments/create`,{
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data?.message || 'Erro ao agendar');
+    return data;
+  }
+
+  // ========= STATE =========
+  const gMonth  = el('#bk-month');
+  const gGrid   = el('#bk-grid');
+  const btnPrev = el('#bk-prev');
+  const btnNext = el('#bk-next');
+  const lblDay  = el('#bk-day-label');
+  const slotsEl = el('#bk-slots');
+  const btnGo   = el('#bk-submit');
+  const btnChat = el('#bk-chat');
+
+  const inName  = el('#bk-name');
+  const inPhone = el('#bk-phone');
+  const inEmail = el('#bk-email');
+
+  let anchor  = new Date(); // mês atual
+  let selDate = new Date(); // dia escolhido
+  let selTime = '';         // horário escolhido
+
+  // ========= CALENDAR =========
+  function buildMonthHeader(){
+    const m = anchor.toLocaleDateString('pt-BR', { month:'long', year:'numeric' });
+    gMonth.textContent = m.charAt(0).toUpperCase()+m.slice(1);
+  }
+  function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function endOfMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0); }
+
+  function dayHTML(d,{out=false,avail=false,sel=false}={}){
+    return `
+      <div class="bk-day ${out?'out':''} ${avail?'avail':''} ${sel?'sel':''}" data-date="${ymd(d)}" ${out?'data-out="1"':''}>
+        <span class="num">${d.getDate()}</span>
+        <span class="dot"></span>
+      </div>`;
+  }
+
+  async function availabilityMapForMonth(days){
+    // para não sobrecarregar, consulta em blocos
+    const map = {};
+    const chunks = [];
+    for(let i=0;i<days.length;i+=14) chunks.push(days.slice(i,i+14));
+    for(const chunk of chunks){
+      await Promise.all(chunk.map(async d=>{
+        try{
+          const a = await fetchAvailability(ymd(d));
+          const slots = rangeToSlots(a?.officeHours?.start||'08:00', a?.officeHours?.end||'18:00', a?.intervalMinutes||30);
+          const withStatus = blockByBusy(slots, a?.busy||[]);
+          map[ymd(d)] = withStatus.some(s=>s.available);
+        }catch{/* ignora erros pontuais */}
+      }));
+    }
+    return map;
+  }
+
+  async function renderMonth(){
+    buildMonthHeader();
+
+    const first = startOfMonth(anchor);
+    const last  = endOfMonth(anchor);
+
+    const padStart = first.getDay();      // 0=Dom
+    const total    = last.getDate();
+
+    const cells = [];
+    // prefixo do mês anterior
+    const prevStart = new Date(first);
+    prevStart.setDate(1 - padStart);
+    for(let i=0;i<padStart;i++){
+      const d = new Date(prevStart); d.setDate(prevStart.getDate()+i);
+      cells.push({date:d, out:true});
+    }
+    // mês corrente
+    for(let i=1;i<=total;i++){
+      cells.push({date: new Date(first.getFullYear(), first.getMonth(), i), out:false});
+    }
+    // sufixo até múltiplo de 7
+    while(cells.length % 7 !== 0){
+      const d = new Date(last); d.setDate(last.getDate() + (cells.length%7));
+      cells.push({date:d, out:true});
+    }
+
+    const onlyDays = cells.filter(c=>!c.out).map(c=>c.date);
+    const avMap = await availabilityMapForMonth(onlyDays);
+
+    gGrid.innerHTML = cells.map(c=>{
+      const id=ymd(c.date), sel = id===ymd(selDate);
+      const av = !!avMap[id];
+      return dayHTML(c.date,{out:c.out,avail:av,sel});
+    }).join('');
+
+    gGrid.querySelectorAll('.bk-day').forEach(div=>{
+      if (div.dataset.out === '1') return;
+      div.addEventListener('click', ()=>{
+        selDate = new Date(div.dataset.date);
+        els('.bk-day.sel', gGrid).forEach(x=>x.classList.remove('sel'));
+        div.classList.add('sel');
+        loadSlotsForDay();
+      });
+    });
+  }
+
+  // ========= SLOTS =========
+  async function loadSlotsForDay(){
+    const ds = ymd(selDate);
+    lblDay.textContent = '• ' + fmtBR(ds);
+    selTime = '';
+    btnGo.disabled = true;
+
+    slotsEl.innerHTML = 'Carregando horários…';
+    try{
+      const bag = await fetchAvailability(ds);
+      const start = bag?.officeHours?.start||'08:00';
+      const end   = bag?.officeHours?.end  ||'18:00';
+      const step  = bag?.intervalMinutes   || 30;
+      const busy  = bag?.busy || [];
+      const base  = rangeToSlots(start,end,step);
+      const withStatus = blockByBusy(base, busy);
+      if (!withStatus.some(s=>s.available)){
+        slotsEl.innerHTML = '<div class="text-muted">Sem horários disponíveis neste dia.</div>';
+        return;
+      }
+      slotsEl.innerHTML = withStatus.map(s =>
+        `<button class="bk-slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'} data-time="${s.time}">${s.time}</button>`
+      ).join('');
+
+      slotsEl.querySelectorAll('.bk-slot:not(.disabled)').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          els('.bk-slot.active', slotsEl).forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          selTime = btn.dataset.time;
+          btnGo.disabled = false;
+
+          // link do WhatsApp com prefill
+          const msg = encodeURIComponent(`Olá! Quero agendar ${fmtBR(ds)} às ${selTime}.`);
+          const phone = (el('#bk-phone').value||'').replace(/\D/g,'');
+          const to = phone && phone.length>=10 ? `55${phone}` : '';
+          el('#bk-chat').href = `https://wa.me/${to}?text=${msg}`;
+        });
+      });
+    }catch(e){
+      console.error(e);
+      slotsEl.innerHTML = '<div class="text-danger">Erro ao carregar horários.</div>';
+    }
+  }
+
+  // ========= SUBMIT =========
+  btnGo.addEventListener('click', async ()=>{
+    const name  = inName.value.trim();
+    const phone = inPhone.value.trim();
+    const email = inEmail.value.trim();
+    const date  = ymd(selDate);
+    const time  = selTime;
+
+    if (!name || !phone || !time){
+      alert('Preencha nome, WhatsApp e selecione um horário.');
+      return;
+    }
+
+    btnGo.disabled = true; btnGo.textContent = 'Enviando…';
+    try{
+      await submitBooking({
+        paciente: name,
+        phone, email,
+        data: date,
+        hora: time,
+        duracaoMin: 60,           // ajuste se precisar
+        procedimento: 'Consulta', // ou capte de um select
+        canalPreferido: 'WhatsApp',
+        tz: TZ,
+        confirmar: true
+      });
+      alert('Agendamento confirmado ✅');
+      // opcional: redirecionar para página de confirmação
+    }catch(err){
+      console.error(err);
+      alert(err.message || 'Não foi possível agendar.');
+    }finally{
+      btnGo.textContent = 'Agendar Agora';
+      btnGo.disabled = !selTime;
+    }
+  });
+
+  // ========= NAV =========
+  el('#bk-prev').addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()-1, 1); renderMonth(); });
+  el('#bk-next').addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()+1, 1); renderMonth(); });
+
+  // boot
+  (async function init(){
+    await renderMonth();
+    await loadSlotsForDay();
+  })();
+})();
+</script>
+<!-- ================== /BOOKING WIDGET ================== -->
+
 
 
 <a href="https://wa.me/5511987562810?text=Olá%20quero%20agendar%20uma%20consulta" 
@@ -325,6 +576,7 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 </body>
 </html>
+
 
 
 

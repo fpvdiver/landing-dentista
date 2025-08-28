@@ -323,7 +323,7 @@ async function loadSlotsForDay(){
 
   try{
     const bag  = await fetchAvailability(ds);
-    const step = bag?.intervalMinutes || 30;
+    const step = bag?.intervalMinutes || 60;
     const ohS  = bag?.officeHours?.start || '08:00';
     const ohE  = bag?.officeHours?.end   || '18:00';
 
@@ -555,4 +555,5 @@ async function loadSlotsForDay(){
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap" async defer></script>
 </body>
 </html>
+
 

@@ -873,10 +873,91 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
+<script>
+(function(){
+  const bar  = document.getElementById('bb-liquid');
+  if(!bar) return;
 
+  const leftBtn  = bar.querySelector('.bb-item[data-act="agenda"]');
+  const rightBtn = bar.querySelector('.bb-item[data-act="menu"]');
+  const fab      = bar.querySelector('.bb-fab');
+
+  const indicator= document.getElementById('bbIndicator');
+  const dot      = document.getElementById('bbDot');
+  const morph    = document.getElementById('bbMorphPress');
+
+  // sheets/overlay já existentes no seu projeto
+  const overlay  = document.getElementById('crm-sheet-overlay');
+  const quick    = document.getElementById('crm-quick-sheet');
+  const menu     = document.getElementById('crm-menu-sheet');
+
+  const openSheet = (el)=>{ if(!el) return; overlay?.classList.add('show'); el.classList.add('show'); };
+  const closeSheets = ()=>{ overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
+  overlay?.addEventListener('click', closeSheets);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
+
+  // util: aplica "bounce" no item (ícone + label)
+  function bounce(el){
+    const i = el.querySelector('i'); const s = el.querySelector('span');
+    i?.classList.remove('bb-bounce'); s?.classList.remove('bb-bounce');
+    // força reflow p/ reiniciar animação
+    void i?.offsetWidth; void s?.offsetWidth;
+    i?.classList.add('bb-bounce'); s?.classList.add('bb-bounce');
+  }
+
+  // move indicador e o “dot” do topo para a posição do target
+  function moveIndicatorTo(target){
+    const rect   = target.getBoundingClientRect();
+    const barRect= bar.getBoundingClientRect();
+    const centerX= rect.left + rect.width/2 - barRect.left;
+
+    // anima pílula
+    indicator.style.left = `${centerX}px`;
+    indicator.style.width = `${Math.max(90, rect.width*0.9)}px`;
+
+    // anima “dot” do SVG
+    dot.setAttribute('cx', (1000 * centerX / barRect.width).toFixed(2));
+  }
+
+  // marca ativo visualmente
+  function setActive(btn){
+    [leftBtn, rightBtn].forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // dispara morph (onda) – sempre que um botão for tocado
+  function wave(){
+    try{ morph.beginElement(); }catch(e){}
+  }
+
+  // AGENDA
+  leftBtn.addEventListener('click', ()=>{
+    setActive(leftBtn); wave(); bounce(leftBtn); moveIndicatorTo(leftBtn);
+    // navega
+    setTimeout(()=>{ window.location.href = 'agenda.html'; }, 120);
+  });
+
+  // MENU (sheet)
+  rightBtn.addEventListener('click', ()=>{
+    setActive(rightBtn); wave(); bounce(rightBtn); moveIndicatorTo(rightBtn);
+    openSheet(menu);
+  });
+
+  // FAB: pop + onda + abre quick sheet
+  fab.addEventListener('click', ()=>{
+    wave(); fab.classList.remove('bb-fab-pop'); void fab.offsetWidth; fab.classList.add('bb-fab-pop');
+    openSheet(quick);
+  });
+
+  // Estado inicial: deixa “Agenda” como ativo
+  setActive(leftBtn);
+  requestAnimationFrame(()=> moveIndicatorTo(leftBtn));
+})();
+</script>
 
 </body>
 </html>
+
 
 
 

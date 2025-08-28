@@ -198,18 +198,29 @@
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label>Dentista</label>
-              <select class="form-control" name="doctor" id="ag-doctor">
-                <option>Dra. Elen Nogata</option>
-              </select>
-            </div>
-            <div class="form-group col-md-6">
-              <label>Observações</label>
-              <input class="form-control" name="notes" placeholder="Anote algo importante (opcional)">
-            </div>
-          </div>
+       <div class="form-row">
+  <div class="form-group col-md-4">
+    <label>Clínica</label>
+    <select class="form-control" name="clinic" id="ag-clinic">
+      <option value="Principal" selected>Clínica principal</option>
+      <!-- adicione mais opções se tiver multi-unidades -->
+      <!-- <option value="Unidade Moema">Unidade Moema</option> -->
+    </select>
+  </div>
+
+  <div class="form-group col-md-4">
+    <label>Dentista</label>
+    <select class="form-control" name="doctor" id="ag-doctor">
+      <option>Dra. Elen Nogata</option>
+    </select>
+  </div>
+
+  <div class="form-group col-md-4">
+    <label>Observações</label>
+    <input class="form-control" name="notes" placeholder="Anote algo importante (opcional)">
+  </div>
+</div>
+
 
           <div class="d-flex align-items-center justify-content-between">
             <div>
@@ -663,6 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 

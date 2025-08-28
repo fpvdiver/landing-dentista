@@ -712,10 +712,90 @@ html{font-size:16px;}
 
 
 
+<style>
+/* ===== MOBILE AGENDA ===== */
+@media (max-width: 991.98px){
+  .desk-agenda { display:none; }
+  .mob-agenda  { display:block; }
+}
+@media (min-width: 992px){
+  .mob-agenda  { display:none; }
+  .desk-agenda { display:block; }
+}
+
+/* cabeçalho / navbar interna */
+.mob-agenda .cal-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:.5rem;
+}
+.mob-agenda .cal-head .month{
+  font-weight:800; letter-spacing:.2px;
+}
+
+/* grade do calendário */
+.mob-agenda .cal{
+  background:#fff; border:1px solid var(--ring); border-radius:14px;
+  padding:.6rem; overflow:hidden;
+}
+.mob-agenda .dow{
+  display:grid; grid-template-columns:repeat(7,1fr);
+  font-size:.75rem; color:var(--muted); text-align:center;
+}
+.mob-agenda .grid{
+  display:grid; grid-template-columns:repeat(7,1fr); gap:6px;
+  padding-top:6px;
+}
+.mob-agenda .day{
+  position:relative; height:42px; border-radius:10px; display:flex;
+  align-items:center; justify-content:center; cursor:pointer;
+  user-select:none; font-weight:600;
+}
+.mob-agenda .day.out { opacity:.35; }
+.mob-agenda .day .num{ position:relative; z-index:1; }
+.mob-agenda .day.sel{ color:#111; }
+.mob-agenda .day.sel::before{
+  content:""; position:absolute; inset:0; border-radius:10px;
+  background:linear-gradient(180deg,#eef6ff 0,#f3f0ff 100%);
+  box-shadow:0 1px 0 rgba(0,0,0,.05) inset;
+}
+.mob-agenda .day .underline{
+  position:absolute; left:22%; right:22%; bottom:6px; height:3px;
+  background:#10b981; border-radius:3px; opacity:0;
+}
+.mob-agenda .day.avail .underline{ opacity:1; }
+
+/* chips de horários */
+.mob-agenda .slots{
+  display:flex; flex-wrap:wrap; gap:8px; margin:.8rem 0 0;
+}
+.mob-agenda .slot{
+  border:1px solid var(--ring); padding:.45rem .7rem; border-radius:999px;
+  background:#eafff3; color:#047857; font-weight:600;
+}
+.mob-agenda .slot.disabled{ background:#f3f4f6; color:#9ca3af; cursor:not-allowed; }
+
+/* cartão “eventos do dia” */
+.mob-agenda .card{
+  background:#fff; border:1px solid var(--ring); border-radius:14px; padding:.75rem;
+  box-shadow:0 4px 16px rgba(15,23,42,.06);
+}
+.mob-agenda .list li{ padding:.55rem 0; border-bottom:1px solid var(--ring); }
+.mob-agenda .list li:last-child{ border-bottom:0; }
+
+/* botões pequenos */
+.btn-link-icon{
+  display:inline-flex; align-items:center; gap:.35rem; padding:.4rem .7rem;
+  border-radius:999px; border:1px solid var(--ring); background:#fff;
+}
+
+</style>
+
+
 
 /* ===================================================================
    FIM
    =================================================================== */
+
 
 
 

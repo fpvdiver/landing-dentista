@@ -611,92 +611,96 @@ html{font-size:16px;}
   --maxw: 980px;                       /* largura máxima no mobile largo */
 }
 
-/* esconder o hambúrguer, como combinado */
+/* esconder o hamburguer do topo (você pediu pra não usar mais) */
 .crm-burger{ display:none !important; }
 
-/* ===== Bottom bar líquida ===== */
+/* ===== Bottom bar curvada ===== */
+:root{
+  --bb-h: 64px;                 /* altura da barra */
+  --bb-radius: 18px;
+  --bb-bg: #fff;                /* cor da barra */
+  --bb-shadow: 0 8px 24px rgba(15,23,42,.12), 0 2px 6px rgba(15,23,42,.08);
+  --bb-icon: #64748b;           /* cinza ícone */
+  --bb-active: var(--primary, #0ea5e9);
+  --fab-size: 56px;             /* diâmetro do FAB */
+  --fab-shadow: 0 12px 24px rgba(14,165,233,.35);
+}
+
+/* só no mobile */
 @media (max-width: 991px){
-  .bb-liquid{
-    position: fixed; left: 0; right: 0; bottom: 0;
+  .bb-curved{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
     height: var(--bb-h);
-    display: grid; place-items: end center;
-    z-index: 1030; isolation: isolate;
-    pointer-events: none;               /* apenas botões “reativam” */
+    background: transparent;
+    z-index: 1030;
+    pointer-events: none; /* os botões reativam */
   }
 
-  .bb-liquid .bb-bg{
-    position: absolute; inset: 0 auto 0 auto;
-    width: min(100%, var(--maxw));
-    height: 100%;
-    filter: drop-shadow(0 10px 24px rgba(15,23,42,.12)) drop-shadow(0 3px 8px rgba(15,23,42,.08));
-  }
-
-  .bb-liquid .bb-item{
-    pointer-events: auto;
-    position: absolute; bottom: 10px;
-    width: calc(50% - var(--fab-size)/2 - var(--side-gap));
-    height: calc(var(--bb-h) - 20px);
+  .bb-curved .bb-item{
+    position: absolute;
+    bottom: 8px;
+    width: 44%;
+    height: calc(var(--bb-h) - 16px);
     background: var(--bb-bg);
     border-radius: var(--bb-radius);
     box-shadow: var(--bb-shadow);
-    display: inline-flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 6px; color: var(--bb-icon);
-    font-size: 12px; line-height: 1;
-    transition: color .18s ease, transform .18s ease;
-  }
-  .bb-liquid .bb-item i{ font-size: 20px; }
-
-  .bb-liquid .bb-item:first-of-type{ left: var(--side-gap); }
-  .bb-liquid .bb-item:last-of-type{ right: var(--side-gap); }
-
-  .bb-liquid .bb-item:active{ transform: translateY(1px) scale(.98); }
-
-  /* FAB no notch */
-  .bb-liquid .bb-fab{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--bb-icon);
+    font-size: 12px;
     pointer-events: auto;
-    position: absolute; left: 50%; transform: translateX(-50%) translateY(-14%);
+  }
+  .bb-curved .bb-item i{ font-size: 18px; }
+  .bb-curved .bb-item:first-of-type{ left: 10px; padding-left: 6px; }
+  .bb-curved .bb-item:last-of-type{ right: 10px; padding-right: 6px; }
+
+  /* SVG que desenha a curva côncava */
+  .bb-curved .bb-shape{
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    bottom: 8px;
+    width: calc(44%*2 + 20px);   /* cobre o centro entre as duas “ilhas” */
+    height: calc(var(--bb-h) - 16px);
+    pointer-events: none;
+    filter: drop-shadow(0 8px 24px rgba(15,23,42,.12)) drop-shadow(0 2px 6px rgba(15,23,42,.08));
+  }
+  .bb-curved .bb-shape path{
+    fill: var(--bb-bg);
+    stroke: transparent;
+  }
+
+  /* FAB central “dentro” da curva */
+  .bb-curved .bb-fab{
+    position: absolute;
+    left: 50%; transform: translateX(-50%) translateY(-18%);
     bottom: calc(var(--bb-h) - var(--fab-size)/2 - 6px);
     width: var(--fab-size); height: var(--fab-size);
     border-radius: 999px;
-    background: var(--bb-fab); color: #fff;
-    display: grid; place-items: center; font-size: 24px;
+    background: var(--bb-active);
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 22px;
     box-shadow: var(--fab-shadow);
-    transition: transform .22s cubic-bezier(.2,.9,.2,1);
+    pointer-events: auto;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
   }
-  .bb-liquid .bb-fab:active{ transform: translateX(-50%) translateY(-16%) scale(.96); }
-
-  /* Indicador sob o item ativo (pílula) */
-  .bb-liquid .bb-indicator{
-    position: absolute; bottom: 18px; height: 38px; width: 90px;
-    background: rgba(14,165,233,.12); border-radius: 999px;
-    transform: translateX(-50%); left: 50%;
-    transition: left .4s cubic-bezier(.2,.9,.2,1), width .3s ease;
-    pointer-events: none;
+  .bb-curved .bb-fab:active{
+    transform: translateX(-50%) translateY(-18%) scale(.96);
+    box-shadow: 0 8px 18px rgba(14,165,233,.25);
   }
 
-  /* Estados de ativo (cor do ícone) */
-  .bb-liquid .bb-item.active,
-  .bb-liquid .bb-item.active i{ color: var(--bb-icon-active); }
-
-  /* Bounce sutil de ícones */
-  .bb-bounce{ animation: bb-bounce .32s cubic-bezier(.25,.6,.35,1) both; }
-  @keyframes bb-bounce{
-    0%{ transform: translateY(0) }
-    30%{ transform: translateY(-7px) }
-    60%{ transform: translateY(1px) }
-    100%{ transform: translateY(0) }
-  }
-
-  /* Pop + rotação do FAB */
-  .bb-fab-pop{ animation: bb-fab-pop .36s cubic-bezier(.25,.8,.25,1) both; }
-  @keyframes bb-fab-pop{
-    0%{ transform: translateX(-50%) translateY(-14%) scale(1) rotate(0deg) }
-    50%{ transform: translateX(-50%) translateY(-16%) scale(1.08) rotate(90deg) }
-    100%{ transform: translateX(-50%) translateY(-14%) scale(1) rotate(0deg) }
-  }
+  /* toque de “ativo” */
+  .bb-curved .bb-item:active i,
+  .bb-curved .bb-item:active span{ color: var(--bb-active); }
 }
-@media (min-width: 992px){ .bb-liquid{ display:none; } }
+
+/* segurança: se a pessoa abrir no desktop, some a barra */
+@media (min-width: 992px){
+  .bb-curved{ display:none; }
+}
 
 
 
@@ -705,6 +709,7 @@ html{font-size:16px;}
 /* ===================================================================
    FIM
    =================================================================== */
+
 
 
 

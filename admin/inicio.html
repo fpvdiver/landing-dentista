@@ -704,45 +704,30 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <!-- BOTTOM BAR • LIQUID -->
-<nav class="bb-liquid" id="bb-liquid" aria-label="Navegação rápida">
-  <!-- SVG de fundo com onda + notch central -->
-  <svg class="bb-bg" viewBox="0 0 1000 200" preserveAspectRatio="none">
-    <!-- Path em repouso (onda leve + notch) -->
-    <path id="bbPath" fill="var(--bb-bg)" d="
-      M0,40
-      H360
-      C420,40 430,0 500,0
-      C570,0 580,40 640,40
-      H1000 V200 H0 Z">
-      <!-- Morph quando “pressiona” (onda aprofunda e suaviza) -->
-      <animate id="bbMorphPress"
-               attributeName="d" dur="420ms" fill="freeze"
-               values="
-                M0,40 H360 C420,40 430,0 500,0 C570,0 580,40 640,40 H1000 V200 H0 Z;
-                M0,40 H330 C400,40 430,-24 500,-24 C570,-24 600,40 670,40 H1000 V200 H0 Z;
-                M0,40 H360 C420,40 430,0 500,0 C570,0 580,40 640,40 H1000 V200 H0 Z
-               " />
-    </path>
-    <!-- “ponto” decorativo seguindo o item ativo -->
-    <circle id="bbDot" cx="500" cy="12" r="10" fill="var(--bb-active)" opacity=".18"/>
-  </svg>
-
-  <!-- Itens esquerdo/direito (sobre o SVG) -->
+<!-- Bottom Bar curvada -->
+<nav class="bb-curved" id="bb-curved" aria-label="Navegação rápida">
+  <!-- área esquerda -->
   <button class="bb-item" data-act="agenda" aria-label="Agenda">
-    <i class="fa-regular fa-calendar-days"></i><span>Agenda</span>
+    <i class="fa-regular fa-calendar-days"></i>
+    <span>Agenda</span>
   </button>
 
-  <!-- FAB central dentro do notch -->
+  <!-- shape da curva/notch -->
+  <svg class="bb-shape" viewBox="0 0 100 25" preserveAspectRatio="none" aria-hidden="true">
+    <!-- curva côncava no topo para “abraçar” o FAB -->
+    <path d="M0,0 H34 C40,0 44,10 50,10 C56,10 60,0 66,0 H100 V25 H0 Z" />
+  </svg>
+
+  <!-- FAB central -->
   <button class="bb-fab" data-act="quick" aria-label="Ações rápidas">
     <i class="fa-solid fa-plus"></i>
   </button>
 
+  <!-- área direita -->
   <button class="bb-item" data-act="menu" aria-label="Menu">
-    <i class="fa-solid fa-list-ul"></i><span>Menu</span>
+    <i class="fa-solid fa-list-ul"></i>
+    <span>Menu</span>
   </button>
-
-  <!-- Indicador (pílula) se movendo sob o item ativo -->
-  <div class="bb-indicator" id="bbIndicator"></div>
 </nav>
 
 <script>
@@ -875,88 +860,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 (function(){
-  const bar  = document.getElementById('bb-liquid');
+  const bar     = document.getElementById('bb-curved');
   if(!bar) return;
 
-  const leftBtn  = bar.querySelector('.bb-item[data-act="agenda"]');
-  const rightBtn = bar.querySelector('.bb-item[data-act="menu"]');
-  const fab      = bar.querySelector('.bb-fab');
+  const overlay = document.getElementById('crm-sheet-overlay');
+  const quick   = document.getElementById('crm-quick-sheet');
+  const menu    = document.getElementById('crm-menu-sheet');
 
-  const indicator= document.getElementById('bbIndicator');
-  const dot      = document.getElementById('bbDot');
-  const morph    = document.getElementById('bbMorphPress');
-
-  // sheets/overlay já existentes no seu projeto
-  const overlay  = document.getElementById('crm-sheet-overlay');
-  const quick    = document.getElementById('crm-quick-sheet');
-  const menu     = document.getElementById('crm-menu-sheet');
-
-  const openSheet = (el)=>{ if(!el) return; overlay?.classList.add('show'); el.classList.add('show'); };
-  const closeSheets = ()=>{ overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
+  const openSheet = (sheet)=>{
+    if(!overlay || !sheet) return;
+    overlay.classList.add('show');
+    sheet.classList.add('show');
+  };
+  const closeSheets = ()=>{
+    overlay?.classList.remove('show');
+    quick?.classList.remove('show');
+    menu?.classList.remove('show');
+  };
   overlay?.addEventListener('click', closeSheets);
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
 
-  // util: aplica "bounce" no item (ícone + label)
-  function bounce(el){
-    const i = el.querySelector('i'); const s = el.querySelector('span');
-    i?.classList.remove('bb-bounce'); s?.classList.remove('bb-bounce');
-    // força reflow p/ reiniciar animação
-    void i?.offsetWidth; void s?.offsetWidth;
-    i?.classList.add('bb-bounce'); s?.classList.add('bb-bounce');
-  }
+  bar.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
 
-  // move indicador e o “dot” do topo para a posição do target
-  function moveIndicatorTo(target){
-    const rect   = target.getBoundingClientRect();
-    const barRect= bar.getBoundingClientRect();
-    const centerX= rect.left + rect.width/2 - barRect.left;
-
-    // anima pílula
-    indicator.style.left = `${centerX}px`;
-    indicator.style.width = `${Math.max(90, rect.width*0.9)}px`;
-
-    // anima “dot” do SVG
-    dot.setAttribute('cx', (1000 * centerX / barRect.width).toFixed(2));
-  }
-
-  // marca ativo visualmente
-  function setActive(btn){
-    [leftBtn, rightBtn].forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  // dispara morph (onda) – sempre que um botão for tocado
-  function wave(){
-    try{ morph.beginElement(); }catch(e){}
-  }
-
-  // AGENDA
-  leftBtn.addEventListener('click', ()=>{
-    setActive(leftBtn); wave(); bounce(leftBtn); moveIndicatorTo(leftBtn);
-    // navega
-    setTimeout(()=>{ window.location.href = 'agenda.html'; }, 120);
+    switch(btn.dataset.act){
+      case 'agenda':
+        window.location.href = 'agenda.html';
+        break;
+      case 'menu':
+        openSheet(menu);
+        break;
+      case 'quick':
+        openSheet(quick);
+        break;
+    }
   });
-
-  // MENU (sheet)
-  rightBtn.addEventListener('click', ()=>{
-    setActive(rightBtn); wave(); bounce(rightBtn); moveIndicatorTo(rightBtn);
-    openSheet(menu);
-  });
-
-  // FAB: pop + onda + abre quick sheet
-  fab.addEventListener('click', ()=>{
-    wave(); fab.classList.remove('bb-fab-pop'); void fab.offsetWidth; fab.classList.add('bb-fab-pop');
-    openSheet(quick);
-  });
-
-  // Estado inicial: deixa “Agenda” como ativo
-  setActive(leftBtn);
-  requestAnimationFrame(()=> moveIndicatorTo(leftBtn));
 })();
 </script>
 
+
 </body>
 </html>
+
 
 
 

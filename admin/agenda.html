@@ -599,9 +599,193 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 </script>
 
+<script>
+(function(){
+  const pad2 = n => String(n).padStart(2,'0');
+  const fmtBR = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}`; }catch{ return iso; } };
+
+  // elementos
+  const gMonth  = document.getElementById('cal-month');
+  const gGrid   = document.getElementById('cal-grid');
+  const btnPrev = document.getElementById('cal-prev');
+  const btnNext = document.getElementById('cal-next');
+  const labDay  = document.getElementById('mob-day-label');
+  const ulDay   = document.getElementById('mob-day-events');
+  const divSlots= document.getElementById('mob-slots');
+  const tz      = window.TIMEZONE || 'America/Sao_Paulo';
+
+  // estado
+  let anchor  = new Date();  // mês atual
+  let selDate = new Date();  // dia selecionado
+
+  const ymd = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+
+  function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function endOfMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0); }
+
+  function buildMonthHeader(){
+    const m = anchor.toLocaleDateString('pt-BR', { month:'long', year:'numeric' });
+    gMonth.textContent = m.charAt(0).toUpperCase()+m.slice(1);
+  }
+
+  function dayCellTemplate(d, {outMonth=false, hasAvail=false, isSel=false}={}){
+    const id = ymd(d);
+    return `
+      <div class="day ${outMonth?'out':''} ${hasAvail?'avail':''} ${isSel?'sel':''}" data-date="${id}">
+        <span class="num">${d.getDate()}</span>
+        <span class="underline"></span>
+      </div>`;
+  }
+
+  async function markAvailabilityForMonth(days){
+    // Para não estourar requisições, buscamos disponibilidade só de 14 em 14 dias
+    const chunks = [];
+    for(let i=0; i<days.length; i+=14){ chunks.push(days.slice(i,i+14)); }
+
+    const availMap = {};
+    for(const chunk of chunks){
+      await Promise.all(chunk.map(async d=>{
+        try{
+          const bag = await fetchAvailability(ymd(d));
+          // se existir pelo menos 1 slot livre, marca como disponível
+          const busy = (bag?.busy || []).map(b=>[b[0], b[1]]);
+          const interval = bag?.intervalMinutes || 30;
+          const slots = rangeToSlots(bag?.officeHours?.start||'08:00', bag?.officeHours?.end||'18:00', interval);
+          const withStatus = blockByBusy(slots, busy);
+          availMap[ymd(d)] = withStatus.some(s=>s.available);
+        }catch{ /* ignora erros pontuais */ }
+      }));
+    }
+    return availMap;
+  }
+
+  async function renderMonth(){
+    buildMonthHeader();
+
+    const first = startOfMonth(anchor);
+    const last  = endOfMonth(anchor);
+
+    // dia da semana do primeiro dia (0=Dom)
+    const padStart = first.getDay();
+    const totalDays= last.getDate();
+
+    const cells = [];
+    // dias do mês anterior para completar a primeira semana
+    const prev = new Date(first);
+    prev.setDate(1 - padStart);
+    for(let i=0;i<padStart;i++){
+      const d = new Date(prev); d.setDate(prev.getDate()+i);
+      cells.push({date:d, out:true});
+    }
+    // dias do mês atual
+    for(let i=1;i<=totalDays;i++){
+      const d = new Date(first); d.setDate(i);
+      cells.push({date:d, out:false});
+    }
+    // completa até múltiplo de 7
+    while(cells.length % 7 !== 0){
+      const d = new Date(last); d.setDate(last.getDate() + (cells.length%7===0?0:(cells.length%7)));
+      cells.push({date:d, out:true});
+    }
+
+    // busca disponibilidade (assíncrono, leve – chunked)
+    const onlyDays = cells.filter(c=>!c.out).map(c=>c.date);
+    const availMap = await markAvailabilityForMonth(onlyDays);
+
+    // desenha
+    gGrid.innerHTML = cells.map(c=>{
+      const id  = ymd(c.date);
+      const sel = ymd(c.date) === ymd(selDate);
+      const av  = !!availMap[id];
+      return dayCellTemplate(c.date, {outMonth:c.out, hasAvail:av, isSel:sel});
+    }).join('');
+
+    // binds
+    gGrid.querySelectorAll('.day').forEach(div=>{
+      div.addEventListener('click', async ()=>{
+        const d = new Date(div.dataset.date);
+        selDate = d;
+        // re-render seletor
+        gGrid.querySelectorAll('.day.sel').forEach(x=>x.classList.remove('sel'));
+        div.classList.add('sel');
+        await loadDayMobile();
+      });
+    });
+  }
+
+  async function loadDayMobile(){
+    const ds = ymd(selDate);
+    labDay.textContent = `• ${fmtBR(ds)}`;
+
+    // horários disponíveis
+    divSlots.innerHTML = 'Carregando horários…';
+    try{
+      const bag = await fetchAvailability(ds);
+      const start = bag?.officeHours?.start||'08:00';
+      const end   = bag?.officeHours?.end  ||'18:00';
+      const step  = bag?.intervalMinutes   || 30;
+      const busy  = (bag?.busy || []).map(x=>[x[0],x[1]]);
+      const slots = rangeToSlots(start,end,step);
+      const withStatus = blockByBusy(slots, busy);
+      divSlots.innerHTML = withStatus.map(s =>
+        `<button class="slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'}>${s.time}</button>`
+      ).join('');
+    }catch(e){
+      divSlots.innerHTML = '<div class="text-danger">Erro ao carregar disponibilidade.</div>';
+    }
+
+    // eventos do dia
+    ulDay.innerHTML = '<li>Carregando…</li>';
+    try{
+      const day = await fetchDay(ds);
+      const events = day?.events || [];
+      if(!events.length){ ulDay.innerHTML = '<li class="muted">Sem eventos.</li>'; return; }
+      ulDay.innerHTML = events.map(ev => {
+        const hora = ev.start?.slice(11,16) || ev.start || '--:--';
+        const nome = ev.patientName || ev.summary || 'Evento';
+        const proc = ev.procedure   || ev.description || '';
+        return `
+          <li>
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="font-weight-bold">${hora} — ${nome}</div>
+                <div class="muted" style="font-size:.85rem">${proc}</div>
+              </div>
+              <a href="javascript:void(0)" class="btn-link-icon agenda-item"
+                 data-id="${ev.id||''}"
+                 data-paciente="${nome}"
+                 data-proc="${proc}"
+                 data-status="${ev.status||''}"
+                 data-date="${ds}"
+                 data-start="${hora}"
+                 data-dur="${ev.durationMin||30}">
+                <i class="fa-regular fa-eye"></i> Ver
+              </a>
+            </div>
+          </li>`;
+      }).join('');
+    }catch(e){
+      ulDay.innerHTML = '<li class="text-danger">Erro ao carregar eventos.</li>';
+    }
+  }
+
+  // navegação do mês
+  btnPrev?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()-1, 1); renderMonth(); });
+  btnNext?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()+1, 1); renderMonth(); });
+
+  // inicialização
+  (async function init(){
+    await renderMonth();
+    await loadDayMobile();
+  })();
+})();
+</script>
+
+
   
 </body>
 </html>
+
 
 
 

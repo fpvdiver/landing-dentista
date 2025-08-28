@@ -1,27 +1,69 @@
 /* =========================================================
    CRM API – OdontoCRM (n8n + Supabase)  [UMD/Browser]
+   ---------------------------------------------------------
+   - Defina window.CRM_API_BASE (sem barra no final) ANTES.
+   - Este arquivo NÃO usa "export". Tudo é IIFE + window.*
    ========================================================= */
+
 (function () {
   /* ===================== CONFIG ===================== */
   function getBase() {
     const b = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/odonto');
-    return String(b).replace(/\/+$/, '');
+    return String(b).replace(/\/+$/, '');            // remove barra(s) final(is)
   }
-  const urlJoin = (p) => (p.startsWith('/') ? p : '/' + p);
-  const url = (p) => getBase() + urlJoin(p);
-
+  function join(path) {
+    return path.startsWith('/') ? path : '/' + path; // garante 1 barra no meio
+  }
   function buildHeaders(method, hasBody, extra) {
     const h = {
       Accept: 'application/json',
       ...(window.CRM_API_KEY ? { 'x-crm-key': window.CRM_API_KEY } : {}),
       ...(extra || {}),
     };
-    // Evitar preflight desnecessário em GET
+    // NÃO mande Content-Type em GET (evita preflight/OPTIONS)
     if (hasBody && method !== 'GET') h['Content-Type'] = 'application/json';
     return h;
   }
+  function url(path) { return getBase() + join(path); }
 
-  async function api(path, { method = 'GET', body, headers } = {}) {
+  /* ===================== UTILS ===================== */
+  function toBRL(v){ return (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+  function qs(obj) {
+    const p = new URLSearchParams();
+    Object.entries(obj||{}).forEach(([k,v])=>{
+      if (v!==undefined && v!==null && v!=='') p.append(k, String(v));
+    });
+    const s = p.toString();
+    return s ? '?' + s : '';
+  }
+  function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms||250); }; }
+
+  // Converte qualquer payload "estranho" em array
+  function toArray(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (payload == null) return [];
+    if (Array.isArray(payload.data)) return payload.data;
+    if (Array.isArray(payload.rows)) return payload.rows;
+    if (Array.isArray(payload.items)) return payload.items;
+    if (Array.isArray(payload.result)) return payload.result;
+    if (payload.json && typeof payload.json === 'object') return [payload.json];
+    if (typeof payload === 'object') {
+      const vals = Object.values(payload);
+      if (vals.every(v => typeof v === 'object')) return vals;
+    }
+    return [];
+  }
+
+  // Padroniza campos do paciente
+  function normPatient(p = {}) {
+    const id        = p.id || p.patient_id || p.uuid || p._id || null;
+    const full_name = p.full_name || p.name || p.nome || '';
+    const phone     = p.phone || p.whatsapp || p.celular || p.telefone || '';
+    const email     = p.email || p.mail || '';
+    return { id, full_name, phone, email, ...p };
+  }
+
+  async function api(path, { method='GET', body, headers } = {}) {
     const hasBody = body !== undefined && body !== null;
     const res = await fetch(url(path), {
       method,
@@ -31,373 +73,275 @@
       cache: 'no-store',
     });
 
-    const text = await res.text();
+    const text = await res.text(); // lida com JSON e texto
     let data;
     try { data = JSON.parse(text); } catch { data = text; }
 
     if (!res.ok) {
-      const msg = (data && (data.message || data.error?.message)) || res.statusText || 'Erro na API';
+      const msg =
+        (data && data.message) ||
+        (data && data.error && data.error.message) ||
+        res.statusText || 'Erro na API';
       throw new Error(msg);
     }
     return data;
   }
 
-  /* ===================== UTILS ===================== */
-  const toBRL = (v) => (Number(v || 0)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  const qs = (obj) => {
-    const p = new URLSearchParams();
-    Object.entries(obj || {}).forEach(([k, v]) => {
-      if (v !== undefined && v !== null && v !== '') p.append(k, String(v));
-    });
-    const s = p.toString();
-    return s ? '?' + s : '';
-  };
-  const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms || 250); }; };
-
   /* ===================== CEP (ViaCEP) ===================== */
-  async function buscaCEP(cepRaw) {
-    const cep = String(cepRaw || '').replace(/\D/g, '');
+  async function buscaCEP(cepRaw){
+    const cep = String(cepRaw||'').replace(/\D/g,'');
     if (cep.length !== 8) return null;
     const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
     const j = await r.json();
     if (j && j.erro) return null;
-    return { cep, street: j.logradouro || '', district: j.bairro || '', city: j.localidade || '', uf: j.uf || '' };
+    return {
+      cep,
+      street:   j.logradouro || '',
+      district: j.bairro     || '',
+      city:     j.localidade || '',
+      uf:       j.uf         || ''
+    };
   }
-  function attachCepAutofill(formEl) {
+
+  function attachCepAutofill(formEl){
     const cepIn = formEl?.querySelector('[name="cep"]');
     if (!cepIn) return;
-    const setVal = (sel, val) => { const el = formEl.querySelector(sel); if (el) el.value = val || ''; };
-    cepIn.addEventListener('blur', async () => {
+
+    const setVal = (sel, val) => {
+      const el = formEl.querySelector(sel);
+      if (el) el.value = val || '';
+    };
+
+    cepIn.addEventListener('blur', async ()=>{
       const addr = await buscaCEP(cepIn.value);
       if (!addr) return;
-      setVal('[name="street"]', addr.street);
+      setVal('[name="street"]',   addr.street);
       setVal('[name="district"]', addr.district);
-      setVal('[name="city"]', addr.city);
-      setVal('[name="uf"]', addr.uf);
+      setVal('[name="city"]',     addr.city);
+      setVal('[name="uf"]',       addr.uf);
     });
   }
 
   /* ===================== PROCEDURES ===================== */
   let PROCEDURES_CACHE = []; // [{id,name,price,duration,code}]
 
-  // Se você precisar filtrar por org_id, ajuste o n8n e use qs({org_id})
-  async function listProcedures(orgId) {
-    return api('/procedures' + qs(orgId ? { org_id: orgId } : {}));
-  }
+  async function loadProcedures(){
+    const list = await api('/procedures');
+    PROCEDURES_CACHE = Array.isArray(list) ? list : [];
 
-  // Preenche o select do agendamento (#ag-proc) e sugere a duração (#ag-dur em horas)
-  async function loadProcedures() {
-    let raw;
-    try {
-      raw = await listProcedures();
-    } catch (e) {
-      console.error('[procedures] erro ao buscar:', e);
-      return;
-    }
-
-    // n8n pode devolver array puro, ou objeto com .items/.data
-    const arr = Array.isArray(raw) ? raw : (raw?.items || raw?.data || []);
-    PROCEDURES_CACHE = (arr || []).map((p) => ({
-      id: p.id,
-      name: p.name,
-      price: Number(p.price) || 0,
-      // mapeia seu schema: default_duration_min -> duration
-      duration: Number(p.default_duration_min || p.duration || 60),
-      code: p.code || null,
-    }));
-
+    // select do agendamento
     const selAg = document.getElementById('ag-proc');
-    const selDur = document.getElementById('ag-dur');
-
     if (selAg) {
-      if (!PROCEDURES_CACHE.length) {
-        selAg.innerHTML = '<option value="" disabled>Sem procedimentos</option>';
-      } else {
-        selAg.innerHTML =
-          '<option value="" selected disabled>Selecione o procedimento…</option>' +
-          PROCEDURES_CACHE.map(
-            (p) =>
-              `<option value="${p.id}"
-                       data-name="${p.name}"
-                       data-dur="${p.duration}"
-                       data-price="${p.price}">
-                 ${p.name}
-               </option>`
-          ).join('');
-      }
-
-      // quando trocar, ajusta a duração sugerida (em horas, 1h..4h)
-      const setDur = () => {
-        const d = parseInt(selAg.selectedOptions[0]?.dataset?.dur || 60, 10);
-        if (!selDur) return;
-        // se #ag-dur guarda minutos (60,120,...), escolha o mais próximo
-        const h = Math.max(1, Math.round(d / 60));
-        const opt = selDur.querySelector(`option[value="${h * 60}"]`);
-        if (opt) selDur.value = String(h * 60);
+      selAg.innerHTML = PROCEDURES_CACHE.map(p =>
+        `<option value="${p.name}" data-id="${p.id||''}" data-dur="${p.duration||60}" data-price="${p.price||0}">
+          ${p.name}
+        </option>`
+      ).join('');
+      const dur = document.getElementById('ag-dur');
+      if (dur && selAg.selectedOptions[0]) dur.value = `${selAg.selectedOptions[0].dataset.dur} min`;
+      selAg.onchange = () => {
+        const d = selAg.selectedOptions[0]?.dataset?.dur;
+        if (d && dur) dur.value = `${d} min`;
       };
-      selAg.addEventListener('change', setDur);
     }
 
-    // também garante que a tabela de orçamento conheça os procedimentos
+    // tabela do modal “Procedimentos”
+    const tbody = document.querySelector('#proc-table tbody');
+    if (tbody) {
+      tbody.innerHTML = '';
+      PROCEDURES_CACHE.forEach(p=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.duration||60} min</td>
+          <td>${(p.price||0).toFixed(2).replace('.',',')}</td>
+          <td>${p.code||'-'}</td>
+          <td class="text-right">
+            <button class="btn btn-sm btn-outline-secondary btn-pill proc-del" data-id="${p.id||''}">Excluir</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // orçamento: se não tem linhas, cria a 1ª
     const orcTable = document.querySelector('#orc-table tbody');
-    if (orcTable && orcTable.children.length === 0) addOrcRow();
+    if (orcTable && orcTable.children.length===0) addOrcRow();
   }
 
-  async function createProcedure({ name, duration, price, code }) {
-    // seu n8n deve gravar em default_duration_min
-    const created = await api('/procedures', {
-      method: 'POST',
-      body: { name, duration, price, code },
-    });
+  async function createProcedure({name, duration, price, code}){
+    const created = await api('/procedures', { method:'POST', body:{ name, duration, price, code }});
     await loadProcedures();
     return created;
   }
-  async function deleteProcedure(id) {
-    await api('/procedures/delete', { method: 'POST', body: { id } });
+  async function deleteProcedure(id){
+    await api('/procedures/delete', { method:'POST', body:{ id } });
     await loadProcedures();
   }
 
   /* ===================== PACIENTES ===================== */
-  async function upsertPaciente(payload) { return api('/patient/upsert', { method: 'POST', body: payload }); }
-  async function listPatients(limit) { return api('/patients' + qs({ limit: limit || 50 })); }
-  async function searchPatients(q) { return api('/patients/search' + qs({ q })); }
+  // Cache leve para autocomplete e preenchimento
+  let PATIENTS_CACHE = []; // [{id, full_name, phone, email, ...}]
 
-  // Autocomplete simples para campo de paciente
-  function bindPatientAutocomplete({ input, onSelect, onCreateNew }) {
-    const el = typeof input === 'string' ? document.querySelector(input) : input;
-    if (!el) return;
-    let popup;
-
-    async function show(q) {
-      if (q.length < 2) { close(); return; }
-      try {
-        const res = await searchPatients(q);
-        render(res || []);
-      } catch (e) {
-        console.warn(e);
-      }
-    }
-    function render(items) {
-      close();
-      popup = document.createElement('div');
-      popup.className = 'dropdown-menu show';
-      popup.style.position = 'absolute';
-      popup.style.top = (el.offsetTop + el.offsetHeight) + 'px';
-      popup.style.left = el.offsetLeft + 'px';
-      popup.style.width = el.offsetWidth + 'px';
-      popup.style.zIndex = 2000;
-
-      (items.length ? items : [{ id: null, full_name: `Cadastrar “${el.value}”` }]).forEach(p => {
-        const a = document.createElement('a');
-        a.className = 'dropdown-item';
-        a.href = '#';
-        a.textContent = p.full_name || p.name || '';
-        a.addEventListener('click', (ev) => {
-          ev.preventDefault();
-          if (p.id) { onSelect?.(p); el.value = p.full_name || p.name || ''; }
-          else { onCreateNew?.(el.value); }
-          close();
-        });
-        popup.appendChild(a);
-      });
-
-      el.parentElement.appendChild(popup);
-    }
-    function close() { popup?.remove(); popup = null; }
-
-    el.addEventListener('input', debounce(() => show(el.value.trim()), 220));
-    document.addEventListener('click', (e) => { if (!popup) return; if (!popup.contains(e.target) && e.target !== el) close(); });
+  async function upsertPaciente(payload){
+    const res = await api('/patient/upsert', { method:'POST', body: payload });
+    const arr = toArray(res);
+    const one = arr[0] || res?.record || res;
+    const norm = normPatient(one || {});
+    // atualiza cache (se o nome existir substitui, senão inclui)
+    const idx = PATIENTS_CACHE.findIndex(p => p.id && p.id === norm.id);
+    if (idx >= 0) PATIENTS_CACHE[idx] = norm;
+    else PATIENTS_CACHE.unshift(norm);
+    return norm;
   }
 
-  /* ===================== AGENDA ===================== */
-  // Backend deve responder com: { events:[{start,end}], officeHours:{start,end}, intervalMinutes }
-  async function getAppointmentsByDay(dateStr, dentist, tz) {
-    const timezone = tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const bag = await api('/appointments/day' + qs({ date: dateStr, dentist, tz: timezone }));
-    return bag;
+  async function listPatients(limit){
+    const res = await api('/patients' + qs({limit: limit||50}));
+    const arr = toArray(res).map(normPatient);
+    PATIENTS_CACHE = arr;
+    return arr;
   }
 
-  // Helpers hora/min
-  function minuteOfDayFromISO(s) {
-    if (!s) return null;
-    // ISO / ISO com offset
-    let m = String(s).match(/T(\d{2}):(\d{2})/);
-    if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-    // "HH:MM"
-    m = String(s).match(/^(\d{2}):(\d{2})$/);
-    if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-    return null;
-  }
-  function minuteOfDayFromHHMM(hhmm) {
-    if (!hhmm) return null;
-    const m = String(hhmm).match(/^(\d{2}):(\d{2})$/);
-    if (!m) return null;
-    return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-  }
-  function minToHHMM(min) {
-    const h = Math.floor(min / 60);
-    const m = min % 60;
-    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
-  }
-
-  // Calcula horários livres respeitando intervalos e eventos ocupados
-  function computeAvailableSlots(bag, durationMinInput) {
-    const officeStart = minuteOfDayFromHHMM(bag?.officeHours?.start || '08:00');
-    const officeEnd = minuteOfDayFromHHMM(bag?.officeHours?.end || '19:00');
-    const interval = Number(bag?.intervalMinutes || 60);
-    const durationMin = Math.max(1, Number(durationMinInput || 60));
-    const needBlocks = Math.max(1, Math.ceil(durationMin / interval));
-
-    // normaliza busy
-    const busy = (bag?.events || []).map(ev => {
-      const s = minuteOfDayFromISO(ev.start || ev.start_time || ev.startAt);
-      const e = minuteOfDayFromISO(ev.end || ev.end_time || ev.endAt);
-      return (s != null && e != null) ? [s, e] : null;
-    }).filter(Boolean);
-
-    const overlap = (a1, a2, b1, b2) => a1 < b2 && a2 > b1; // [a1,a2) x [b1,b2)
-    const slots = [];
-
-    for (let start = officeStart; start + durationMin <= officeEnd; start += interval) {
-      let ok = true, cur = start;
-      for (let i = 0; i < needBlocks; i++) {
-        const end = cur + interval;
-        if (busy.some(([bs, be]) => overlap(cur, end, bs, be))) { ok = false; break; }
-        cur += interval;
-      }
-      if (ok) slots.push(minToHHMM(start));
-    }
-    return slots;
-  }
-
-  async function createAppointment(payload) { return api('/appointments', { method: 'POST', body: payload }); }
-  async function rescheduleAppointment({ id, date, time, duracaoMin }) { return api('/appointments/reschedule', { method: 'POST', body: { id, date, time, duracaoMin } }); }
-  async function cancelAppointment(id) { return api('/appointments/cancel', { method: 'POST', body: { id } }); }
-
-   /* ====== CONTATO: travar/destravar Telefone/E-mail ====== */
-function attachContactEditToggles() {
-  const f = document.getElementById('form-agendamento');
-  if (!f) return;
-  ['phone','email'].forEach(name => {
-    const input = f.querySelector(`[name="${name}"]`);
-    if (!input || input.parentElement.querySelector('.toggle-edit')) return;
-    input.parentElement.classList.add('field-lock');
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'toggle-edit';
-    btn.textContent = 'Editar';
-    btn.addEventListener('click', () => {
-      const locking = input.readOnly;
-      input.readOnly = !locking ? true : false;   // alterna OK/Editar
-      if (!input.readOnly) input.focus();
-      btn.textContent = input.readOnly ? 'Editar' : 'OK';
+  async function searchPatients(q){
+    const res = await api('/patients/search' + qs({q}));
+    const arr = toArray(res).map(normPatient);
+    // não perde o cache atual; apenas mescla (por id)
+    arr.forEach(n=>{
+      const i = PATIENTS_CACHE.findIndex(p=>p.id===n.id);
+      if (i>=0) PATIENTS_CACHE[i]=n; else PATIENTS_CACHE.push(n);
     });
-    input.parentElement.appendChild(btn);
-  });
-}
-function lockContactFields(lock = true) {
-  const f = document.getElementById('form-agendamento');
-  if (!f) return;
-  ['phone','email'].forEach(name => {
-    const input = f.querySelector(`[name="${name}"]`);
-    if (input) input.readOnly = lock;
-    const btn = input?.parentElement.querySelector('.toggle-edit');
-    if (btn) btn.textContent = lock ? 'Editar' : 'OK';
-  });
-}
-function fillAgendamentoFromPatient(p) {
-  const f = document.getElementById('form-agendamento');
-  if (!f) return;
-  f.querySelector('input[name="paciente"]').value = p.full_name || p.name || '';
-  f.querySelector('input[name="phone"]').value    = p.phone || '';
-  f.querySelector('input[name="email"]').value    = p.email || '';
-  lockContactFields(true);
-}
-function clearAgendamentoPatient() {
-  const f = document.getElementById('form-agendamento');
-  if (!f) return;
-  f.querySelector('input[name="paciente"]').value = '';
-  f.querySelector('input[name="phone"]').value = '';
-  f.querySelector('input[name="email"]').value = '';
-  lockContactFields(false);
-}
-
-/* ====== HORÁRIOS DISPONÍVEIS (Hora como <select>) ====== */
-async function refreshAvailableTimes() {
-  const f = document.getElementById('form-agendamento');
-  const timeSel = document.getElementById('ag-time');
-  if (!f || !timeSel) return;
-
-  const date = f.querySelector('[name="date"]')?.value;
-  const dentist = f.querySelector('[name="doctor"]')?.value || '';
-  const durMin = parseInt(f.querySelector('#ag-dur')?.value || '60', 10);
-
-  if (!date) { timeSel.innerHTML = '<option value="" disabled selected>Selecione</option>'; return; }
-
-  timeSel.innerHTML = '<option value="" disabled selected>Carregando…</option>';
-  try {
-    const bag = await CRMApi.getAppointmentsByDay(date, dentist);
-    const slots = CRMApi.computeAvailableSlots(bag, durMin);
-    if (!slots.length) {
-      timeSel.innerHTML = '<option value="" disabled selected>Sem horários</option>';
-      return;
-    }
-    timeSel.innerHTML = slots.map(h => `<option value="${h}">${h}</option>`).join('');
-  } catch (e) {
-    console.error(e);
-    timeSel.innerHTML = '<option value="" disabled selected>Erro ao carregar</option>';
+    return arr;
   }
+
+// substitua toda a função setupPatientsDatalist por esta versão
+async function setupPatientsDatalist(){
+  const inputs = Array.from(document.querySelectorAll('input[name="paciente"]'));
+  if (!inputs.length) return;
+
+  // garante que temos algo em cache para mostrar no foco
+  if (PATIENTS_CACHE.length === 0) {
+    try { await listPatients(50); } catch(e) { console.warn(e); }
+  }
+
+  inputs.forEach((input) => {
+    // remove o datalist nativo (mantemos o elemento <datalist> só como fallback)
+    if (input.getAttribute('list')) input.removeAttribute('list');
+
+    // cria wrapper / dropdown / botão limpar
+    const box  = document.createElement('div');  box.className = 'acbox';
+    const list = document.createElement('div');  list.className = 'ac-list';
+    const clr  = document.createElement('button'); clr.type='button'; clr.className='ac-clear'; clr.innerHTML='&times;'; clr.title='Limpar seleção';
+
+    // envolve o input no wrapper
+    input.parentNode.insertBefore(box, input);
+    box.appendChild(input);
+    box.appendChild(clr);
+    box.appendChild(list);
+
+    let currentItems = [];
+    let lastQuery = '';
+
+    // helpers
+    const show = () => { list.style.display = 'block'; };
+    const hide = () => { list.style.display = 'none'; };
+    const render = (items) => {
+      currentItems = items || [];
+      if (!currentItems.length) { hide(); return; }
+      list.innerHTML = currentItems.map(p => `
+        <div class="ac-item" data-id="${p.id||''}">
+          <div class="ac-title">${p.full_name || ''}</div>
+          <div class="ac-sub">${p.phone ? p.phone : ''}${p.email ? (p.phone ? ' • ' : '') + p.email : ''}</div>
+        </div>`).join('');
+      show();
+    };
+    const showInitial = () => render(PATIENTS_CACHE.slice(0, 12));
+
+    const select = (p) => {
+      input.value = p.full_name || '';
+      input.dataset.patientId = p.id || '';
+      const modal = input.closest('.modal-content') || document;
+      const set = (sel,val)=>{ const el = modal.querySelector(sel); if (el) el.value = val || ''; };
+      set('[name="phone"]', p.phone || '');
+      set('[name="email"]', p.email || '');
+      box.classList.add('has-selection');
+      hide();
+    };
+
+    // eventos
+    list.addEventListener('click', (ev)=>{
+      const row = ev.target.closest('.ac-item');
+      if (!row) return;
+      const id = row.dataset.id;
+      const p = PATIENTS_CACHE.find(x => (x.id||'')===id) || currentItems.find(x => (x.id||'')===id);
+      if (p) select(p);
+    });
+
+    input.addEventListener('focus', ()=>{ if (!input.value) showInitial(); });
+
+    input.addEventListener('input', debounce(async ()=>{
+      const q = (input.value||'').trim();
+      box.classList.remove('has-selection');
+      input.dataset.patientId = '';
+      if (!q) { showInitial(); return; }
+
+      const qlc = q.toLowerCase();
+      // primeiro, filtra localmente
+      let items = PATIENTS_CACHE
+        .filter(p => (p.full_name||'').toLowerCase().includes(qlc))
+        .slice(0, 12);
+      render(items);
+
+      // depois, busca no servidor se tiver 2+ chars
+      if (q.length >= 2) {
+        lastQuery = q;
+        try {
+          const remote = await searchPatients(q); // já normaliza + mescla o cache
+          if (lastQuery !== q) return; // evita sobrescrever com resposta antiga
+          const map = new Map();
+          [...remote, ...items].forEach(p => map.set(p.id||p.full_name, p));
+          render(Array.from(map.values()).slice(0, 20));
+        } catch(e) { /* silencia */ }
+      }
+    }, 180));
+
+    clr.addEventListener('click', ()=>{
+      input.value = '';
+      input.dataset.patientId = '';
+      const modal = input.closest('.modal-content') || document;
+      ['[name="phone"]','[name="email"]'].forEach(sel=>{
+        const el = modal.querySelector(sel); if (el) el.value='';
+      });
+      box.classList.remove('has-selection');
+      input.focus();
+      showInitial();
+    });
+
+    document.addEventListener('click', (e)=>{
+      if (!box.contains(e.target)) hide();
+    });
+  });
 }
 
-/* ====== DURAÇÃO: sugerir pela do procedimento ====== */
-function wireProcedureSuggestedDuration() {
-  const selAg = document.getElementById('ag-proc');
-  const durSel = document.getElementById('ag-dur');
-  if (!selAg || !durSel) return;
+  /* ===================== AGENDAMENTOS ===================== */
+  async function getAppointmentsByDay(dateStr, tz='America/Sao_Paulo') {
+    const bag = await api('/appointments/day' + qs({ date: dateStr, tz }));
+    const events = Array.isArray(bag) ? bag : (bag?.events || []);
+    const officeHours = bag?.officeHours || { start:'08:00', end:'19:00' };
+    const interval = bag?.intervalMinutes || 60;
+    return { events, officeHours, interval, raw: bag };
+  }
 
-  const setDur = () => {
-    const d = parseInt(selAg.selectedOptions[0]?.dataset?.dur || '60', 10);
-    const h = Math.max(1, Math.round(d / 60)); // 1..4
-    const opt = durSel.querySelector(`option[value="${h*60}"]`);
-    if (opt) durSel.value = String(h * 60);
-    refreshAvailableTimes();
-  };
+  async function createAppointment(payload){ return api('/appointments', { method:'POST', body: payload }); }
+  async function rescheduleAppointment({id,date,time,duracaoMin}){ return api('/appointments/reschedule', { method:'POST', body:{ id, date, time, duracaoMin } }); }
+  async function cancelAppointment(id){ return api('/appointments/cancel', { method:'POST', body:{ id } }); }
 
-  selAg.addEventListener('change', setDur);
-  setDur(); // inicial
-}
+  /* ===================== ORÇAMENTOS ===================== */
+  async function createQuote(payload){ return api('/quotes', { method:'POST', body: payload }); }
 
-/* ====== BOOT: ligar tudo quando a página carregar ====== */
-document.addEventListener('DOMContentLoaded', () => {
-  attachContactEditToggles();
-
-  // Hora dinâmica
-  document.getElementById('ag-dur')?.addEventListener('change', refreshAvailableTimes);
-  document.querySelector('#form-agendamento [name="date"]')?.addEventListener('change', refreshAvailableTimes);
-  document.querySelector('#form-agendamento [name="doctor"]')?.addEventListener('change', refreshAvailableTimes);
-
-  // Sugestão de duração pelo procedimento
-  wireProcedureSuggestedDuration();
-});
-
-/* ====== expor helpers (caso já use no seu HTML) ====== */
-window.CRMApi = {
-  ...(window.CRMApi || {}),
-  fillAgendamentoFromPatient,
-  clearAgendamentoPatient,
-  refreshAvailableTimes,
-};
-
-
-  /* ===================== ORÇAMENTO (dinâmico) ===================== */
-  function addOrcRow() {
+  /* ===================== UI: ORÇAMENTO DINÂMICO ===================== */
+  function addOrcRow(){
     const tbody = document.querySelector('#orc-table tbody');
     if (!tbody) return;
-
-    const options = PROCEDURES_CACHE.map(
-      (p) => `<option value="${p.name}" data-price="${p.price || 0}">${p.name}</option>`
-    ).join('');
-
+    const options = PROCEDURES_CACHE.map(p => `<option value="${p.name}" data-price="${p.price||0}">${p.name}</option>`).join('');
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><select class="form-control orc-proc">${options}</select></td>
@@ -406,96 +350,193 @@ window.CRMApi = {
       <td class="orc-sub text-right">0,00</td>
       <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>`;
     tbody.appendChild(tr);
-
     const sel = tr.querySelector('.orc-proc');
-    const unit = tr.querySelector('.orc-unit');
-    unit.value = Number(sel.selectedOptions[0]?.dataset?.price || 0).toFixed(2);
+    const unit= tr.querySelector('.orc-unit');
+    unit.value = Number(sel.selectedOptions[0]?.dataset?.price||0).toFixed(2);
     calcOrc();
   }
 
-  function calcOrc() {
+  function calcOrc(){
     const tbody = document.querySelector('#orc-table tbody');
     if (!tbody) return;
-    let subtotal = 0;
-    tbody.querySelectorAll('tr').forEach(tr => {
-      const qtd = Number(tr.querySelector('.orc-qtd').value || 0);
-      const unit = Number(tr.querySelector('.orc-unit').value || 0);
-      const sub = qtd * unit;
-      tr.querySelector('.orc-sub').textContent = sub.toFixed(2).replace('.', ',');
+    let subtotal=0;
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      const qtd  = Number(tr.querySelector('.orc-qtd').value||0);
+      const unit = Number(tr.querySelector('.orc-unit').value||0);
+      const sub  = qtd * unit;
+      tr.querySelector('.orc-sub').textContent = sub.toFixed(2).replace('.',',');
       subtotal += sub;
     });
     const subs = document.getElementById('orc-subtotal'); if (subs) subs.textContent = toBRL(subtotal);
     const dv = Number(document.getElementById('orc-desc')?.value || 0);
     const dt = document.getElementById('orc-desc-type')?.value || 'abs';
-    const desconto = dt === 'pct' ? subtotal * (dv / 100) : dv;
+    const desconto = dt==='pct' ? subtotal*(dv/100) : dv;
     const total = Math.max(0, subtotal - desconto);
     const tot = document.getElementById('orc-total'); if (tot) tot.textContent = toBRL(total);
   }
 
-  /* ===================== BOOTSTRAP ===================== */
-  document.addEventListener('DOMContentLoaded', () => {
-    // Carrega procedimentos e popula selects
-    loadProcedures().catch(console.warn);
+  /* ===================== BOOTSTRAP DE FORMULÁRIOS ===================== */
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Carregamentos iniciais
+    Promise.all([ loadProcedures(), setupPatientsDatalist() ]).catch(console.warn);
 
-    // CRUD de procedimentos (se a tela existir)
-    document.getElementById('proc-add')?.addEventListener('click', async () => {
-      const name = document.getElementById('proc-name')?.value?.trim();
-      const dur = parseInt((document.getElementById('proc-dur')?.value || '60').replace(' min', ''), 10);
-      const price = Number(document.getElementById('proc-price')?.value || 0);
-      const code = document.getElementById('proc-code')?.value?.trim() || null;
+    /* ---- Procedimentos ---- */
+    document.getElementById('proc-add')?.addEventListener('click', async ()=>{
+      const name = document.getElementById('proc-name').value.trim();
+      const dur  = (document.getElementById('proc-dur').value||'60').replace(' min','');
+      const price= Number(document.getElementById('proc-price').value||0);
+      const code = document.getElementById('proc-code').value.trim();
       if (!name) return alert('Informe o nome do procedimento.');
-      try {
-        await createProcedure({ name, duration: isNaN(dur) ? 60 : dur, price, code });
-        if (document.getElementById('proc-name')) document.getElementById('proc-name').value = '';
-        if (document.getElementById('proc-price')) document.getElementById('proc-price').value = '0';
-        if (document.getElementById('proc-code')) document.getElementById('proc-code').value = '';
-      } catch (err) { alert(err.message); }
+      try{
+        await createProcedure({ name, duration:Number(dur), price, code });
+        document.getElementById('proc-name').value=''; document.getElementById('proc-price').value='0'; document.getElementById('proc-code').value='';
+      }catch(err){ alert(err.message); }
     });
 
-    document.querySelector('#proc-table tbody')?.addEventListener('click', async (e) => {
-      if (e.target.classList.contains('proc-del')) {
+    document.querySelector('#proc-table tbody')?.addEventListener('click', async (e)=>{
+      if (e.target.classList.contains('proc-del')){
         const id = e.target.dataset.id;
         if (!id) return;
         if (!confirm('Excluir este procedimento?')) return;
-        try { await deleteProcedure(id); } catch (err) { alert(err.message); }
+        try{ await deleteProcedure(id); }catch(err){ alert(err.message); }
       }
     });
 
-    // Orçamento
+    /* ---- Orçamento ---- */
     document.getElementById('orc-add')?.addEventListener('click', addOrcRow);
-    document.querySelector('#orc-table tbody')?.addEventListener('input', (e) => {
-      if (e.target.classList.contains('orc-proc')) {
+    document.querySelector('#orc-table tbody')?.addEventListener('input',(e)=>{
+      if (e.target.classList.contains('orc-proc')){
         const unit = e.target.closest('tr').querySelector('.orc-unit');
-        unit.value = Number(e.target.selectedOptions[0].dataset.price || 0).toFixed(2);
+        unit.value = Number(e.target.selectedOptions[0].dataset.price||0).toFixed(2);
       }
       calcOrc();
     });
-    document.querySelector('#orc-table tbody')?.addEventListener('click', (e) => {
-      if (e.target.classList.contains('orc-del')) {
+    document.querySelector('#orc-table tbody')?.addEventListener('click',(e)=>{
+      if (e.target.classList.contains('orc-del')){
         e.preventDefault(); e.target.closest('tr').remove(); calcOrc();
       }
     });
-    ['input', 'change'].forEach(ev => {
+    ['input','change'].forEach(ev=>{
       document.getElementById('orc-desc')?.addEventListener(ev, calcOrc);
       document.getElementById('orc-desc-type')?.addEventListener(ev, calcOrc);
+    });
+    document.getElementById('form-orc')?.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const f=e.target;
+      const items=[];
+      document.querySelectorAll('#orc-table tbody tr').forEach(tr=>{
+        items.push({
+          name: tr.querySelector('.orc-proc').value,
+          qty:  Number(tr.querySelector('.orc-qtd').value||0),
+          unit: Number(tr.querySelector('.orc-unit').value||0)
+        });
+      });
+      const payload={
+        paciente: f.paciente?.value || '',
+        validade: f.validade?.value || null,
+        status:   f.status?.value || 'Rascunho',
+        canal:    f.canal?.value || 'WhatsApp',
+        obs:      f.obs?.value || '',
+        descontoValor: Number(document.getElementById('orc-desc')?.value||0),
+        descontoTipo:  document.getElementById('orc-desc-type')?.value || 'abs',
+        items
+      };
+      try{
+        const resp = await createQuote(payload);
+        $('#md-orcamento').modal('hide');
+        alert(`Orçamento #${resp?.quoteId||'—'} salvo ✅`);
+        if (resp?.shareUrl) window.open(resp.shareUrl,'_blank');
+      }catch(err){ alert(err.message); }
+    });
+
+    /* ---- Paciente ---- */
+    const formPac = document.getElementById('form-paciente');
+    if (formPac){
+      attachCepAutofill(formPac);
+      formPac.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const f=e.target;
+        const payload={
+          org_id: document.getElementById('org-id')?.value || '00000000-0000-0000-0000-000000000000',
+          full_name: f.name?.value?.trim() || '',
+          cpf:  f.cpf?.value?.trim() || null,
+          dob:  f.dob?.value || null,
+          sex:  f.gender?.value || null,
+          phone:f.phone?.value || null,
+          email:f.email?.value || null,
+          address:{
+            cep: f.cep?.value || null, street:f.street?.value || null, number:f.number?.value || null,
+            district:f.district?.value || null, city:f.city?.value || null, uf:f.uf?.value || null,
+            complement:f.complement?.value || null
+          },
+          notes: f.notes?.value || null
+        };
+        try{
+          const saved = await upsertPaciente(payload);
+          $('#md-paciente').modal('hide');
+          alert(`Paciente salvo: ${saved?.full_name || payload.full_name} ✅`);
+          setupPatientsDatalist(); // atualiza datalist
+        }catch(err){
+          alert(err.message || 'Erro ao salvar paciente');
+          console.error(err);
+        }
+      });
+    }
+
+    /* ---- Agendamento ---- */
+    document.getElementById('form-agendamento')?.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const f=e.target;
+      const procOpt = document.getElementById('ag-proc')?.selectedOptions[0];
+      const payload = {
+        paciente: f.paciente?.value || '',
+        phone:    f.phone?.value || null,
+        email:    f.email?.value || null,
+        canalPreferido: f.channel?.value || 'WhatsApp',
+        procedimento:   f.proc?.value || procOpt?.value || '',
+        procedimentoId: procOpt?.dataset?.id || null,
+        data:      f.date?.value || null,
+        hora:      f.time?.value || null,
+        duracaoMin: parseInt((f.dur?.value || '60').replace(' min',''),10),
+        dentista:  f.doctor?.value || '',
+        obs:       f.notes?.value || '',
+        confirmar: document.getElementById('ag-status')?.checked || false,
+        enviar:{
+          whatsapp: f.querySelector('[name="send_whats"]')?.checked || false,
+          email:    f.querySelector('[name="send_mail"]')?.checked  || false,
+          sms:      f.querySelector('[name="send_sms"]')?.checked   || false
+        }
+      };
+      try{
+        const resp = await createAppointment(payload);
+        $('#md-agendamento').modal('hide');
+        alert(`Agendamento #${resp?.id||'—'} salvo ✅`);
+      }catch(err){ alert(err.message); }
+    });
+
+    /* ---- Chips ---- */
+    document.querySelectorAll('.crm-chip')?.forEach(ch=>{
+      const label = ch.textContent.trim().toLowerCase();
+      ch.addEventListener('click', ()=>{
+        if(label.includes('agendamento')) $('#md-agendamento').modal('show');
+        else if(label.includes('paciente')) $('#md-paciente').modal('show');
+        else if(label.includes('orçamento')) $('#md-orcamento').modal('show');
+        else if(label.includes('procedimentos')) $('#md-procedimentos').modal('show');
+      });
     });
   });
 
   /* ===================== EXPOSE ===================== */
   window.attachCepAutofill = attachCepAutofill;
+  window.upsertPaciente    = upsertPaciente;
+
   window.CRMApi = {
-    // base
-    api, url, qs, toBRL,
-    // cep
+    api, url, toBRL, qs,
     buscaCEP, attachCepAutofill,
-    // procedures
-    listProcedures, loadProcedures, createProcedure, deleteProcedure,
-    // pacientes
-    upsertPaciente, listPatients, searchPatients, bindPatientAutocomplete,
-    // agenda
-    getAppointmentsByDay, computeAvailableSlots, createAppointment, rescheduleAppointment, cancelAppointment,
-    // orçamento
-    addOrcRow, calcOrc,
+    loadProcedures, createProcedure, deleteProcedure,
+    upsertPaciente, listPatients, searchPatients, setupPatientsDatalist,
+    getAppointmentsByDay, createAppointment, rescheduleAppointment, cancelAppointment,
+    createQuote, addOrcRow, calcOrc,
   };
 })();
 

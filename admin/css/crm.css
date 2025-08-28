@@ -504,11 +504,102 @@ html{font-size:16px;}
 }
 
 
+/* ===== Bottom bar (mobile only) ===== */
+.crm-bottombar{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 64px;
+  background: #fff;
+  border-top: 1px solid var(--ring, #e5e7eb);
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  align-items: center;
+  padding: 0 12px calc(env(safe-area-inset-bottom, 0) + 0px);
+  z-index: 1100;
+  box-shadow: 0 -6px 16px rgba(0,0,0,0.04);
+}
+.crm-bottombar .bb-item{
+  background: transparent;
+  border: 0;
+  outline: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted, #6b7280);
+}
+.crm-bottombar .bb-item i{
+  font-size: 18px;
+}
+
+/* Botão central (FAB) */
+.crm-bottombar .bb-fab{
+  justify-self: center;
+  width: 64px; height: 64px;
+  margin-top: -24px;
+  border: none; outline: none;
+  border-radius: 999px;
+  background: #0ea5e9; /* azul */
+  color: #fff;
+  display: grid; place-items: center;
+  box-shadow: 0 8px 20px rgba(14,165,233,.35);
+}
+.crm-bottombar .bb-fab i{ font-size: 22px; }
+
+/* Só mostra em telas menores (ajuste se quiser) */
+@media (min-width: 992px){
+  .crm-bottombar{ display: none; }
+}
+
+/* Dá espaço para o conteúdo não ficar atrás da bottom bar */
+@media (max-width: 991.98px){
+  .crm-main{ padding-bottom: 90px; }
+}
+
+/* ===== Sheets ===== */
+.crm-sheet-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.25);
+  opacity: 0; pointer-events: none;
+  transition: .2s ease;
+  z-index: 1100;
+}
+.crm-sheet-overlay.show{ opacity: 1; pointer-events: auto; }
+
+.crm-action-sheet{
+  position: fixed; left: 0; right: 0; bottom: 0;
+  transform: translateY(100%);
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -8px 30px rgba(0,0,0,.08);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0) + 8px);
+  z-index: 1101;
+  transition: transform .22s ease;
+}
+.crm-action-sheet.show{ transform: translateY(0%); }
+
+.crm-action-sheet .sheet-header{
+  font-weight: 700;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ring, #eef1f4);
+}
+.crm-action-sheet .sheet-item{
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 12px 16px;
+  background: transparent; border: 0; outline: 0;
+  text-align: left; font: inherit; color: inherit;
+}
+.crm-action-sheet .sheet-item i{ width: 20px; }
+.crm-action-sheet .sheet-item:hover{ background: #f8fafc; }
+
+
 
 
 /* ===================================================================
    FIM
    =================================================================== */
+
 
 
 

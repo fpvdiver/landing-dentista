@@ -721,9 +721,76 @@ document.addEventListener('DOMContentLoaded', () => {
   </button>
 </nav>
 
+<script>
+(function () {
+  const bar     = document.getElementById('crm-bottombar');
+  const overlay = document.getElementById('crm-sheet-overlay');
+  const quick   = document.getElementById('crm-quick-sheet');
+  const menu    = document.getElementById('crm-menu-sheet');
+
+  if (!bar) return;
+
+  const openSheet = sheet => {
+    closeSheets();
+    overlay.classList.add('show');
+    sheet.classList.add('show');
+  };
+  const closeSheets = () => {
+    overlay.classList.remove('show');
+    quick.classList.remove('show');
+    menu.classList.remove('show');
+  };
+
+  // Navegação dos botões principais
+  bar.addEventListener('click', (e) => {
+    const act = e.target.closest('button')?.dataset?.act;
+    if (!act) return;
+
+    if (act === 'agenda') {
+      window.location.href = 'agenda.html';
+    } else if (act === 'menu') {
+      openSheet(menu);
+    } else if (act === 'quick') {
+      openSheet(quick);
+    }
+  });
+
+  // Fecha overlay
+  overlay.addEventListener('click', closeSheets);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheets(); });
+
+  // Ações rápidas (+)
+  quick.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-quick]');
+    if(!btn) return;
+    const what = btn.dataset.quick;
+
+    const openModal = (id, fallbackUrl) => {
+      if (window.$ && $(id).length) { $(id).modal('show'); }
+      else window.location.href = fallbackUrl;
+    };
+
+    if (what === 'agendamento') {
+      openModal('#md-agendamento','inicio.html'); // ou agenda.html, se preferir
+    }
+    if (what === 'paciente') {
+      openModal('#md-paciente','inicio.html');
+    }
+    if (what === 'orcamento') {
+      openModal('#md-orcamento','orcamentos.html');
+    }
+    if (what === 'procedimentos') {
+      window.location.href = 'procedimentos.html';
+    }
+    closeSheets();
+  });
+})();
+</script>
+
 
 </body>
 </html>
+
 
 
 

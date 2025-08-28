@@ -7,8 +7,12 @@
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="css/crm.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- Sidebar (deixe como estiver no seu projeto; se esse caminho 404, ajuste) -->
   <script src="js/sidebar.js" defer></script>
+  <style>
+    .pager small{color:var(--muted)}
+    .pager .page-btn{min-width:34px}
+    .table td, .table th{vertical-align: middle;}
+  </style>
 </head>
 <body data-page="procedimentos">
 
@@ -22,8 +26,8 @@
       </div>
     </div>
 
-    <!-- Mantenha um org_id disponível (ajuste para o seu) -->
-    <input type="hidden" id="org-id" value="6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc" />
+    <!-- org_id que o n8n/Supabase usa -->
+    <input type="hidden" id="org-id" value="6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc"/>
 
     <nav class="crm-nav">
       <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
@@ -50,36 +54,101 @@
 
     <section class="crm-hero">
       <h1 class="text-center mb-1">Procedimentos</h1>
+
       <div class="crm-search">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input id="proc-q" placeholder="Buscar por nome, código, duração..." />
-        <button id="proc-search-btn" class="btn btn-sm btn-outline-secondary btn-pill">Buscar</button>
-        <a href="#" class="btn btn-sm btn-primary btn-pill ml-auto">
-          <i class="fa-solid fa-tooth mr-1"></i> Novo procedimento
-        </a>
+        <button id="proc-clear" class="btn btn-sm btn-outline-secondary btn-pill">Limpar</button>
+
+        <div class="ml-auto d-flex align-items-center" style="gap:8px;">
+          <button id="proc-reload" class="btn btn-sm btn-outline-secondary btn-pill">
+            <i class="fa-solid fa-rotate"></i> Recarregar
+          </button>
+          <a href="#" id="btn-new-proc" class="btn btn-sm btn-primary btn-pill" data-toggle="modal" data-target="#md-proc">
+            <i class="fa-solid fa-tooth mr-1"></i> Novo procedimento
+          </a>
+        </div>
       </div>
     </section>
 
     <section class="crm-content">
       <div class="crm-card">
-        <div class="d-flex justify-content-end mb-2">
-          <button id="proc-reload" class="btn btn-sm btn-outline-secondary btn-pill">Recarregar</button>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="pager">
+            <small id="pager-info">—</small>
+          </div>
+          <div class="d-flex align-items-center" style="gap:8px;">
+            <small class="mr-1 muted">Por página</small>
+            <select id="page-size" class="form-control form-control-sm" style="width:90px">
+              <option>10</option><option selected>25</option><option>50</option><option>100</option>
+            </select>
+            <div id="pager-buttons" class="ml-2"></div>
+          </div>
         </div>
-        <table class="table mb-0">
-          <thead>
-            <tr><th>Nome</th><th>Duração</th><th>Preço</th><th>Código</th><th></th></tr>
-          </thead>
-          <tbody id="proc-tbody">
+
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+            <tr><th>Nome</th><th>Duração</th><th>Preço</th><th>Código</th><th class="text-right">Ações</th></tr>
+            </thead>
+            <tbody id="proc-tbody">
             <tr><td colspan="5" class="text-center text-muted">Carregando…</td></tr>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   </main>
 </div>
 
+<!-- MODAL: Novo procedimento -->
+<div class="modal fade" id="md-proc" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="form-proc">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-tooth mr-2"></i>Novo procedimento</h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Nome</label>
+          <input class="form-control" name="name" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label>Duração</label>
+            <select class="form-control" name="duration" required>
+              <option value="30">30 min</option>
+              <option value="45">45 min</option>
+              <option value="60" selected>60 min</option>
+              <option value="90">90 min</option>
+              <option value="120">120 min</option>
+            </select>
+          </div>
+          <div class="form-group col-md-4">
+            <label>Preço</label>
+            <input type="number" step="0.01" min="0" class="form-control" name="price" value="0.00" required>
+          </div>
+          <div class="form-group col-md-4">
+            <label>Código</label>
+            <input class="form-control" name="code" placeholder="ex: PROS001">
+          </div>
+        </div>
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" id="proc-active" checked>
+          <label class="custom-control-label" for="proc-active">Ativo</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal" type="button">Cancelar</button>
+        <button class="btn btn-primary btn-pill" type="submit">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Sidebar mobile -->
 <script>
-/* Sidebar mobile */
 (function () {
   const app = document.querySelector('.crm-app');
   const btn = document.getElementById('btn-sidebar');
@@ -93,7 +162,7 @@
 })();
 </script>
 
-<!-- Config da API n8n (ajuste se usar outro domínio) -->
+<!-- Apontar o seu n8n -->
 <script>
   window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
 </script>
@@ -101,237 +170,203 @@
 <script>
 (function () {
   const API_BASE = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/odonto').replace(/\/+$/,'');
-  const qs = (obj)=> {
-    const p = new URLSearchParams();
-    Object.entries(obj||{}).forEach(([k,v])=>{
-      if(v!==undefined && v!==null && v!=='') p.append(k, String(v));
-    });
-    const s = p.toString();
-    return s ? '?' + s : '';
-  };
-  const toBRL = (v)=> (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-
-  const tbody   = document.getElementById('proc-tbody');
-  const qInput  = document.getElementById('proc-q');
-  const btnFind = document.getElementById('proc-search-btn');
-  const btnReload = document.getElementById('proc-reload');
-  const ORG_ID = document.getElementById('org-id')?.value || null;
-
-  let PROC_CACHE = [];
-
-  // Aceita vários formatos de saída do n8n
-  function unwrapList(data) {
-    if (Array.isArray(data)) {
-      if (data.length && data[0] && typeof data[0] === 'object' && 'json' in data[0]) {
-        return data.map(x => x.json);
-      }
-      return data;
-    }
-    if (!data || typeof data !== 'object') return [];
-    const candidates = data.items || data.data || data.result || data.records || data.rows;
-    if (Array.isArray(candidates)) {
-      if (candidates.length && typeof candidates[0] === 'object' && 'json' in candidates[0]) {
-        return candidates.map(x => x.json);
-      }
-      return candidates;
-    }
-    if (data.json && typeof data.json === 'object') return [data.json];
-    if (Object.keys(data).length && !('message' in data)) return [data];
-    return [];
-  }
-
-  async function fetchProcedures() {
-    const url = API_BASE + '/procedures' + qs({ org_id: ORG_ID });
-    const res = await fetch(url, { method:'GET', headers:{'Accept':'application/json'}, cache:'no-store' });
-    const text = await res.text();
-    let data; try { data = JSON.parse(text); } catch { data = text; }
-    console.log('procedures/raw:', data); // debug
-    if (!res.ok) {
-      const msg = (data && (data.message || data.error?.message)) || res.statusText || 'Erro ao carregar';
-      throw new Error(msg);
-    }
-    return unwrapList(data);
-  }
-
-  function render(rows) {
-    tbody.innerHTML = '';
-    if (!rows || rows.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
-      return;
-    }
-    rows.forEach(p => {
-      const durMin = (p.default_duration_min ?? p.duration ?? 60);
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${p.name || '-'}</td>
-        <td>${durMin} min</td>
-        <td>${toBRL(p.price || 0)}</td>
-        <td>${p.code || '-'}</td>
-        <td class="text-right">
-          <a href="#" class="btn btn-sm btn-outline-secondary btn-pill" data-id="${p.id || ''}">Editar</a>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-  }
-
-  async function load() {
-    try {
-      btnReload?.setAttribute('disabled','disabled');
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center">Carregando…</td></tr>';
-      PROC_CACHE = await fetchProcedures();
-      render(PROC_CACHE);
-    } catch (err) {
-      console.error(err);
-      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${err.message || 'Erro ao carregar'}</td></tr>`;
-    } finally {
-      btnReload?.removeAttribute('disabled');
-    }
-  }
-
-  function applyFilter() {
-    const q = qInput.value.trim().toLowerCase();
-    if (!q) { render(PROC_CACHE); return; }
-    const filtered = PROC_CACHE.filter(p => {
-      const dur = String(p.default_duration_min ?? p.duration ?? '');
-      return [p.name, p.code, dur].some(v => (v || '').toString().toLowerCase().includes(q));
-    });
-    render(filtered);
-  }
-
-  btnReload?.addEventListener('click', e => { e.preventDefault(); load(); });
-  btnFind?.addEventListener('click', e => { e.preventDefault(); applyFilter(); });
-  qInput?.addEventListener('keyup', e => { if (e.key === 'Enter') applyFilter(); });
-
-  load();
-})();
-</script>
-
-<script src="../js/jquery-3.4.1.min.js"></script>
-<script src="../js/bootstrap.js"></script>
-
-<script>
-  // Base da API (n8n)
-  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
-</script>
-
-<script>
-(function () {
-  const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,'');
-  const tbody    = document.getElementById('proc-tbody');
-  const qInput   = document.getElementById('proc-q');
-  const btnFind  = document.getElementById('proc-search-btn');
-  const btnReload= document.getElementById('proc-reload');
   const ORG_ID   = document.getElementById('org-id')?.value || null;
 
+  // ---- helpers
   const toBRL = v => (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-  const qs    = o => {
-    const p = new URLSearchParams();
-    Object.entries(o||{}).forEach(([k,v])=>{ if(v!==undefined && v!==null && v!=='') p.append(k, String(v)); });
-    return p.toString() ? '?' + p.toString() : '';
+  const qs = (o)=>{ const p=new URLSearchParams(); Object.entries(o||{}).forEach(([k,v])=>{ if(v!==undefined&&v!==null&&v!=='') p.append(k,String(v));}); return p.toString()?('?'+p.toString()):'';}
+  const unwrap = (data)=>{
+    if(Array.isArray(data)){
+      if(data.length && data[0] && typeof data[0]==='object' && 'json' in data[0]) return data.map(x=>x.json);
+      return data;
+    }
+    if(!data || typeof data!=='object') return [];
+    const cand = data.items || data.data || data.result || data.records || data.rows || data.list;
+    if(Array.isArray(cand)){
+      if(cand.length && typeof cand[0]==='object' && 'json' in cand[0]) return cand.map(x=>x.json);
+      return cand;
+    }
+    if(data.json && typeof data.json==='object') return [data.json];
+    const arrLike = Object.values(data).find(v=>Array.isArray(v) && v.length && typeof v[0]==='object');
+    return arrLike || [];
   };
 
-  // Desembrulha qualquer formato comum do n8n
-  function unwrapList(data){
-    try{
-      if(Array.isArray(data)){
-        // array de objetos json
-        if(data.length && data[0] && typeof data[0]==='object' && 'json' in data[0]){
-          return data.map(x=>x.json);
-        }
-        return data;
-      }
-      if(!data || typeof data!=='object') return [];
-      // candidatos usuais
-      const cand = data.items || data.data || data.result || data.records || data.rows || data.list;
-      if(Array.isArray(cand)){
-        if(cand.length && cand[0] && typeof cand[0]==='object' && 'json' in cand[0]){
-          return cand.map(x=>x.json);
-        }
-        return cand;
-      }
-      if(data.json && typeof data.json==='object') return [data.json];
+  // ---- elementos
+  const tbody      = document.getElementById('proc-tbody');
+  const qInput     = document.getElementById('proc-q');
+  const btnClear   = document.getElementById('proc-clear');
+  const btnReload  = document.getElementById('proc-reload');
+  const pagerInfo  = document.getElementById('pager-info');
+  const pagerBtns  = document.getElementById('pager-buttons');
+  const pageSizeEl = document.getElementById('page-size');
 
-      // última tentativa: alguma key que seja array de objetos
-      const arrLike = Object.values(data).find(v => Array.isArray(v) && v.length && typeof v[0]==='object');
-      if(arrLike) return arrLike;
+  // ---- estado
+  let all = [];          // todos do backend
+  let filtered = [];     // aplicando busca
+  let page = 1;
+  let pageSize = Number(pageSizeEl.value || 25);
 
-      return [];
-    }catch{ return []; }
-  }
-
-  let CACHE = [];
-
-  async function fetchProcedures(){
+  // ---- API
+  async function listProcedures(){
     const url = API_BASE + '/procedures' + qs({ org_id: ORG_ID });
-    const res = await fetch(url, { method:'GET', headers:{Accept:'application/json'}, cache:'no-store' });
-    const text = await res.text();
-    let data; try{ data = JSON.parse(text); }catch{ data = text; }
-    console.log('procedures/raw:', data); // DEBUG: veja no console como veio
-
-    if(!res.ok){
-      const msg = (data && (data.message || data.error?.message)) || res.statusText || 'Erro ao carregar';
-      throw new Error(msg);
-    }
-    return unwrapList(data);
+    const res = await fetch(url, { headers:{Accept:'application/json'}, cache:'no-store' });
+    const text= await res.text(); let data; try{ data=JSON.parse(text);}catch{ data=text; }
+    if(!res.ok){ const msg=(data && (data.message||data.error?.message))||res.statusText||'Erro'; throw new Error(msg); }
+    return unwrap(data);
+  }
+  async function createProcedure(payload){
+    const res = await fetch(API_BASE + '/procedures', {
+      method:'POST',
+      headers:{ 'Accept':'application/json', 'Content-Type':'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text(); let data; try{ data=JSON.parse(text);}catch{ data=text; }
+    if(!res.ok){ const msg=(data && (data.message||data.error?.message))||res.statusText||'Erro ao salvar'; throw new Error(msg); }
+    return data;
   }
 
-  function render(rows){
+  // ---- renderização
+  function renderTable(rows){
     tbody.innerHTML = '';
     if(!rows || rows.length===0){
       tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
       return;
     }
     rows.forEach(p=>{
-      const durMin = p.default_duration_min ?? p.duration ?? 60;
+      const dur = p.default_duration_min ?? p.duration ?? 60;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${p.name || '-'}</td>
-        <td>${durMin} min</td>
+        <td>${dur} min</td>
         <td>${toBRL(p.price || 0)}</td>
         <td>${p.code || '-'}</td>
-        <td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill" data-id="${p.id||''}" href="#">Editar</a></td>
-      `;
+        <td class="text-right">
+          <a href="#" class="btn btn-sm btn-outline-secondary btn-pill" data-id="${p.id||''}">Editar</a>
+        </td>`;
       tbody.appendChild(tr);
     });
   }
 
+  function renderPager(total){
+    const pages = Math.max(1, Math.ceil(total / pageSize));
+    if(page > pages) page = pages;
+
+    const startIdx = (page-1)*pageSize + 1;
+    const endIdx   = Math.min(total, page*pageSize);
+    pagerInfo.textContent = total ? `Exibindo ${startIdx}–${endIdx} de ${total}` : '—';
+
+    // botões
+    pagerBtns.innerHTML = '';
+    const prev = document.createElement('button');
+    prev.className = 'btn btn-sm btn-outline-secondary btn-pill page-btn';
+    prev.textContent = '«';
+    prev.disabled = page===1;
+    prev.onclick = ()=>{ page--; apply(); };
+    pagerBtns.appendChild(prev);
+
+    const pagesToShow = 5;
+    const half = Math.floor(pagesToShow/2);
+    let a = Math.max(1, page-half), b = Math.min(pages, a+pagesToShow-1);
+    a = Math.max(1, b-pagesToShow+1);
+
+    for(let i=a;i<=b;i++){
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-outline-secondary btn-pill page-btn';
+      btn.textContent = i;
+      if(i===page) btn.classList.add('active');
+      btn.onclick = ()=>{ page=i; apply(); };
+      pagerBtns.appendChild(btn);
+    }
+
+    const next = document.createElement('button');
+    next.className = 'btn btn-sm btn-outline-secondary btn-pill page-btn';
+    next.textContent = '»';
+    next.disabled = page===pages;
+    next.onclick = ()=>{ page++; apply(); };
+    pagerBtns.appendChild(next);
+  }
+
+  // ---- filtro + paginação
+  function apply(){
+    const q = (qInput.value || '').trim().toLowerCase();
+    filtered = !q ? all : all.filter(p=>{
+      const name=(p.name||'').toLowerCase();
+      const code=(p.code||'').toLowerCase();
+      const dur = String(p.default_duration_min ?? p.duration ?? '');
+      return name.includes(q) || code.includes(q) || dur.includes(q);
+    });
+
+    const total = filtered.length;
+    renderPager(total);
+
+    const start = (page-1)*pageSize;
+    const slice = filtered.slice(start, start+pageSize);
+    renderTable(slice);
+  }
+
   async function load(){
     try{
-      btnReload?.setAttribute('disabled','disabled');
+      btnReload.setAttribute('disabled','disabled');
       tbody.innerHTML = '<tr><td colspan="5" class="text-center">Carregando…</td></tr>';
-      CACHE = await fetchProcedures();
-      render(CACHE);
+      all = await listProcedures();
+      page = 1;
+      apply();
     }catch(err){
       console.error(err);
-      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${err.message || 'Erro ao carregar'}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${err.message||'Erro ao carregar'}</td></tr>`;
+      pagerInfo.textContent = '—';
+      pagerBtns.innerHTML = '';
     }finally{
-      btnReload?.removeAttribute('disabled');
+      btnReload.removeAttribute('disabled');
     }
   }
 
-  function applyFilter(){
-    const q = (qInput?.value || '').trim().toLowerCase();
-    if(!q){ render(CACHE); return; }
-    const filtered = CACHE.filter(p=>{
-      const dur = String(p.default_duration_min ?? p.duration ?? '');
-      return [p.name, p.code, dur].some(v => (v||'').toString().toLowerCase().includes(q));
-    });
-    render(filtered);
-  }
+  // ---- eventos
+  qInput.addEventListener('input', ()=>{ page=1; apply(); });
+  btnClear.addEventListener('click', ()=>{ qInput.value=''; page=1; apply(); });
+  btnReload.addEventListener('click', e=>{ e.preventDefault(); load(); });
+  pageSizeEl.addEventListener('change', ()=>{
+    pageSize = Number(pageSizeEl.value||25);
+    page = 1; apply();
+  });
 
-  btnReload?.addEventListener('click', e => { e.preventDefault(); load(); });
-  btnFind?.addEventListener('click', e => { e.preventDefault(); applyFilter(); });
-  qInput?.addEventListener('keyup', e => { if(e.key==='Enter') applyFilter(); });
+  // submit do modal
+  document.getElementById('form-proc').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const f = e.target;
+    const payload = {
+      org_id: ORG_ID,
+      name: f.name.value.trim(),
+      default_duration_min: Number(f.duration.value||60),
+      price: Number(f.price.value||0),
+      code: f.code.value.trim() || null,
+      active: document.getElementById('proc-active').checked
+    };
+    if(!payload.name){ alert('Informe o nome.'); return; }
 
+    try{
+      const btn = f.querySelector('[type="submit"]');
+      btn.setAttribute('disabled','disabled');
+      await createProcedure(payload);
+      $('#md-proc').modal('hide');
+      f.reset();
+      f.duration.value = '60';
+      document.getElementById('proc-active').checked = true;
+      await load();
+    }catch(err){
+      console.error(err);
+      alert(err.message || 'Erro ao salvar procedimento');
+    }finally{
+      f.querySelector('[type="submit"]').removeAttribute('disabled');
+    }
+  });
+
+  // 1ª carga
   load();
 })();
 </script>
 
-
-
-
+<script src="../js/jquery-3.4.1.min.js"></script>
+<script src="../js/bootstrap.js"></script>
 </body>
 </html>
-
-
-

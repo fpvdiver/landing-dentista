@@ -71,14 +71,16 @@
     <section class="crm-content">
       <div class="row">
         <div class="col-lg-6 mb-3">
-          <div class="crm-card">
-            <div class="crm-head-row"><h5 class="mb-0">Registros recentes</h5></div>
-            <ul class="list-unstyled mb-0">
-              <li class="py-2 border-bottom"><span class="badge-soft bg-soft-green mr-2">Agendado</span> Implante – Emiliane • 23/08 16:45</li>
-              <li class="py-2 border-bottom"><span class="badge-soft bg-soft-amber mr-2">Pré-agendamento</span> Clareamento – Felipe • 22/08 17:00</li>
-              <li class="py-2"><span class="badge-soft bg-soft-purple mr-2">Contato</span> Avaliação – Fúlvio • 21/08 18:00</li>
-            </ul>
-          </div>
+         <div class="crm-card">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="font-weight-bold">Próximos agendamentos</div>
+    <a href="agenda.html" class="btn btn-sm btn-outline-secondary btn-pill">Ver agenda</a>
+  </div>
+  <ul class="list-unstyled mb-0" id="upcoming-list">
+    <li class="py-2 text-muted">Carregando…</li>
+  </ul>
+</div>
+
         </div>
         <div class="col-lg-6 mb-3">
           <div class="crm-card mb-3">
@@ -788,6 +790,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 

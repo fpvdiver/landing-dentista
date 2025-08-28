@@ -703,22 +703,46 @@ document.addEventListener('DOMContentLoaded', () => {
   <a class="sheet-item" href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
 </div>
 
-<!-- Bottom Bar (mobile) -->
-<nav class="crm-bottombar" id="crm-bottombar" aria-label="Navegação rápida">
+<!-- BOTTOM BAR • LIQUID -->
+<nav class="bb-liquid" id="bb-liquid" aria-label="Navegação rápida">
+  <!-- SVG de fundo com onda + notch central -->
+  <svg class="bb-bg" viewBox="0 0 1000 200" preserveAspectRatio="none">
+    <!-- Path em repouso (onda leve + notch) -->
+    <path id="bbPath" fill="var(--bb-bg)" d="
+      M0,40
+      H360
+      C420,40 430,0 500,0
+      C570,0 580,40 640,40
+      H1000 V200 H0 Z">
+      <!-- Morph quando “pressiona” (onda aprofunda e suaviza) -->
+      <animate id="bbMorphPress"
+               attributeName="d" dur="420ms" fill="freeze"
+               values="
+                M0,40 H360 C420,40 430,0 500,0 C570,0 580,40 640,40 H1000 V200 H0 Z;
+                M0,40 H330 C400,40 430,-24 500,-24 C570,-24 600,40 670,40 H1000 V200 H0 Z;
+                M0,40 H360 C420,40 430,0 500,0 C570,0 580,40 640,40 H1000 V200 H0 Z
+               " />
+    </path>
+    <!-- “ponto” decorativo seguindo o item ativo -->
+    <circle id="bbDot" cx="500" cy="12" r="10" fill="var(--bb-active)" opacity=".18"/>
+  </svg>
+
+  <!-- Itens esquerdo/direito (sobre o SVG) -->
   <button class="bb-item" data-act="agenda" aria-label="Agenda">
-    <i class="fa-regular fa-calendar-days"></i>
-    <span>Agenda</span>
+    <i class="fa-regular fa-calendar-days"></i><span>Agenda</span>
   </button>
 
-  <!-- Botão central (FAB) -->
+  <!-- FAB central dentro do notch -->
   <button class="bb-fab" data-act="quick" aria-label="Ações rápidas">
     <i class="fa-solid fa-plus"></i>
   </button>
 
   <button class="bb-item" data-act="menu" aria-label="Menu">
-    <i class="fa-solid fa-list-ul"></i>
-    <span>Menu</span>
+    <i class="fa-solid fa-list-ul"></i><span>Menu</span>
   </button>
+
+  <!-- Indicador (pílula) se movendo sob o item ativo -->
+  <div class="bb-indicator" id="bbIndicator"></div>
 </nav>
 
 <script>
@@ -853,6 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 

@@ -208,5 +208,125 @@
 
 <script src="../js/jquery-3.4.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
+
+<script>
+  // Base da API (n8n)
+  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
+</script>
+
+<script>
+(function () {
+  const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,'');
+  const tbody    = document.getElementById('proc-tbody');
+  const qInput   = document.getElementById('proc-q');
+  const btnFind  = document.getElementById('proc-search-btn');
+  const btnReload= document.getElementById('proc-reload');
+  const ORG_ID   = document.getElementById('org-id')?.value || null;
+
+  const toBRL = v => (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const qs    = o => {
+    const p = new URLSearchParams();
+    Object.entries(o||{}).forEach(([k,v])=>{ if(v!==undefined && v!==null && v!=='') p.append(k, String(v)); });
+    return p.toString() ? '?' + p.toString() : '';
+  };
+
+  // Desembrulha qualquer formato comum do n8n
+  function unwrapList(data){
+    try{
+      if(Array.isArray(data)){
+        // array de objetos json
+        if(data.length && data[0] && typeof data[0]==='object' && 'json' in data[0]){
+          return data.map(x=>x.json);
+        }
+        return data;
+      }
+      if(!data || typeof data!=='object') return [];
+      // candidatos usuais
+      const cand = data.items || data.data || data.result || data.records || data.rows || data.list;
+      if(Array.isArray(cand)){
+        if(cand.length && cand[0] && typeof cand[0]==='object' && 'json' in cand[0]){
+          return cand.map(x=>x.json);
+        }
+        return cand;
+      }
+      if(data.json && typeof data.json==='object') return [data.json];
+
+      // última tentativa: alguma key que seja array de objetos
+      const arrLike = Object.values(data).find(v => Array.isArray(v) && v.length && typeof v[0]==='object');
+      if(arrLike) return arrLike;
+
+      return [];
+    }catch{ return []; }
+  }
+
+  let CACHE = [];
+
+  async function fetchProcedures(){
+    const url = API_BASE + '/procedures' + qs({ org_id: ORG_ID });
+    const res = await fetch(url, { method:'GET', headers:{Accept:'application/json'}, cache:'no-store' });
+    const text = await res.text();
+    let data; try{ data = JSON.parse(text); }catch{ data = text; }
+    console.log('procedures/raw:', data); // DEBUG: veja no console como veio
+
+    if(!res.ok){
+      const msg = (data && (data.message || data.error?.message)) || res.statusText || 'Erro ao carregar';
+      throw new Error(msg);
+    }
+    return unwrapList(data);
+  }
+
+  function render(rows){
+    tbody.innerHTML = '';
+    if(!rows || rows.length===0){
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
+      return;
+    }
+    rows.forEach(p=>{
+      const durMin = p.default_duration_min ?? p.duration ?? 60;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.name || '-'}</td>
+        <td>${durMin} min</td>
+        <td>${toBRL(p.price || 0)}</td>
+        <td>${p.code || '-'}</td>
+        <td class="text-right"><a class="btn btn-sm btn-outline-secondary btn-pill" data-id="${p.id||''}" href="#">Editar</a></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function load(){
+    try{
+      btnReload?.setAttribute('disabled','disabled');
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center">Carregando…</td></tr>';
+      CACHE = await fetchProcedures();
+      render(CACHE);
+    }catch(err){
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${err.message || 'Erro ao carregar'}</td></tr>`;
+    }finally{
+      btnReload?.removeAttribute('disabled');
+    }
+  }
+
+  function applyFilter(){
+    const q = (qInput?.value || '').trim().toLowerCase();
+    if(!q){ render(CACHE); return; }
+    const filtered = CACHE.filter(p=>{
+      const dur = String(p.default_duration_min ?? p.duration ?? '');
+      return [p.name, p.code, dur].some(v => (v||'').toString().toLowerCase().includes(q));
+    });
+    render(filtered);
+  }
+
+  btnReload?.addEventListener('click', e => { e.preventDefault(); load(); });
+  btnFind?.addEventListener('click', e => { e.preventDefault(); applyFilter(); });
+  qInput?.addEventListener('keyup', e => { if(e.key==='Enter') applyFilter(); });
+
+  load();
+})();
+</script>
+
 </body>
 </html>
+

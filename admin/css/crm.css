@@ -637,6 +637,9 @@ html{font-size:16px;}
   display: grid;
   place-items: end center;
   pointer-events: none;
+   left: 0;
+  right: 0;
+  bottom: 0; 
   z-index: 1030;
 }
 .bb-dribbble .bb-bg{
@@ -713,6 +716,7 @@ html{font-size:16px;}
 /* ===================================================================
    FIM
    =================================================================== */
+
 
 
 

@@ -102,98 +102,135 @@
 </script>
 
 <script>
-(function () {
-  // ====== util ======
-  const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,'');
-  const qs  = (obj)=> {
-    const p = new URLSearchParams();
-    Object.entries(obj||{}).forEach(([k,v])=>{
-      if(v!==undefined && v!==null && v!=='') p.append(k, String(v));
-    });
-    const s = p.toString();
-    return s ? '?' + s : '';
-  };
-  const toBRL = (v)=> (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  (function () {
+    const API_BASE = (window.CRM_API_BASE || 'https://allnsnts.app.n8n.cloud/webhook/odonto').replace(/\/+$/,'');
+    const qs  = (obj)=> {
+      const p = new URLSearchParams();
+      Object.entries(obj||{}).forEach(([k,v])=>{
+        if(v!==undefined && v!==null && v!=='') p.append(k, String(v));
+      });
+      const s = p.toString();
+      return s ? '?' + s : '';
+    };
+    const toBRL = (v)=> (Number(v||0)).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
-  // ====== DOM ======
-  const tbody   = document.getElementById('proc-tbody');
-  const qInput  = document.getElementById('proc-q');
-  const btnFind = document.getElementById('proc-search-btn');
-  const btnReload = document.getElementById('proc-reload');
-  const ORG_ID = document.getElementById('org-id')?.value || null;
+    const tbody   = document.getElementById('proc-tbody');
+    const qInput  = document.getElementById('proc-q');
+    const btnFind = document.getElementById('proc-search-btn');
+    const btnReload = document.getElementById('proc-reload');
+    const ORG_ID = document.getElementById('org-id')?.value || null;
 
-  // ====== data cache ======
-  let PROC_CACHE = [];
+    let PROC_CACHE = [];
 
-  // ====== API ======
-  async function fetchProcedures() {
-    const url = API_BASE + '/procedures' + qs({ org_id: ORG_ID });
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' }, cache:'no-store' });
-    const text = await res.text();
-    let data; try { data = JSON.parse(text); } catch { data = text; }
-    if (!res.ok) throw new Error((data && (data.message || data.error?.message)) || res.statusText || 'Erro ao carregar');
-    return Array.isArray(data) ? data : (data.items || []);
-  }
+    // --- desempacota vários formatos comuns do n8n ---
+    function unwrapList(data) {
+      // Array puro?
+      if (Array.isArray(data)) {
+        // pode ser [{json:{...}}, ...]
+        if (data.length && data[0] && typeof data[0] === 'object' && 'json' in data[0]) {
+          return data.map(x => x.json);
+        }
+        return data;
+      }
+      if (!data || typeof data !== 'object') return [];
 
-  // ====== render ======
-  function render(rows) {
-    tbody.innerHTML = '';
-    if (!rows || rows.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
-      return;
+      // {items:[...]} | {data:[...]} | {result:[...]} | {records:[...]}
+      const candidates = data.items || data.data || data.result || data.records || data.rows;
+      if (Array.isArray(candidates)) {
+        if (candidates.length && typeof candidates[0] === 'object' && 'json' in candidates[0]) {
+          return candidates.map(x => x.json);
+        }
+        return candidates;
+      }
+
+      // {json:{...}} único — transforma em array
+      if (data.json && typeof data.json === 'object') {
+        return [data.json];
+      }
+
+      // Último recurso: se for objeto “plain” com chaves de colunas — ainda assim devolve array
+      if (Object.keys(data).length && !('message' in data)) {
+        return [data];
+      }
+
+      return [];
     }
-    rows.forEach(p => {
-      const tr = document.createElement('tr');
-      const dur = (p.default_duration_min ?? p.duration ?? 60) + ' min';
-      const price = toBRL(p.price || 0);
-      tr.innerHTML = `
-        <td>${p.name || '-'}</td>
-        <td>${dur}</td>
-        <td>${price}</td>
-        <td>${p.code || '-'}</td>
-        <td class="text-right">
-          <a href="#" class="btn btn-sm btn-outline-secondary btn-pill" data-id="${p.id || ''}">Editar</a>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-  }
 
-  // ====== load + filter ======
-  async function load() {
-    try {
-      btnReload?.setAttribute('disabled','disabled');
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center">Carregando…</td></tr>';
-      PROC_CACHE = await fetchProcedures();
-      render(PROC_CACHE);
-    } catch (err) {
-      console.error(err);
-      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${err.message || 'Erro ao carregar'}</td></tr>`;
-    } finally {
-      btnReload?.removeAttribute('disabled');
+    async function fetchProcedures() {
+      const url = API_BASE + '/procedures' + qs({ org_id: ORG_ID });
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache:'no-store'
+      });
+
+      const text = await res.text();
+      let data; try { data = JSON.parse(text); } catch { data = text; }
+
+      // DEBUG no console para checar o formato recebido
+      console.log('procedures/raw:', data);
+
+      if (!res.ok) {
+        const msg = (data && (data.message || data.error?.message)) || res.statusText || 'Erro ao carregar';
+        throw new Error(msg);
+      }
+      return unwrapList(data);
     }
-  }
 
-  function applyFilter() {
-    const q = qInput.value.trim().toLowerCase();
-    if (!q) { render(PROC_CACHE); return; }
-    const filtered = PROC_CACHE.filter(p => {
-      const dur = String(p.default_duration_min ?? p.duration ?? '');
-      return [p.name, p.code, dur].some(v => (v || '').toString().toLowerCase().includes(q));
-    });
-    render(filtered);
-  }
+    function render(rows) {
+      tbody.innerHTML = '';
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>';
+        return;
+      }
+      rows.forEach(p => {
+        const durMin = (p.default_duration_min ?? p.duration ?? 60);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.name || '-'}</td>
+          <td>${durMin} min</td>
+          <td>${toBRL(p.price || 0)}</td>
+          <td>${p.code || '-'}</td>
+          <td class="text-right">
+            <a href="#" class="btn btn-sm btn-outline-secondary btn-pill" data-id="${p.id || ''}">Editar</a>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
 
-  // eventos
-  btnReload?.addEventListener('click', e => { e.preventDefault(); load(); });
-  btnFind?.addEventListener('click', e => { e.preventDefault(); applyFilter(); });
-  qInput?.addEventListener('keyup', e => { if (e.key === 'Enter') applyFilter(); });
+    async function load() {
+      try {
+        btnReload?.setAttribute('disabled','disabled');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Carregando…</td></tr>';
+        PROC_CACHE = await fetchProcedures();
+        render(PROC_CACHE);
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${err.message || 'Erro ao carregar'}</td></tr>`;
+      } finally {
+        btnReload?.removeAttribute('disabled');
+      }
+    }
 
-  // sidebar mobile handlers já estão no sidebar.js (carregado com defer)
+    function applyFilter() {
+      const q = qInput.value.trim().toLowerCase();
+      if (!q) { render(PROC_CACHE); return; }
+      const filtered = PROC_CACHE.filter(p => {
+        const dur = String(p.default_duration_min ?? p.duration ?? '');
+        return [p.name, p.code, dur].some(v => (v || '').toString().toLowerCase().includes(q));
+      });
+      render(filtered);
+    }
 
-  // primeira carga
-  load();
-})();
+    btnReload?.addEventListener('click', e => { e.preventDefault(); load(); });
+    btnFind?.addEventListener('click', e => { e.preventDefault(); applyFilter(); });
+    qInput?.addEventListener('keyup', e => { if (e.key === 'Enter') applyFilter(); });
+
+    load();
+  })();
 </script>
+
 
 </body>
 </html>
+

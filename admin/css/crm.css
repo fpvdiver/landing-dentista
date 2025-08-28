@@ -790,55 +790,11 @@ html{font-size:16px;}
 
 </style>
 
-/* ===== Bottom bar (Dribbble-like) ===== */
-.bb-dribbble{position:fixed;left:0;right:0;bottom:0;height:110px;z-index:1040;pointer-events:none}
-.bb-dribbble .bb-bg{position:absolute;inset:auto 0 0 0;height:110px;width:100%}
-.bb-dribbble .bb-path{fill:#fff;stroke:#e5e7eb;stroke-width:1}
-
-.bb-dribbble .bb-tab,.bb-dribbble .bb-fab{pointer-events:auto}
-.bb-dribbble .bb-tab{
-  position:absolute;bottom:22px;width:42%;height:44px;border-radius:14px;border:1px solid var(--ring);
-  background:#fff;display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 6px 24px rgba(15,23,42,.08)
-}
-.bb-dribbble .bb-tab:first-of-type{left:18px}
-.bb-dribbble .bb-tab:last-of-type{right:18px}
-.bb-dribbble .bb-tab span{font-weight:700;color:#0ea5e9}
-
-.bb-dribbble .bb-fab{
-  position:absolute;left:50%;transform:translateX(-50%);bottom:36px;width:60px;height:60px;border-radius:50%;
-  border:1px solid rgba(0,0,0,.08);
-  background:linear-gradient(180deg,#1fb6ff 0%, #0e8bd4 100%);color:#fff;font-size:24px;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 12px 28px rgba(14,139,212,.35),0 2px 6px rgba(0,0,0,.15)
-}
-@media (max-width:992px){ .crm-main{padding-bottom:120px} } /* espaço pro bar */
-
-/* micro animações */
-@keyframes bb-bounce{0%{transform:translateY(0)}40%{transform:translateY(-4px)}100%{transform:translateY(0)}}
-.bb-bounce{animation:bb-bounce .35s ease}
-.bb-fab-pop{animation:bb-bounce .35s ease}
-
-/* ===== Overlay + Action sheets (se ainda não tiver) ===== */
-.crm-sheet-overlay{position:fixed;inset:0;background:rgba(2,6,23,.26);z-index:1041;opacity:0;visibility:hidden;transition:.18s}
-.crm-sheet-overlay.show{opacity:1;visibility:visible}
-.crm-action-sheet{
-  position:fixed;left:0;right:0;bottom:0;z-index:1042;background:#fff;border-radius:18px 18px 0 0;
-  box-shadow:0 -12px 28px rgba(2,6,23,.18);transform:translateY(100%);transition:.22s;padding:12px
-}
-.crm-action-sheet.show{transform:translateY(0)}
-.crm-action-sheet .sheet-header{font-weight:800;letter-spacing:.2px;margin:.2rem .2rem .6rem}
-.crm-action-sheet .sheet-item{
-  width:100%;text-align:left;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--ring);
-  background:#fff;display:flex;align-items:center;gap:.6rem;margin:.35rem 0
-}
-
-
-
 
 /* ===================================================================
    FIM
    =================================================================== */
+
 
 
 

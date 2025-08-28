@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dra. Elen Nogata – Agenda</title>
 
-  <!-- CSS -->
+  <!-- CSS base -->
   <link rel="stylesheet" href="../css/bootstrap.css" />
   <link rel="stylesheet" href="css/crm.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -21,43 +21,103 @@
     #reag-slots .slot{border:1px solid var(--ring); border-radius:999px; padding:.35rem .6rem; background:#fff;}
     #reag-slots .slot.selected{background:#0ea5e9; color:#fff; border-color:#0ea5e9;}
     #reag-slots .slot.disabled{opacity:.45; cursor:not-allowed;}
+
+    /* ===== CALENDÁRIO – VISÍVEL EM TODAS AS TELAS (logo abaixo do crm-search) ===== */
+    .agenda-inline { margin-top:.75rem; }
+    .agenda-inline .cal-head{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:.5rem;
+    }
+    .agenda-inline .cal-head .month{ font-weight:800; letter-spacing:.2px; }
+    .agenda-inline .cal{
+      background:#fff; border:1px solid var(--ring); border-radius:14px;
+      padding:.6rem; overflow:hidden;
+    }
+    .agenda-inline .dow{
+      display:grid; grid-template-columns:repeat(7,1fr);
+      font-size:.75rem; color:var(--muted); text-align:center;
+    }
+    .agenda-inline .grid{
+      display:grid; grid-template-columns:repeat(7,1fr); gap:6px;
+      padding-top:6px;
+    }
+    .agenda-inline .day{
+      position:relative; height:42px; border-radius:10px; display:flex;
+      align-items:center; justify-content:center; cursor:pointer; user-select:none;
+      font-weight:600;
+    }
+    .agenda-inline .day.out { opacity:.35; }
+    .agenda-inline .day .num{ position:relative; z-index:1; }
+    .agenda-inline .day.sel{ color:#111; }
+    .agenda-inline .day.sel::before{
+      content:""; position:absolute; inset:0; border-radius:10px;
+      background:linear-gradient(180deg,#eef6ff 0,#f3f0ff 100%);
+      box-shadow:0 1px 0 rgba(0,0,0,.05) inset;
+    }
+    .agenda-inline .day .underline{
+      position:absolute; left:22%; right:22%; bottom:6px; height:3px;
+      background:#10b981; border-radius:3px; opacity:0;
+    }
+    .agenda-inline .day.avail .underline{ opacity:1; }
+
+    /* Chips de horários */
+    .agenda-inline .slots{ display:flex; flex-wrap:wrap; gap:8px; margin:.8rem 0 0; }
+    .agenda-inline .slot{
+      border:1px solid var(--ring); padding:.45rem .7rem; border-radius:999px;
+      background:#eafff3; color:#047857; font-weight:600;
+    }
+    .agenda-inline .slot.disabled{ background:#f3f4f6; color:#9ca3af; cursor:not-allowed; }
+
+    /* Card de eventos do dia */
+    .agenda-inline .card{
+      background:#fff; border:1px solid var(--ring); border-radius:14px; padding:.75rem;
+      box-shadow:0 4px 16px rgba(15,23,42,.06);
+    }
+    .agenda-inline .list li{ padding:.55rem 0; border-bottom:1px solid var(--ring); }
+    .agenda-inline .list li:last-child{ border-bottom:0; }
+
+    /* Botão pequeno com ícone */
+    .btn-link-icon{
+      display:inline-flex; align-items:center; gap:.35rem; padding:.4rem .7rem;
+      border-radius:999px; border:1px solid var(--ring); background:#fff;
+    }
   </style>
 </head>
 <body data-page="agenda">
 <div class="crm-app">
- <!-- COMPONENTE: Sidebar + Overlay + Botão -->
-<aside class="crm-sidebar" id="crm-sidebar">
-  <div class="crm-brand">
-    <span class="logo"></span>
-    <div>
-      <div style="font-weight:800; font-size:18px;">Clínica</div>
-      <div style="color:var(--muted); font-size:12px;">Elen Nogata</div>
+  <!-- Sidebar -->
+  <aside class="crm-sidebar" id="crm-sidebar">
+    <div class="crm-brand">
+      <span class="logo"></span>
+      <div>
+        <div style="font-weight:800; font-size:18px;">Clínica</div>
+        <div style="color:var(--muted); font-size:12px;">Elen Nogata</div>
+      </div>
     </div>
-  </div>
 
-  <nav class="crm-nav">
-    <a href="inicio.html"        data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
-    <a href="agenda.html"        data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
-    <a href="pacientes.html"     data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
-    <a href="orcamentos.html"    data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
-    <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
-    <a href="campanhas.html"     data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
-    <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
-  </nav>
+    <nav class="crm-nav">
+      <a href="inicio.html"        data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
+      <a href="agenda.html"        data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+      <a href="pacientes.html"     data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
+      <a href="orcamentos.html"    data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
+      <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
+      <a href="campanhas.html"     data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
+      <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </nav>
 
-  <div class="crm-footer">
-    <div>Conectado como <strong>admin@clinica</strong></div>
-    <div>v0.1</div>
-  </div>
-</aside>
+    <div class="crm-footer">
+      <div>Conectado como <strong>admin@clinica</strong></div>
+      <div>v0.1</div>
+    </div>
+  </aside>
 
-<!-- overlay (mobile) -->
-<div class="crm-overlay" id="crm-overlay"></div>
+  <!-- overlay (mobile) -->
+  <div class="crm-overlay" id="crm-overlay"></div>
 
-<!-- botão hambúrguer (mobile) -->
-<button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
-  <i class="fa-solid fa-bars"></i>
-</button>
+  <!-- botão hambúrguer (mobile) -->
+  <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
 
   <main class="crm-main">
     <!-- HERO -->
@@ -71,12 +131,42 @@
           <i class="fa-regular fa-calendar-plus mr-1"></i> Novo agendamento
         </a>
       </div>
+
+      <!-- CALENDÁRIO unificado (todos os dispositivos) -->
+      <div class="agenda-inline">
+        <div class="crm-card">
+          <div class="cal-head">
+            <button class="btn-link-icon" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="month" id="cal-month">—</div>
+            <button class="btn-link-icon" id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+
+          <div class="cal">
+            <div class="dow">
+              <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+            </div>
+            <div class="grid" id="cal-grid"></div>
+          </div>
+
+          <!-- chips de horários do dia selecionado -->
+          <div class="slots" id="mob-slots"></div>
+        </div>
+
+        <!-- eventos do dia -->
+        <div class="card mt-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="font-weight-bold">Eventos do dia <span id="mob-day-label" class="muted"></span></div>
+            <a href="../book.html" class="btn-link-icon"><i class="fa-regular fa-calendar-plus"></i> Novo</a>
+          </div>
+          <ul class="list list-unstyled mb-0" id="mob-day-events"></ul>
+        </div>
+      </div>
     </section>
 
     <!-- CONTEÚDO -->
     <section class="crm-content">
       <div class="row">
-        <!-- Agenda do dia -->
+        <!-- Agenda do dia (tabela detalhada) -->
         <div class="col-lg-8 mb-3">
           <div class="crm-card">
             <div class="crm-head-row">
@@ -114,40 +204,6 @@
     </section>
   </main>
 </div>
-
-<!-- ===== AGENDA – MOBILE ===== -->
-<div class="mob-agenda">
-  <div class="crm-card">
-    <div class="cal-head">
-      <button class="btn-link-icon" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
-      <div class="month" id="cal-month">—</div>
-      <button class="btn-link-icon" id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
-    </div>
-
-    <div class="cal">
-      <div class="dow">
-        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-      </div>
-      <div class="grid" id="cal-grid"></div>
-    </div>
-
-    <div class="slots" id="mob-slots"></div>
-  </div>
-
-  <div class="card mt-3">
-    <div class="d-flex align-items-center justify-content-between mb-2">
-      <div class="font-weight-bold">Eventos do dia <span id="mob-day-label" class="muted"></span></div>
-      <a href="../book.html" class="btn-link-icon"><i class="fa-regular fa-calendar-plus"></i> Novo</a>
-    </div>
-    <ul class="list list-unstyled mb-0" id="mob-day-events"></ul>
-  </div>
-</div>
-
-<!-- ===== AGENDA – DESKTOP (SEU BLOCO EXISTENTE) ===== -->
-<div class="desk-agenda">
-  <!-- deixe a sua grade/tabela já existente aqui -->
-</div>
-
 
 <!-- ================= MODAL: VER AGENDAMENTO ================ -->
 <div class="modal fade" id="md-agenda-ver" tabindex="-1" aria-hidden="true">
@@ -274,27 +330,25 @@
 </div>
 <!-- ========================================================= -->
 
-<!-- JS -->
+<!-- JS libs -->
 <script src="../js/jquery-3.4.1.min.js"></script>
-<script src="../js/bootstrap.js"></script>
+script src="../js/bootstrap.js"></script>
 
-<!-- 1) Configure aqui o prefixo (sem repetir a rota) -->
+<!-- Config da API (n8n) -->
 <script>
-  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto'; // só o prefixo!
+  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
   const TIMEZONE = 'America/Sao_Paulo';
 </script>
 
-<!-- 2) Se precisar dos helpers do crm-api.js, carregue apenas UMA vez -->
+<!-- Helpers comuns do projeto -->
 <script src="js/crm-api.js"></script>
 
-<!-- 3) Lógica da página -->
+<!-- ===== LÓGICA: Agenda (tabela + modais) ===== -->
 <script>
 function el(q, root=document){ return root.querySelector(q); }
 function els(q, root=document){ return Array.from(root.querySelectorAll(q)); }
 const pad2 = n => String(n).padStart(2,'0');
-const ymdToday = () => {
-  const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-};
+const ymdToday = () => { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
 const fmtBR = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }catch{ return iso; } };
 
 function rangeToSlots(start, end, stepMin){
@@ -517,92 +571,26 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 });
 </script>
 
-  <script>
+<!-- Sidebar mobile -->
+<script>
 (function () {
   const app = document.querySelector('.crm-app');
   const btn = document.getElementById('btn-sidebar');
   const overlay = document.getElementById('crm-overlay');
-
-  function open(){ app.classList.add('sidebar-open'); }
   function close(){ app.classList.remove('sidebar-open'); }
   function toggle(){ app.classList.toggle('sidebar-open'); }
-
   btn?.addEventListener('click', toggle);
   overlay?.addEventListener('click', close);
-
-  // Fecha ao pressionar ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-  });
-
-  // Fecha ao clicar em um item de navegação (no mobile)
-  document.querySelectorAll('.crm-nav a').forEach(a => {
-    a.addEventListener('click', close);
-  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  document.querySelectorAll('.crm-nav a').forEach(a => a.addEventListener('click', close));
 })();
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-  const params = new URLSearchParams(location.search);
-  const preName = params.get('paciente');
-  if (!preName) return;
-
-  // Abre o modal um tiquinho depois do DOM carregar
-  setTimeout(async () => {
-    $('#md-agendamento').modal('show');
-
-    const f = document.getElementById('form-agendamento');
-    if (!f) return;
-
-    // Preenche nome
-    if (f.paciente) f.paciente.value = preName;
-
-    // Tenta buscar dados do paciente no BD para preencher contato
-    try {
-      const results = await (window.CRMApi?.searchPatients
-        ? window.CRMApi.searchPatients(preName)
-        : Promise.resolve([]));
-
-      const p = (results||[]).find(x =>
-        (x.full_name || x.name || '').toLowerCase() === preName.toLowerCase()
-      ) || results?.[0];
-
-      if (p) {
-        if (f.phone) f.phone.value = p.phone || '';
-        if (f.email) f.email.value = p.email || '';
-      }
-    } catch (e) {
-      console.warn('Busca do paciente falhou:', e);
-    }
-
-    // Data/hora padrão: próximo bloco de 30 min (hoje)
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + 30);
-    now.setMinutes(now.getMinutes() - (now.getMinutes() % 30), 0, 0);
-
-    const yyyy = now.getFullYear();
-    const mm   = String(now.getMonth() + 1).padStart(2, '0');
-    const dd   = String(now.getDate()).padStart(2, '0');
-    const HH   = String(now.getHours()).padStart(2, '0');
-    const MI   = String(now.getMinutes()).padStart(2, '0');
-
-    if (f.date) f.date.value = `${yyyy}-${mm}-${dd}`;
-    if (f.time) f.time.value = `${HH}:${MI}`;
-
-    // Duração padrão conforme procedimento selecionado
-    const procSel = document.getElementById('ag-proc');
-    const durSel  = document.getElementById('ag-dur');
-    const durOpt  = procSel?.selectedOptions?.[0]?.dataset?.dur;
-    if (durSel && durOpt) durSel.value = `${durOpt} min`;
-  }, 150);
-});
-</script>
-
+<!-- ===== LÓGICA: Calendário mensal unificado ===== -->
 <script>
 (function(){
   const pad2 = n => String(n).padStart(2,'0');
-  const fmtBR = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}`; }catch{ return iso; } };
+  const fmtMMDD = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}`; }catch{ return iso; } };
 
   // elementos
   const gMonth  = document.getElementById('cal-month');
@@ -612,14 +600,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const labDay  = document.getElementById('mob-day-label');
   const ulDay   = document.getElementById('mob-day-events');
   const divSlots= document.getElementById('mob-slots');
-  const tz      = window.TIMEZONE || 'America/Sao_Paulo';
+  const dateInput = document.getElementById('flt-date');
+  const btnFiltrar = document.getElementById('btn-filtrar');
 
-  // estado
   let anchor  = new Date();  // mês atual
   let selDate = new Date();  // dia selecionado
 
   const ymd = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-
   function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
   function endOfMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0); }
 
@@ -638,22 +625,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function markAvailabilityForMonth(days){
-    // Para não estourar requisições, buscamos disponibilidade só de 14 em 14 dias
     const chunks = [];
     for(let i=0; i<days.length; i+=14){ chunks.push(days.slice(i,i+14)); }
-
     const availMap = {};
     for(const chunk of chunks){
       await Promise.all(chunk.map(async d=>{
         try{
           const bag = await fetchAvailability(ymd(d));
-          // se existir pelo menos 1 slot livre, marca como disponível
           const busy = (bag?.busy || []).map(b=>[b[0], b[1]]);
           const interval = bag?.intervalMinutes || 30;
           const slots = rangeToSlots(bag?.officeHours?.start||'08:00', bag?.officeHours?.end||'18:00', interval);
           const withStatus = blockByBusy(slots, busy);
           availMap[ymd(d)] = withStatus.some(s=>s.available);
-        }catch{ /* ignora erros pontuais */ }
+        }catch{}
       }));
     }
     return availMap;
@@ -665,34 +649,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const first = startOfMonth(anchor);
     const last  = endOfMonth(anchor);
 
-    // dia da semana do primeiro dia (0=Dom)
     const padStart = first.getDay();
     const totalDays= last.getDate();
 
     const cells = [];
-    // dias do mês anterior para completar a primeira semana
     const prev = new Date(first);
     prev.setDate(1 - padStart);
     for(let i=0;i<padStart;i++){
       const d = new Date(prev); d.setDate(prev.getDate()+i);
       cells.push({date:d, out:true});
     }
-    // dias do mês atual
     for(let i=1;i<=totalDays;i++){
       const d = new Date(first); d.setDate(i);
       cells.push({date:d, out:false});
     }
-    // completa até múltiplo de 7
     while(cells.length % 7 !== 0){
-      const d = new Date(last); d.setDate(last.getDate() + (cells.length%7===0?0:(cells.length%7)));
+      const d = new Date(last); d.setDate(d.getDate() + (cells.length%7));
       cells.push({date:d, out:true});
     }
 
-    // busca disponibilidade (assíncrono, leve – chunked)
     const onlyDays = cells.filter(c=>!c.out).map(c=>c.date);
     const availMap = await markAvailabilityForMonth(onlyDays);
 
-    // desenha
     gGrid.innerHTML = cells.map(c=>{
       const id  = ymd(c.date);
       const sel = ymd(c.date) === ymd(selDate);
@@ -700,22 +678,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       return dayCellTemplate(c.date, {outMonth:c.out, hasAvail:av, isSel:sel});
     }).join('');
 
-    // binds
     gGrid.querySelectorAll('.day').forEach(div=>{
       div.addEventListener('click', async ()=>{
-        const d = new Date(div.dataset.date);
-        selDate = d;
-        // re-render seletor
+        selDate = new Date(div.dataset.date);
         gGrid.querySelectorAll('.day.sel').forEach(x=>x.classList.remove('sel'));
         div.classList.add('sel');
-        await loadDayMobile();
+        await loadDayMobile(true);
       });
     });
   }
 
-  async function loadDayMobile(){
+  async function loadDayMobile(syncMainTable){
     const ds = ymd(selDate);
-    labDay.textContent = `• ${fmtBR(ds)}`;
+    labDay.textContent = `• ${fmtMMDD(ds)}`;
+
+    // sincroniza o input + botão da tabela principal
+    if (syncMainTable) {
+      if (dateInput) dateInput.value = ds;
+      btnFiltrar?.click();
+    }
 
     // horários disponíveis
     divSlots.innerHTML = 'Carregando horários…';
@@ -769,27 +750,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // navegação do mês
   btnPrev?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()-1, 1); renderMonth(); });
   btnNext?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()+1, 1); renderMonth(); });
 
-  // inicialização
   (async function init(){
     await renderMonth();
-    await loadDayMobile();
+    await loadDayMobile(false); // primeira carga sem sincronizar a tabela (já carregada pelo boot principal)
   })();
 })();
 </script>
 
-
-  
 </body>
 </html>
-
-
-
-
-
-
-
-

@@ -327,51 +327,11 @@
 })();
 </script>
 
-<script>
-  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
 
-  function unwrapList(data){
-    return Array.isArray(data) ? data : (data?.items || data?.data || []);
-  }
-  const toBRL = v => (Number(v||0)).toLocaleString('pt-BR',{ style:'currency', currency:'BRL' });
-
-  async function loadProcedures(){
-    const orgId = document.getElementById('org-id')?.value || '6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc';
-    const res = await fetch(`${window.CRM_API_BASE}/procedures?org_id=${orgId}`, {
-      headers: { Accept: 'application/json' }
-    });
-    const data = await res.json();
-    const rows = unwrapList(data);
-
-    const tbody = document.querySelector('table tbody');
-    tbody.innerHTML = '';
-
-    if (!rows.length){
-      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Nenhum procedimento encontrado</td></tr>`;
-      return;
-    }
-
-    rows.forEach(p => {
-      tbody.insertAdjacentHTML('beforeend', `
-        <tr>
-          <td>${p.name}</td>
-          <td>${p.default_duration_min || 60} min</td>
-          <td>${toBRL(p.price)}</td>
-          <td>${p.code || '-'}</td>
-          <td class="text-right">
-            <a class="btn btn-sm btn-outline-secondary btn-pill">Editar</a>
-          </td>
-        </tr>
-      `);
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', loadProcedures);
-  document.getElementById('btn-recarregar')?.addEventListener('click', loadProcedures);
-</script>
 
 
 </body>
 </html>
+
 
 

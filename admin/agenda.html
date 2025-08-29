@@ -18,7 +18,11 @@
     .crm-chip.small{font-size:.85rem;padding:.3rem .55rem}
 
     /* KPIs */
-    .kpi-cards{display:grid; gap:10px; grid-template-columns:repeat(4,1fr)}
+     .kpi-cards{
+    display:grid;
+    gap:10px;
+    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+  }
     .kpi{border:1px solid var(--ring);border-radius:12px;background:#fff;padding:.75rem}
     .kpi .lab{font-size:.8rem;color:var(--muted)}
     .kpi .val{font-weight:800;font-size:1.25rem}
@@ -67,7 +71,33 @@
     .dragging{opacity:.75}
     .drop-target{outline:2px dashed var(--drop);outline-offset:-6px;background:rgba(96,165,250,.06)}
     @media (max-width: 991.98px){ .drag-handle{display:none} } /* evita DnD no mobile */
+ .agenda-inline .grid{
+    display:grid;
+    grid-template-columns:repeat(7, minmax(36px,1fr));
+    gap:6px;
+  }
+  .agenda-inline .day{ height:clamp(36px, 5.5vw, 56px); }
 
+  /* Ações/chips quebram bonitinho */
+  .legend, .dentist-chips, .crm-search{ flex-wrap:wrap; gap:.5rem; }
+
+  /* Tabela: esconde no mobile e simplifica em md */
+  @media (max-width: 991.98px){
+    #agenda-table{ display:none; }
+    .agenda-wrap .now-line{ display:none; }
+  }
+  /* Em telas médias, esconde a coluna Ações pra ganhar espaço */
+  @media (min-width: 768px) and (max-width: 991.98px){
+    #agenda-table th:last-child,
+    #agenda-table td:last-child{ display:none; }
+  }
+  /* Em 1200–, dá uma enxugada na coluna Procedimento */
+  @media (max-width: 1199.98px){
+    #agenda-table td:nth-child(3){ max-width: 280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  }
+
+  /* Slotes no mobile cabem melhor */
+  .slots button{ margin:2px 4px 0 0; }
     /* Modal */
     .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
     .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
@@ -1073,3 +1103,4 @@ function renderReagendarSlots(container, withStatus){
 </script>
 </body>
 </html>
+

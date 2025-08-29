@@ -8,6 +8,23 @@
   <link rel="stylesheet" href="css/crm.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="js/sidebar.js" defer></script>
+  <style>
+    .btn-pill{border-radius:999px}
+    .crm-quick .crm-chip{cursor:pointer}
+    .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
+    .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
+    .form-section-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin:8px 0 4px}
+    .table-mini td,.table-mini th{padding:.55rem .6rem}
+    .w-44{width:44px}
+    .chip-inline{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--ring);border-radius:999px;background:#fff}
+    /* bb-dribbble só no mobile */
+    .bb-dribbble{display:none}
+    @media (max-width: 991.98px){ .bb-dribbble{display:flex} }
+    /* bloco “selecionado / trocar” padrão */
+    .crm-picked{position:absolute;left:0;right:0;top:100%;margin-top:4px;padding:8px 10px;border:1px dashed var(--ring);border-radius:10px;background:#fff;display:none}
+    .crm-picked .sel-name{font-weight:700}
+    .crm-picked a{margin-left:8px;cursor:pointer}
+  </style>
 </head>
 <body data-page="inicio">
 
@@ -25,7 +42,7 @@
     <input type="hidden" id="org-id" value="6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc" />
 
     <nav class="crm-nav">
-      <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-house"></i> Início</a>
+      <a href="inicio.html" data-nav="inicio" class="active"><i class="fa-solid fa-house"></i> Início</a>
       <a href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
       <a href="pacientes.html" data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
       <a href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
@@ -45,8 +62,6 @@
   <div class="crm-overlay" id="crm-overlay"></div>
 
   <main class="crm-main">
-
-
     <section class="crm-hero">
       <h1 class="text-center mb-1">O que você quer fazer hoje?</h1>
       <div class="tabs justify-content-center">
@@ -71,16 +86,15 @@
     <section class="crm-content">
       <div class="row">
         <div class="col-lg-6 mb-3">
-         <div class="crm-card">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <div class="font-weight-bold">Próximos agendamentos</div>
-    <a href="agenda.html" class="btn btn-sm btn-outline-secondary btn-pill">Ver agenda</a>
-  </div>
-  <ul class="list-unstyled mb-0" id="upcoming-list">
-    <li class="py-2 text-muted">Carregando…</li>
-  </ul>
-</div>
-
+          <div class="crm-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="font-weight-bold">Próximos agendamentos</div>
+              <a href="agenda.html" class="btn btn-sm btn-outline-secondary btn-pill">Ver agenda</a>
+            </div>
+            <ul class="list-unstyled mb-0" id="upcoming-list">
+              <li class="py-2 text-muted">Carregando…</li>
+            </ul>
+          </div>
         </div>
         <div class="col-lg-6 mb-3">
           <div class="crm-card mb-3">
@@ -110,13 +124,7 @@
 
 <!-- ====== MODAIS ====== -->
 <style>
-  .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
-  .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
-  .form-section-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin:8px 0 4px}
   .table-mini td,.table-mini th{padding:.55rem .6rem}
-  .w-44{width:44px}
-  .btn-pill{border-radius:999px}
-  .chip-inline{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--ring);border-radius:999px;background:#fff}
 </style>
 
 <!-- md: NOVO AGENDAMENTO -->
@@ -137,7 +145,7 @@
               <input id="ag-paciente" class="form-control" name="paciente"
                      placeholder="Digite para buscar ou cadastrar" autocomplete="off">
               <input type="hidden" name="patient_id" id="ag-paciente-id">
-              <div id="ag-paciente-picked" class="paciente-selected d-none">
+              <div id="ag-paciente-picked" class="crm-picked">
                 Selecionado: <span class="sel-name"></span>
                 <a id="ag-paciente-trocar">Trocar</a>
               </div>
@@ -168,10 +176,17 @@
 
           <div class="form-section-title">Atendimento</div>
           <div class="form-row">
-            <div class="form-group col-md-5">
+            <div class="form-group col-md-5 position-relative">
               <label>Procedimento</label>
-              <!-- será preenchido pelo JS com os procedimentos do banco -->
-              <select class="form-control" name="proc" id="ag-proc"></select>
+              <!-- autocomplete idêntico ao de Pacientes -->
+              <input id="ag-proc" class="form-control" name="proc"
+                     placeholder="Digite para buscar procedimento" autocomplete="off"
+                     data-supabase="procedures">
+              <input type="hidden" id="ag-proc-id" name="proc_id">
+              <div id="ag-proc-picked" class="crm-picked">
+                Selecionado: <span class="sel-name"></span>
+                <a id="ag-proc-trocar">Trocar</a>
+              </div>
             </div>
 
             <div class="form-group col-md-3">
@@ -181,7 +196,6 @@
 
             <div class="form-group col-md-2">
               <label>Hora</label>
-              <!-- será preenchido com os horários disponíveis -->
               <select class="form-control" name="time" id="ag-time" required>
                 <option value="">Selecione a data…</option>
               </select>
@@ -198,29 +212,24 @@
             </div>
           </div>
 
-       <div class="form-row">
-  <div class="form-group col-md-4">
-    <label>Clínica</label>
-    <select class="form-control" name="clinic" id="ag-clinic">
-      <option value="Principal" selected>Clínica principal</option>
-      <!-- adicione mais opções se tiver multi-unidades -->
-      <!-- <option value="Unidade Moema">Unidade Moema</option> -->
-    </select>
-  </div>
-
-  <div class="form-group col-md-4">
-    <label>Dentista</label>
-    <select class="form-control" name="doctor" id="ag-doctor">
-      <option>Dra. Elen Nogata</option>
-    </select>
-  </div>
-
-  <div class="form-group col-md-4">
-    <label>Observações</label>
-    <input class="form-control" name="notes" placeholder="Anote algo importante (opcional)">
-  </div>
-</div>
-
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Clínica</label>
+              <select class="form-control" name="clinic" id="ag-clinic">
+                <option value="Principal" selected>Clínica principal</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Dentista</label>
+              <select class="form-control" name="doctor" id="ag-doctor">
+                <option>Dra. Elen Nogata</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Observações</label>
+              <input class="form-control" name="notes" placeholder="Anote algo importante (opcional)">
+            </div>
+          </div>
 
           <div class="d-flex align-items-center justify-content-between">
             <div>
@@ -244,7 +253,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- md: NOVO PACIENTE -->
 <div class="modal fade" id="md-paciente" tabindex="-1" aria-hidden="true">
@@ -361,7 +369,7 @@
             <table class="table table-mini" id="orc-table">
               <thead>
                 <tr>
-                  <th style="min-width:220px">Procedimento</th>
+                  <th style="min-width:260px">Procedimento</th>
                   <th class="w-44 text-center">Qtd</th>
                   <th style="width:140px">Valor unit. (R$)</th>
                   <th style="width:120px">Subtotal (R$)</th>
@@ -427,25 +435,12 @@
         <div class="table-responsive">
           <table class="table table-mini mb-3" id="proc-table">
             <thead>
-              <tr><th>Nome</th><th>Duração</th><th>Preço (R$)</th><th>Código</th><th style="width:60px"></th></tr>
+              <tr><th>Nome</th><th>Duração</th><th>Preço (R$)</th><th>Código</th></tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
-
-        <div class="crm-card">
-          <div class="form-row">
-            <div class="form-group col-md-5"><label>Nome</label><input class="form-control" id="proc-name"></div>
-            <div class="form-group col-md-2"><label>Duração</label>
-              <select class="form-control" id="proc-dur">
-                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
-              </select>
-            </div>
-            <div class="form-group col-md-3"><label>Preço</label><input type="number" class="form-control" id="proc-price" step="0.01" value="0"></div>
-            <div class="form-group col-md-2"><label>Código</label><input class="form-control" id="proc-code" placeholder="EX-001"></div>
-          </div>
-          <button class="btn btn-primary btn-pill" id="proc-add"><i class="fa-solid fa-plus mr-1"></i> Adicionar</button>
-        </div>
+        <div class="muted">* Edição/criação completa está na tela <strong>Procedimentos</strong>.</div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Fechar</button>
@@ -455,105 +450,6 @@
 </div>
 <!-- ====== MODAIS – FIM ====== -->
 
-<script>
-/* ===== dados locais para orçamento (fallback) ===== */
-const PROC_PRECOS = { "Profilaxia":150, "Clareamento":1200, "Endodontia":2900, "Implante unitário":4500 };
-
-/* ===== abrir modais com segurança ===== */
-function openModal(id){
-  try{ $('.modal.show').modal('hide'); }catch(e){}
-  document.querySelector('.crm-app')?.classList.remove('sidebar-open');
-  setTimeout(()=>{ $(id).modal('show'); }, 150);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  /* chips -> modais */
-  document.querySelectorAll('.crm-chip[data-open]').forEach(ch=>{
-    ch.addEventListener('click', ()=> openModal(ch.getAttribute('data-open')));
-  });
-
-  /* duração padrão por procedimento (fallback) */
-  const agProc = document.getElementById('ag-proc');
-  const agDur  = document.getElementById('ag-dur');
-  if(agProc && agDur){
-    const setDur = () => {
-      const d = agProc.selectedOptions[0]?.dataset?.dur;
-      if(d){ agDur.value = `${d} min`; }
-    };
-    setDur(); agProc.addEventListener('change', setDur);
-  }
-
-  /* Orçamento – linhas dinâmicas (fallback se API de procedimentos ainda não carregou) */
-  const tbody = document.querySelector('#orc-table tbody');
-  const addRow = () => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><select class="form-control orc-proc">
-        ${Object.entries(PROC_PRECOS).map(([n,v])=>`<option value="${n}" data-price="${v}">${n}</option>`).join('')}
-      </select></td>
-      <td class="text-center"><input type="number" class="form-control form-control-sm orc-qtd" value="1" min="1"></td>
-      <td><input type="number" class="form-control form-control-sm orc-unit" step="0.01" value="0"></td>
-      <td class="orc-sub text-right">0,00</td>
-      <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>`;
-    tbody.appendChild(tr);
-    const select = tr.querySelector('.orc-proc');
-    const unit   = tr.querySelector('.orc-unit');
-    unit.value = Number(select.selectedOptions[0].dataset.price || 0).toFixed(2);
-    calc();
-  };
-  const toBRL = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-  const calc = () => {
-    let subtotal = 0;
-    tbody.querySelectorAll('tr').forEach(tr=>{
-      const qtd  = Number(tr.querySelector('.orc-qtd').value || 0);
-      const unit = Number(tr.querySelector('.orc-unit').value || 0);
-      const sub  = qtd * unit;
-      tr.querySelector('.orc-sub').textContent = sub.toFixed(2).replace('.',',');
-      subtotal += sub;
-    });
-    document.getElementById('orc-subtotal').textContent = toBRL(subtotal);
-    const dval = Number(document.getElementById('orc-desc').value || 0);
-    const dtype= document.getElementById('orc-desc-type').value;
-    const desconto = (dtype==='pct') ? subtotal*(dval/100) : dval;
-    const total = Math.max(0, subtotal - desconto);
-    document.getElementById('orc-total').textContent = toBRL(total);
-  };
-  document.getElementById('orc-add')?.addEventListener('click', addRow);
-  ['change','input'].forEach(ev=>{
-    document.getElementById('orc-desc')?.addEventListener(ev, calc);
-    document.getElementById('orc-desc-type')?.addEventListener(ev, calc);
-  });
-  document.querySelector('#orc-table tbody')?.addEventListener('input', e=>{
-    if(e.target.classList.contains('orc-proc')){
-      const unit = e.target.closest('tr').querySelector('.orc-unit');
-      unit.value = Number(e.target.selectedOptions[0].dataset.price || 0).toFixed(2);
-    }
-    calc();
-  });
-  document.querySelector('#orc-table tbody')?.addEventListener('click', e=>{
-    if(e.target.classList.contains('orc-del')){
-      e.preventDefault(); e.target.closest('tr').remove(); calc();
-    }
-  });
-  if (tbody && tbody.children.length===0) addRow();
-});
-</script>
-
-<!-- Sidebar mobile -->
-<script>
-(function () {
-  const app = document.querySelector('.crm-app');
-  const btn = document.getElementById('btn-sidebar');
-  const overlay = document.getElementById('crm-overlay');
-  function close(){ app.classList.remove('sidebar-open'); }
-  function toggle(){ app.classList.toggle('sidebar-open'); }
-  btn?.addEventListener('click', toggle);
-  overlay?.addEventListener('click', close);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
-  document.querySelectorAll('.crm-nav a').forEach(a => { a.addEventListener('click', close); });
-})();
-</script>
-
 <!-- libs -->
 <script src="../js/jquery-3.4.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
@@ -561,24 +457,127 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- Config n8n -->
 <script>
   window.CRM_API_BASE = 'https://primary-odonto.up.railway.app/webhook';
-  // window.CRM_API_KEY = '...';
+  window.TIMEZONE     = 'America/Sao_Paulo';
 </script>
 <script src="js/crm-api.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', ()=>{
-  const ORG_ID = document.getElementById('org-id')?.value;
-  // Preenche o select de procedimentos e configura a duração
-  CRMApi.loadProceduresSelect({
-    select:'#ag-proc',
-    dur:'#ag-dur',
-    orgId: ORG_ID
+/* ===== util ===== */
+function openModal(id){
+  try{ $('.modal.show').modal('hide'); }catch(e){}
+  document.querySelector('.crm-app')?.classList.remove('sidebar-open');
+  setTimeout(()=>{ $(id).modal('show'); }, 120);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.crm-chip[data-open]').forEach(ch=>{
+    ch.addEventListener('click', ()=> openModal(ch.getAttribute('data-open')));
   });
 });
 </script>
 
+<script>
+/* ===== padrão de AUTOCOMPLETE para inputs vindos do Supabase =====
+   Marca o input com data-supabase="procedures" (idêntico ao de Pacientes) */
+let SUPA_PROCS = [];
+async function loadProcedures(orgId){
+  try{
+    const list = (await (CRMApi.getProcedures ? CRMApi.getProcedures(orgId) : CRMApi.listProcedures(orgId))) || [];
+    SUPA_PROCS = list.map(p=>({
+      id: p.id || p._id || null,
+      name: p.name || p.title || p.nome,
+      dur:  Number(p.durationMin || p.duration || 60),
+      price:Number(p.price || p.preco || 0),
+      code: p.code || p.codigo || ''
+    })).filter(x=>x.name);
+  }catch(e){
+    // fallback
+    SUPA_PROCS = [
+      {id:null,name:'Profilaxia',dur:60, price:150, code:'PRF'},
+      {id:null,name:'Clareamento',dur:90, price:1200, code:'CLR'},
+      {id:null,name:'Endodontia',dur:120, price:2900, code:'END'},
+      {id:null,name:'Implante unitário',dur:120, price:4500, code:'IMP-1'}
+    ];
+  }
+}
+function bindSupabaseAutocomplete(){
+  // um único datalist compartilhado
+  let dl = document.getElementById('dl-procedures');
+  if(!dl){ dl = document.createElement('datalist'); dl.id='dl-procedures'; document.body.appendChild(dl); }
+  const renderDL = () => {
+    dl.innerHTML = SUPA_PROCS.map(p =>
+      `<option value="${p.name}" data-id="${p.id||''}" data-dur="${p.dur}" data-price="${p.price||0}"></option>`
+    ).join('');
+  };
+  renderDL();
+
+  // inputs marcados
+  document.querySelectorAll('input[data-supabase="procedures"]').forEach(inp=>{
+    inp.setAttribute('list','dl-procedures');
+    const picked = document.getElementById(inp.id+'-picked');
+    const pickedName = picked?.querySelector('.sel-name');
+    const hidden = document.getElementById(inp.id+'-id');
+
+    function selectByName(name){
+      const p = SUPA_PROCS.find(x=>x.name.toLowerCase()===String(name).toLowerCase());
+      if(!p){ if(hidden) hidden.value=''; return null; }
+      if(hidden) hidden.value = p.id || '';
+      if(picked && pickedName){ pickedName.textContent = p.name; picked.style.display='block'; }
+      // sugestão de duração no agendamento
+      if(inp.id==='ag-proc' && p?.dur){
+        const durSel = document.getElementById('ag-dur');
+        if(durSel){ const allowed=[60,120,180,240]; if(allowed.includes(p.dur)) durSel.value=String(p.dur); }
+      }
+      // preencher preço na linha do orçamento
+      const tr = inp.closest('tr');
+      if(tr && tr.querySelector('.orc-unit')){ tr.querySelector('.orc-unit').value = (p.price||0).toFixed(2); tr.dispatchEvent(new Event('input',{bubbles:true})); }
+      return p;
+    }
+
+    inp.addEventListener('change', ()=> selectByName(inp.value));
+    // “Trocar”
+    const trocar = document.getElementById(inp.id.replace(/$/,'-trocar'));
+    trocar?.addEventListener('click', (e)=>{ e.preventDefault(); inp.value=''; hidden && (hidden.value=''); picked && (picked.style.display='none'); inp.focus(); });
+  });
+}
+</script>
 
 <script>
+/* ===== Boot dos campos com Supabase + Pacientes autocomplete ===== */
+document.addEventListener('DOMContentLoaded', async ()=>{
+  const ORG_ID = document.getElementById('org-id')?.value;
+
+  await loadProcedures(ORG_ID);
+  bindSupabaseAutocomplete();
+
+  // Pacientes (mesmo padrão já existente no projeto)
+  CRMApi.bindPatientAutocomplete({
+    input: '#ag-paciente',
+    onSelect(patient){ CRMApi.fillAgendamentoFromPatient(patient); },
+    onCreateNew(query){
+      openModal('#md-paciente');
+      const form = document.getElementById('form-paciente');
+      form?.querySelector('[name="name"]').focus();
+      if (query) form.querySelector('[name="name"]').value = query;
+    }
+  });
+  document.getElementById('ag-paciente-trocar')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    CRMApi.clearAgendamentoPatient();
+    const picked = document.getElementById('ag-paciente-picked'); if(picked) picked.style.display='none';
+    document.getElementById('ag-paciente').value=''; document.getElementById('ag-paciente').focus();
+  });
+
+  // Lista rápida de pacientes para datalist do orçamento (amostra)
+  try{
+    const pts = await CRMApi.searchPatients('');
+    const dl  = document.getElementById('dl-pacientes');
+    if(dl && Array.isArray(pts)) dl.innerHTML = pts.slice(0,80).map(p=>`<option value="${p.full_name||p.name}">`).join('');
+  }catch{}
+});
+</script>
+
+<script>
+/* ===== Agendamento: horários e envio ===== */
 document.addEventListener('DOMContentLoaded', () => {
   const f   = document.getElementById('form-agendamento');
   const dt  = document.getElementById('ag-date');
@@ -606,23 +605,17 @@ document.addEventListener('DOMContentLoaded', () => {
   dur?.addEventListener('change', refreshTimes);
   doc?.addEventListener('change', refreshTimes);
 
-  // Procedimento define sugestão de duração se houver no banco (data-dur)
-  document.getElementById('ag-proc')?.addEventListener('change', (e)=>{
-    const d = parseInt(e.target.selectedOptions[0]?.dataset?.dur || '60', 10);
-    if ([60,120,180,240].includes(d)) { dur.value = String(d); refreshTimes(); }
-  });
-
-  // Envio real do agendamento (duração em minutos)
+  // Envio real do agendamento
   f?.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const procOpt = document.getElementById('ag-proc')?.selectedOptions[0];
     const payload = {
       paciente: f.paciente?.value || '',
+      patient_id: f.patient_id?.value || null,
       phone:    f.phone?.value || null,
       email:    f.email?.value || null,
       canalPreferido: f.channel?.value || 'WhatsApp',
-      procedimento:   f.proc?.value || procOpt?.value || '',
-      procedimentoId: procOpt?.dataset?.id || null,
+      procedimento:   f.proc?.value || '',
+      procedimentoId: document.getElementById('ag-proc-id')?.value || null,
       data:      f.date?.value || null,
       hora:      f.time?.value || null,
       duracaoMin: Number(f.dur?.value || 60),
@@ -638,61 +631,118 @@ document.addEventListener('DOMContentLoaded', () => {
     try{
       const resp = await CRMApi.createAppointment(payload);
       $('#md-agendamento').modal('hide');
-      alert(`Agendamento #${resp?.id||'—'} salvo ✅`);
-    }catch(err){ alert(err.message); }
+      alert(`Agendamento ${resp?.id ? '#'+resp.id : ''} salvo ✅`);
+    }catch(err){ alert(err.message || 'Falha ao salvar'); }
   });
 });
 </script>
 
-
-<!-- Autocomplete + Trocar paciente -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  CRMApi.bindPatientAutocomplete({
-    input: '#ag-paciente',
-    onSelect(patient){ CRMApi.fillAgendamentoFromPatient(patient); },
-    onCreateNew(query){
-      openModal('#md-paciente');
-      const form = document.getElementById('form-paciente');
-      form?.querySelector('[name="name"]').focus();
-      if (query) form.querySelector('[name="name"]').value = query;
-    }
+/* ===== Orçamento: linhas usam o MESMO autocomplete de procedimentos ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const tbody = document.querySelector('#orc-table tbody');
+  const toBRL = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+  function makeRow(){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <input class="form-control" placeholder="Buscar procedimento"
+               autocomplete="off" data-supabase="procedures">
+        <input type="hidden" class="orc-proc-id">
+      </td>
+      <td class="text-center"><input type="number" class="form-control form-control-sm orc-qtd" value="1" min="1"></td>
+      <td><input type="number" class="form-control form-control-sm orc-unit" step="0.01" value="0"></td>
+      <td class="orc-sub text-right">0,00</td>
+      <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>`;
+    tbody.appendChild(tr);
+    // rebind autocomplete para este input recém-criado
+    bindSupabaseAutocomplete();
+    calc();
+  }
+
+  function calc(){
+    let subtotal=0;
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      const qtd  = Number(tr.querySelector('.orc-qtd').value || 0);
+      const unit = Number(tr.querySelector('.orc-unit').value || 0);
+      const sub  = qtd*unit;
+      tr.querySelector('.orc-sub').textContent = sub.toFixed(2).replace('.',',');
+      subtotal += sub;
+    });
+    document.getElementById('orc-subtotal').textContent = toBRL(subtotal);
+    const dval = Number(document.getElementById('orc-desc').value || 0);
+    const dtype= document.getElementById('orc-desc-type').value;
+    const desconto = (dtype==='pct') ? subtotal*(dval/100) : dval;
+    const total = Math.max(0, subtotal - desconto);
+    document.getElementById('orc-total').textContent = toBRL(total);
+  }
+
+  document.getElementById('orc-add')?.addEventListener('click', makeRow);
+  ['change','input'].forEach(ev=>{
+    document.getElementById('orc-desc')?.addEventListener(ev, calc);
+    document.getElementById('orc-desc-type')?.addEventListener(ev, calc);
+  });
+  tbody?.addEventListener('input', calc);
+  tbody?.addEventListener('click', e=>{
+    if(e.target.classList.contains('orc-del')){ e.preventDefault(); e.target.closest('tr').remove(); calc(); }
   });
 
-  document.getElementById('ag-paciente-trocar')?.addEventListener('click', (e)=>{
+  // primeira linha
+  if(tbody && !tbody.children.length) makeRow();
+
+  document.getElementById('form-orc')?.addEventListener('submit', (e)=>{
     e.preventDefault();
-    CRMApi.clearAgendamentoPatient();
-    document.getElementById('ag-paciente').focus();
-  });
-
-  // Garantia: se abrir qualquer modal via data-target, feche a sidebar
-  $(document).on('show.bs.modal', '.modal', function(){
-    document.querySelector('.crm-app')?.classList.remove('sidebar-open');
+    alert('Orçamento gerado ✅ (envio pelo canal selecionado)');
   });
 });
 </script>
 
-<!-- Overlay para sheets -->
-<div id="crm-sheet-overlay" class="crm-sheet-overlay"></div>
+<script>
+/* ===== Próximos agendamentos (card) ===== */
+(function(){
+  const UL = document.getElementById('upcoming-list');
+  function labelData(startISO, allDay){
+    const d  = new Date(startISO);
+    const n  = new Date();
+    const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const n0 = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    const diffDays = Math.round((d0 - n0)/86400000);
+    const hhmm = allDay ? '' : ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    if (diffDays === 0) return 'Hoje'   + hhmm;
+    if (diffDays === 1) return 'Amanhã' + hhmm;
+    return d.toLocaleDateString('pt-BR', { weekday:'short' }) + hhmm;
+  }
+  async function loadUpcoming(){
+    try{
+      const items = await CRMApi.getCalendarUpcoming({days:7, limit:3}) || [];
+      UL.innerHTML = '';
+      if(!items.length){ UL.innerHTML = '<li class="py-2 text-muted">Sem próximos agendamentos</li>'; return; }
+      items.forEach(ev=>{
+        const li = document.createElement('li');
+        li.className = 'py-2 border-bottom';
+        li.innerHTML = `<i class="fa-regular fa-clock mr-2" style="color:#10b981"></i>
+                        <strong>${labelData(ev.start, ev.allDay)}</strong> – ${ev.title || '(sem título)'}`;
+        UL.appendChild(li);
+      });
+    }catch(err){
+      console.error(err);
+      UL.innerHTML = '<li class="py-2 text-danger">Erro ao carregar agenda</li>';
+    }
+  }
+  loadUpcoming();
+})();
+</script>
 
-<!-- Action Sheet: Atalhos do botão "+" -->
+<!-- Overlay + Bottom bar (mobile only) -->
+<div id="crm-sheet-overlay" class="crm-sheet-overlay"></div>
 <div id="crm-quick-sheet" class="crm-action-sheet">
   <div class="sheet-header">Ações rápidas</div>
-  <button class="sheet-item" data-quick="agendamento">
-    <i class="fa-regular fa-calendar-plus"></i> Novo agendamento
-  </button>
-  <button class="sheet-item" data-quick="paciente">
-    <i class="fa-regular fa-user"></i> Novo paciente
-  </button>
-  <button class="sheet-item" data-quick="orcamento">
-    <i class="fa-regular fa-clipboard"></i> Novo orçamento
-  </button>
-  <button class="sheet-item" data-quick="procedimentos">
-    <i class="fa-solid fa-tooth"></i> Procedimentos
-  </button>
+  <button class="sheet-item" data-quick="agendamento"><i class="fa-regular fa-calendar-plus"></i> Novo agendamento</button>
+  <button class="sheet-item" data-quick="paciente"><i class="fa-regular fa-user"></i> Novo paciente</button>
+  <button class="sheet-item" data-quick="orcamento"><i class="fa-regular fa-clipboard"></i> Novo orçamento</button>
+  <button class="sheet-item" data-quick="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</button>
 </div>
-
-<!-- Action Sheet: Atalhos do botão "Lista" -->
 <div id="crm-menu-sheet" class="crm-action-sheet">
   <div class="sheet-header">Ir para</div>
   <a class="sheet-item" href="inicio.html"><i class="fa-solid fa-house"></i> Início</a>
@@ -703,9 +753,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <a class="sheet-item" href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
 </div>
 
-<!-- BOTTOM BAR • DRIBBBLE-LIKE -->
 <nav class="bb-dribbble" id="bbBar" aria-label="Navegação rápida">
-  <!-- fundo com onda + notch -->
   <svg class="bb-bg" viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
     <defs>
       <filter id="bbShadow" x="-20%" y="-50%" width="140%" height="200%">
@@ -713,239 +761,62 @@ document.addEventListener('DOMContentLoaded', () => {
         <feDropShadow dx="0" dy="4"  stdDeviation="6"  flood-color="rgba(15,23,42,.08)"/>
       </filter>
     </defs>
-
-    <!-- Path com notch (estado “em repouso”) -->
     <path id="bbPath" class="bb-path" filter="url(#bbShadow)"
-      d="M18,26
-         H360
-         C420,26 440,6 500,6
-         C560,6 580,26 640,26
-         H982 Q994,26 994,38 V140
-         Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
-
-    <!-- Morph da onda ao tocar -->
+      d="M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
     <animate id="bbMorph" xlink:href="#bbPath" attributeName="d" dur="420ms" fill="freeze"
-      values="
-        M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
-        M18,26 H330 C400,26 440,-18 500,-18 C560,-18 600,26 670,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
-        M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z
-      " />
+      values="M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
+              M18,26 H330 C400,26 440,-18 500,-18 C560,-18 600,26 670,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
+              M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
   </svg>
 
-  <!-- Slots (mesma “placa”, sem borda) -->
   <button class="bb-tab" data-act="agenda" aria-label="Agenda">
-    <i class="fa-regular fa-calendar-days"></i>
-    <span>Agenda</span>
+    <i class="fa-regular fa-calendar-days"></i><span>Agenda</span>
   </button>
-
-  <button class="bb-fab" data-act="quick" aria-label="Ações rápidas">
-    <i class="fa-solid fa-plus"></i>
-  </button>
-
+  <button class="bb-fab" data-act="quick" aria-label="Ações rápidas"><i class="fa-solid fa-plus"></i></button>
   <button class="bb-tab" data-act="menu" aria-label="Menu">
-    <i class="fa-solid fa-list-ul"></i>
-    <span>Menu</span>
+    <i class="fa-solid fa-list-ul"></i><span>Menu</span>
   </button>
 </nav>
 
+<script>
+/* bottom bar (mobile) */
+(function(){
+  const bar=document.getElementById('bbBar'); if(!bar) return;
+  const tabAgenda=bar.querySelector('.bb-tab[data-act="agenda"]');
+  const tabMenu  =bar.querySelector('.bb-tab[data-act="menu"]');
+  const fab      =bar.querySelector('.bb-fab');
+  const morph    =document.getElementById('bbMorph');
+  const overlay  =document.getElementById('crm-sheet-overlay');
+  const quick    =document.getElementById('crm-quick-sheet');
+  const menu     =document.getElementById('crm-menu-sheet');
+  const openSheet=el=>{ overlay.classList.add('show'); el.classList.add('show'); };
+  const closeAll =()=>{ overlay.classList.remove('show'); quick.classList.remove('show'); menu.classList.remove('show'); };
+  overlay.addEventListener('click', closeAll);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
+  function wave(){ try{morph.beginElement();}catch{} }
+  function setActive(btn){ [tabAgenda,tabMenu].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
 
+  tabAgenda.addEventListener('click', ()=>{ setActive(tabAgenda); wave(); setTimeout(()=>location.href='agenda.html', 120); });
+  tabMenu  .addEventListener('click', ()=>{ setActive(tabMenu); wave(); openSheet(menu); });
+  fab     .addEventListener('click', ()=>{ wave(); openSheet(quick); });
+  setActive(tabAgenda);
+})();
+</script>
+
+<!-- Sidebar mobile -->
 <script>
 (function () {
-  const bar     = document.getElementById('crm-bottombar');
-  const overlay = document.getElementById('crm-sheet-overlay');
-  const quick   = document.getElementById('crm-quick-sheet');
-  const menu    = document.getElementById('crm-menu-sheet');
-
-  if (!bar) return;
-
-  const openSheet = sheet => {
-    closeSheets();
-    overlay.classList.add('show');
-    sheet.classList.add('show');
-  };
-  const closeSheets = () => {
-    overlay.classList.remove('show');
-    quick.classList.remove('show');
-    menu.classList.remove('show');
-  };
-
-  // Navegação dos botões principais
-  bar.addEventListener('click', (e) => {
-    const act = e.target.closest('button')?.dataset?.act;
-    if (!act) return;
-
-    if (act === 'agenda') {
-      window.location.href = 'agenda.html';
-    } else if (act === 'menu') {
-      openSheet(menu);
-    } else if (act === 'quick') {
-      openSheet(quick);
-    }
-  });
-
-  // Fecha overlay
-  overlay.addEventListener('click', closeSheets);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheets(); });
-
-  // Ações rápidas (+)
-  quick.addEventListener('click', (e)=>{
-    const btn = e.target.closest('[data-quick]');
-    if(!btn) return;
-    const what = btn.dataset.quick;
-
-    const openModal = (id, fallbackUrl) => {
-      if (window.$ && $(id).length) { $(id).modal('show'); }
-      else window.location.href = fallbackUrl;
-    };
-
-    if (what === 'agendamento') {
-      openModal('#md-agendamento','inicio.html'); // ou agenda.html, se preferir
-    }
-    if (what === 'paciente') {
-      openModal('#md-paciente','inicio.html');
-    }
-    if (what === 'orcamento') {
-      openModal('#md-orcamento','orcamentos.html');
-    }
-    if (what === 'procedimentos') {
-      window.location.href = 'procedimentos.html';
-    }
-    closeSheets();
-  });
-})();
-</script>
-
-<script>
-(function(){
-  const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,'');
-  const UL = document.getElementById('upcoming-list');
-
-  const qs = o => {
-    const p = new URLSearchParams();
-    Object.entries(o||{}).forEach(([k,v])=>{
-      if(v!==undefined && v!==null && v!=='') p.append(k, String(v));
-    });
-    return p.toString() ? '?' + p.toString() : '';
-  };
-
-  function labelData(startISO, allDay){
-    const d  = new Date(startISO);
-    const n  = new Date();
-    const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    const n0 = new Date(n.getFullYear(), n.getMonth(), n.getDate());
-    const diffDays = Math.round((d0 - n0)/86400000);
-
-    const hhmm = allDay ? '' : ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    if (diffDays === 0) return 'Hoje'    + hhmm;
-    if (diffDays === 1) return 'Amanhã'  + hhmm;
-    return d.toLocaleDateString('pt-BR', { weekday:'short' }) + hhmm; // ex: seg., ter., qua...
-  }
-
-  function render(items){
-    UL.innerHTML = '';
-    if(!items || !items.length){
-      UL.innerHTML = '<li class="py-2 text-muted">Sem próximos agendamentos</li>';
-      return;
-    }
-    items.forEach(ev=>{
-      const when = labelData(ev.start, ev.allDay);
-      const li = document.createElement('li');
-      li.className = 'py-2 border-bottom';
-      li.innerHTML = `
-        <i class="fa-regular fa-clock mr-2" style="color:#10b981"></i>
-        <strong>${when}</strong> – ${ev.title || '(sem título)'}
-      `;
-      UL.appendChild(li);
-    });
-  }
-
-  async function loadUpcoming(){
-    try{
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const url = API_BASE + 'odonto/appointments/day' + qs({ days: 7, limit: 3, tz });
-      const data = await CRMApi.getCalendarUpcoming({days:7, limit:3});
-      const data = await res.json();
-      const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
-      render(items);
-    }catch(err){
-      console.error(err);
-      UL.innerHTML = '<li class="py-2 text-danger">Erro ao carregar agenda</li>';
-    }
-  }
-
-  loadUpcoming();
-})();
-</script>
-
-<script>
-(function(){
-  const bar = document.getElementById('bbBar');
-  if(!bar) return;
-
-  const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]');
-  const tabMenu   = bar.querySelector('.bb-tab[data-act="menu"]');
-  const fab       = bar.querySelector('.bb-fab');
-  const morph     = document.getElementById('bbMorph');
-
-  // seus sheets existentes
-  const overlay = document.getElementById('crm-sheet-overlay');
-  const quick   = document.getElementById('crm-quick-sheet');
-  const menu    = document.getElementById('crm-menu-sheet');
-  const openSheet = el => { overlay?.classList.add('show'); el?.classList.add('show'); };
-  const closeSheets = () => { overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
-  overlay?.addEventListener('click', closeSheets);
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
-
-  function wave(){ try{ morph.beginElement(); }catch(e){} }
-  function bounce(el){
-    const i = el.querySelector('i'), s=el.querySelector('span');
-    i?.classList.remove('bb-bounce'); s?.classList.remove('bb-bounce');
-    void i?.offsetWidth; void s?.offsetWidth; // reflow
-    i?.classList.add('bb-bounce'); s?.classList.add('bb-bounce');
-  }
-  function setActive(btn){
-    [tabAgenda, tabMenu].forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  tabAgenda.addEventListener('click', ()=>{
-    setActive(tabAgenda); wave(); bounce(tabAgenda);
-    setTimeout(()=> location.href='agenda.html', 120);
-  });
-
-  tabMenu.addEventListener('click', ()=>{
-    setActive(tabMenu); wave(); bounce(tabMenu);
-    openSheet(menu);
-  });
-
-  fab.addEventListener('click', ()=>{
-    wave(); fab.classList.remove('bb-fab-pop'); void fab.offsetWidth; fab.classList.add('bb-fab-pop');
-    openSheet(quick);
-  });
-
-  // estado inicial
-  setActive(tabAgenda);
+  const app = document.querySelector('.crm-app');
+  const btn = document.getElementById('btn-sidebar');
+  const overlay = document.getElementById('crm-overlay');
+  function close(){ app.classList.remove('sidebar-open'); }
+  function toggle(){ app.classList.toggle('sidebar-open'); }
+  btn?.addEventListener('click', toggle);
+  overlay?.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  document.querySelectorAll('.crm-nav a').forEach(a => { a.addEventListener('click', close); });
 })();
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

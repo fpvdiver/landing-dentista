@@ -271,19 +271,18 @@
               </form>
             </div>
           </div>
-
-          <script>
-            /* ===== CONFIG ===== */
-      <script>
- 
+<!-- CERTO -->
+<script>
+  // ===== CONFIG =====
   const TZ = 'America/Sao_Paulo';
-
-  // availability fora do /odonto
   const AVAILABILITY_URL = 'https://primary-odonto.up.railway.app/webhook/availability';
-
-  // endpoint de criação de agendamento (o seu flow “book”)
   const BOOK_URL        = 'https://primary-odonto.up.railway.app/webhook/odonto/book';
+
+  // ===== HELPERS / STATE / RENDER =====
+  // (todo o resto do seu JS fica AQUI, no MESMO <script>, até fechar)
+  …
 </script>
+
 
 
             /* ===== HELPERS ===== */
@@ -551,10 +550,10 @@
   <!-- JS do tema -->
   <script src="js/custom.js"></script>
 
-  <!-- Google Maps (se o custom.js usa myMap) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap" async defer></script>
+
 </body>
 </html>
+
 
 
 

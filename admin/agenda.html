@@ -1070,7 +1070,7 @@ function renderReagendarSlots(container, withStatus){
   btnNext?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()+1, 1); renderMonth(); });
 
   // Bottom bar (mobile)
-  (function(){
+ (async function bootAgenda(){
     const bar = document.getElementById('bbBar'); if(!bar) return;
     const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]');
     const tabMenu   = bar.querySelector('.bb-tab[data-act="menu"]');
@@ -1092,7 +1092,7 @@ function renderReagendarSlots(container, withStatus){
   })();
 
   // Boot
-  dateInput.value = ymdToday();
+ dateInput.value = ymdToday();
   await renderMonth();
   await loadDay(true);
   await loadDayMobile();
@@ -1100,6 +1100,7 @@ function renderReagendarSlots(container, withStatus){
 </script>
 </body>
 </html>
+
 
 
 

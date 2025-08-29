@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="css/crm.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Sidebar -->
   <script src="js/sidebar.js" defer></script>
 </head>
 <body data-page="inicio">
@@ -21,7 +22,7 @@
       </div>
     </div>
 
-    <!-- ID da organização -->
+    <!-- ID da organização (fonte única) -->
     <input type="hidden" id="org-id" value="6f8b8f6b-1e34-4d3f-9bcd-9b0acb5f0abc" />
 
     <nav class="crm-nav">
@@ -44,8 +45,12 @@
   <!-- overlay mobile -->
   <div class="crm-overlay" id="crm-overlay"></div>
 
+  <!-- MAIN -->
   <main class="crm-main">
-
+    <!-- Burger (mobile) -->
+    <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
 
     <section class="crm-hero">
       <h1 class="text-center mb-1">O que você quer fazer hoje?</h1>
@@ -61,26 +66,24 @@
       </div>
       <div class="search-hint">Dica: “@amanhã” ou “#implante”.</div>
       <div class="crm-quick container-fluid">
-        <div class="crm-chip" data-open="#md-agendamento"><i class="fa-regular fa-calendar-plus"></i> Novo agendamento</div>
-        <div class="crm-chip" data-open="#md-paciente"><i class="fa-regular fa-user"></i> Novo paciente</div>
-        <div class="crm-chip" data-open="#md-orcamento"><i class="fa-regular fa-clipboard"></i> Novo orçamento</div>
-        <div class="crm-chip" data-open="#md-procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</div>
+        <div class="crm-chip"><i class="fa-regular fa-calendar-plus"></i> Novo agendamento</div>
+        <div class="crm-chip"><i class="fa-regular fa-user"></i> Novo paciente</div>
+        <div class="crm-chip"><i class="fa-regular fa-clipboard"></i> Novo orçamento</div>
+        <div class="crm-chip"><i class="fa-solid fa-tooth"></i> Procedimentos</div>
       </div>
     </section>
 
     <section class="crm-content">
       <div class="row">
         <div class="col-lg-6 mb-3">
-         <div class="crm-card">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <div class="font-weight-bold">Próximos agendamentos</div>
-    <a href="agenda.html" class="btn btn-sm btn-outline-secondary btn-pill">Ver agenda</a>
-  </div>
-  <ul class="list-unstyled mb-0" id="upcoming-list">
-    <li class="py-2 text-muted">Carregando…</li>
-  </ul>
-</div>
-
+          <div class="crm-card">
+            <div class="crm-head-row"><h5 class="mb-0">Registros recentes</h5></div>
+            <ul class="list-unstyled mb-0">
+              <li class="py-2 border-bottom"><span class="badge-soft bg-soft-green mr-2">Agendado</span> Implante – Emiliane • 23/08 16:45</li>
+              <li class="py-2 border-bottom"><span class="badge-soft bg-soft-amber mr-2">Pré-agendamento</span> Clareamento – Felipe • 22/08 17:00</li>
+              <li class="py-2"><span class="badge-soft bg-soft-purple mr-2">Contato</span> Avaliação – Fúlvio • 21/08 18:00</li>
+            </ul>
+          </div>
         </div>
         <div class="col-lg-6 mb-3">
           <div class="crm-card mb-3">
@@ -108,7 +111,7 @@
   </main>
 </div>
 
-<!-- ====== MODAIS ====== -->
+<!-- ====== MODAIS – INÍCIO ====== -->
 <style>
   .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
   .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
@@ -127,20 +130,14 @@
         <h5 class="modal-title"><i class="fa-regular fa-calendar-plus mr-2"></i>Novo agendamento</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
       </div>
-
       <form id="form-agendamento">
         <div class="modal-body">
           <div class="form-section-title">Paciente</div>
           <div class="form-row">
-            <div class="form-group col-md-8 position-relative">
+            <div class="form-group col-md-8">
               <label>Nome do paciente</label>
-              <input id="ag-paciente" class="form-control" name="paciente"
-                     placeholder="Digite para buscar ou cadastrar" autocomplete="off">
-              <input type="hidden" name="patient_id" id="ag-paciente-id">
-              <div id="ag-paciente-picked" class="paciente-selected d-none">
-                Selecionado: <span class="sel-name"></span>
-                <a id="ag-paciente-trocar">Trocar</a>
-              </div>
+              <input list="dl-pacientes" class="form-control" name="paciente" placeholder="Digite para buscar ou cadastrar">
+              <datalist id="dl-pacientes"></datalist>
             </div>
             <div class="form-group col-md-4 d-flex align-items-end">
               <button type="button" class="btn btn-outline-secondary btn-pill w-100" data-toggle="modal" data-target="#md-paciente">
@@ -170,57 +167,41 @@
           <div class="form-row">
             <div class="form-group col-md-5">
               <label>Procedimento</label>
-              <!-- será preenchido pelo JS com os procedimentos do banco -->
-              <select class="form-control" name="proc" id="ag-proc"></select>
-            </div>
-
-            <div class="form-group col-md-3">
-              <label>Data</label>
-              <input type="date" class="form-control" name="date" id="ag-date" required>
-            </div>
-
-            <div class="form-group col-md-2">
-              <label>Hora</label>
-              <!-- será preenchido com os horários disponíveis -->
-              <select class="form-control" name="time" id="ag-time" required>
-                <option value="">Selecione a data…</option>
+              <select class="form-control" name="proc" id="ag-proc">
+                <option value="Profilaxia" data-dur="30">Profilaxia</option>
+                <option value="Clareamento" data-dur="60">Clareamento</option>
+                <option value="Endodontia" data-dur="60">Endodontia</option>
+                <option value="Implante unitário" data-dur="90">Implante unitário</option>
               </select>
             </div>
-
+            <div class="form-group col-md-3">
+              <label>Data</label>
+              <input type="date" class="form-control" name="date" required>
+            </div>
+            <div class="form-group col-md-2">
+              <label>Hora</label>
+              <input type="time" class="form-control" name="time" step="1800" required>
+            </div>
             <div class="form-group col-md-2">
               <label>Duração</label>
               <select class="form-control" name="dur" id="ag-dur">
-                <option value="60">1 h</option>
-                <option value="120">2 h</option>
-                <option value="180">3 h</option>
-                <option value="240">4 h</option>
+                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
               </select>
             </div>
           </div>
 
-       <div class="form-row">
-  <div class="form-group col-md-4">
-    <label>Clínica</label>
-    <select class="form-control" name="clinic" id="ag-clinic">
-      <option value="Principal" selected>Clínica principal</option>
-      <!-- adicione mais opções se tiver multi-unidades -->
-      <!-- <option value="Unidade Moema">Unidade Moema</option> -->
-    </select>
-  </div>
-
-  <div class="form-group col-md-4">
-    <label>Dentista</label>
-    <select class="form-control" name="doctor" id="ag-doctor">
-      <option>Dra. Elen Nogata</option>
-    </select>
-  </div>
-
-  <div class="form-group col-md-4">
-    <label>Observações</label>
-    <input class="form-control" name="notes" placeholder="Anote algo importante (opcional)">
-  </div>
-</div>
-
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Dentista</label>
+              <select class="form-control" name="doctor">
+                <option>Dra. Elen Nogata</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Observações</label>
+              <input class="form-control" name="notes" placeholder="Anote algo importante (opcional)">
+            </div>
+          </div>
 
           <div class="d-flex align-items-center justify-content-between">
             <div>
@@ -234,8 +215,8 @@
             </div>
           </div>
         </div>
-
         <div class="modal-footer">
+          <input type="hidden" id="ag-patient-id" name="patient_id" />
           <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
           <button class="btn btn-outline-secondary btn-pill" type="button" id="agendar-salvar">Salvar</button>
           <button class="btn btn-primary btn-pill" type="submit" id="agendar-enviar">Salvar & Enviar</button>
@@ -244,7 +225,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- md: NOVO PACIENTE -->
 <div class="modal fade" id="md-paciente" tabindex="-1" aria-hidden="true">
@@ -255,6 +235,7 @@
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <form id="form-paciente">
+        <!-- o org-id é injetado via JS a partir do hidden da sidebar -->
         <div class="modal-body">
           <div class="form-row">
             <div class="form-group col-md-8">
@@ -336,7 +317,6 @@
             <div class="form-group col-md-5">
               <label>Paciente</label>
               <input list="dl-pacientes" class="form-control" name="paciente" required>
-              <datalist id="dl-pacientes"></datalist>
             </div>
             <div class="form-group col-md-3">
               <label>Validade</label>
@@ -414,65 +394,30 @@
     </div>
   </div>
 </div>
-
-<!-- md: PROCEDIMENTOS -->
-<div class="modal fade" id="md-procedimentos" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header themed">
-        <h5 class="modal-title"><i class="fa-solid fa-tooth mr-2"></i>Procedimentos</h5>
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-      </div>
-      <div class="modal-body">
-        <div class="table-responsive">
-          <table class="table table-mini mb-3" id="proc-table">
-            <thead>
-              <tr><th>Nome</th><th>Duração</th><th>Preço (R$)</th><th>Código</th><th style="width:60px"></th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <div class="crm-card">
-          <div class="form-row">
-            <div class="form-group col-md-5"><label>Nome</label><input class="form-control" id="proc-name"></div>
-            <div class="form-group col-md-2"><label>Duração</label>
-              <select class="form-control" id="proc-dur">
-                <option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option>
-              </select>
-            </div>
-            <div class="form-group col-md-3"><label>Preço</label><input type="number" class="form-control" id="proc-price" step="0.01" value="0"></div>
-            <div class="form-group col-md-2"><label>Código</label><input class="form-control" id="proc-code" placeholder="EX-001"></div>
-          </div>
-          <button class="btn btn-primary btn-pill" id="proc-add"><i class="fa-solid fa-plus mr-1"></i> Adicionar</button>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Fechar</button>
-      </div>
-    </div>
-  </div>
-</div>
 <!-- ====== MODAIS – FIM ====== -->
 
 <script>
-/* ===== dados locais para orçamento (fallback) ===== */
-const PROC_PRECOS = { "Profilaxia":150, "Clareamento":1200, "Endodontia":2900, "Implante unitário":4500 };
+/* ===== Mini “dados” locais para preço de procedimentos ===== */
+const PROC_PRECOS = {
+  "Profilaxia": 150.00,
+  "Clareamento": 1200.00,
+  "Endodontia": 2900.00,
+  "Implante unitário": 4500.00
+};
 
-/* ===== abrir modais com segurança ===== */
-function openModal(id){
-  try{ $('.modal.show').modal('hide'); }catch(e){}
-  document.querySelector('.crm-app')?.classList.remove('sidebar-open');
-  setTimeout(()=>{ $(id).modal('show'); }, 150);
-}
-
+/* ===== Wire chips -> abrir modais ===== */
 document.addEventListener('DOMContentLoaded', () => {
-  /* chips -> modais */
-  document.querySelectorAll('.crm-chip[data-open]').forEach(ch=>{
-    ch.addEventListener('click', ()=> openModal(ch.getAttribute('data-open')));
+  document.querySelectorAll('.crm-chip').forEach(ch=>{
+    const label = ch.textContent.trim().toLowerCase();
+    ch.addEventListener('click', ()=>{
+      if(label.includes('agendamento')) $('#md-agendamento').modal('show');
+      else if(label.includes('paciente')) $('#md-paciente').modal('show');
+      else if(label.includes('orçamento')) $('#md-orcamento').modal('show');
+      else if(label.includes('procedimentos')) $('#md-procedimentos').modal('show');
+    });
   });
 
-  /* duração padrão por procedimento (fallback) */
+  /* Agendamento: duração padrão por procedimento */
   const agProc = document.getElementById('ag-proc');
   const agDur  = document.getElementById('ag-dur');
   if(agProc && agDur){
@@ -483,18 +428,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setDur(); agProc.addEventListener('change', setDur);
   }
 
-  /* Orçamento – linhas dinâmicas (fallback se API de procedimentos ainda não carregou) */
+  /* Orçamento – tabela dinâmica */
   const tbody = document.querySelector('#orc-table tbody');
   const addRow = () => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><select class="form-control orc-proc">
-        ${Object.entries(PROC_PRECOS).map(([n,v])=>`<option value="${n}" data-price="${v}">${n}</option>`).join('')}
-      </select></td>
+      <td>
+        <select class="form-control orc-proc">
+          ${Object.entries(PROC_PRECOS).map(([n,v])=>`<option value="${n}" data-price="${v}">${n}</option>`).join('')}
+        </select>
+      </td>
       <td class="text-center"><input type="number" class="form-control form-control-sm orc-qtd" value="1" min="1"></td>
       <td><input type="number" class="form-control form-control-sm orc-unit" step="0.01" value="0"></td>
       <td class="orc-sub text-right">0,00</td>
-      <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>`;
+      <td class="text-right"><button class="btn btn-sm btn-outline-secondary btn-pill orc-del">&times;</button></td>
+    `;
     tbody.appendChild(tr);
     const select = tr.querySelector('.orc-proc');
     const unit   = tr.querySelector('.orc-unit');
@@ -512,43 +460,59 @@ document.addEventListener('DOMContentLoaded', () => {
       subtotal += sub;
     });
     document.getElementById('orc-subtotal').textContent = toBRL(subtotal);
+
     const dval = Number(document.getElementById('orc-desc').value || 0);
     const dtype= document.getElementById('orc-desc-type').value;
     const desconto = (dtype==='pct') ? subtotal*(dval/100) : dval;
     const total = Math.max(0, subtotal - desconto);
     document.getElementById('orc-total').textContent = toBRL(total);
   };
-  document.getElementById('orc-add')?.addEventListener('click', addRow);
+  document.getElementById('orc-add').addEventListener('click', addRow);
   ['change','input'].forEach(ev=>{
-    document.getElementById('orc-desc')?.addEventListener(ev, calc);
-    document.getElementById('orc-desc-type')?.addEventListener(ev, calc);
+    document.getElementById('orc-desc').addEventListener(ev, calc);
+    document.getElementById('orc-desc-type').addEventListener(ev, calc);
   });
-  document.querySelector('#orc-table tbody')?.addEventListener('input', e=>{
+  tbody.addEventListener('input', e=>{
     if(e.target.classList.contains('orc-proc')){
       const unit = e.target.closest('tr').querySelector('.orc-unit');
       unit.value = Number(e.target.selectedOptions[0].dataset.price || 0).toFixed(2);
     }
     calc();
   });
-  document.querySelector('#orc-table tbody')?.addEventListener('click', e=>{
+  tbody.addEventListener('click', e=>{
     if(e.target.classList.contains('orc-del')){
       e.preventDefault(); e.target.closest('tr').remove(); calc();
     }
   });
-  if (tbody && tbody.children.length===0) addRow();
+  addRow();
+
+  /* Submissões mock (mantidas) */
+  document.getElementById('form-agendamento').addEventListener('submit', e=>{
+    e.preventDefault();
+    $('#md-agendamento').modal('hide');
+    alert('Agendamento salvo e enviado ✅');
+  });
+  document.getElementById('form-orc').addEventListener('submit', e=>{
+    e.preventDefault();
+    $('#md-orcamento').modal('hide');
+    alert('Orçamento finalizado/enviado ✅');
+  });
 });
 </script>
 
-<!-- Sidebar mobile -->
 <script>
+/* Sidebar mobile */
 (function () {
   const app = document.querySelector('.crm-app');
   const btn = document.getElementById('btn-sidebar');
   const overlay = document.getElementById('crm-overlay');
+
   function close(){ app.classList.remove('sidebar-open'); }
   function toggle(){ app.classList.toggle('sidebar-open'); }
+
   btn?.addEventListener('click', toggle);
   overlay?.addEventListener('click', close);
+
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
   document.querySelectorAll('.crm-nav a').forEach(a => { a.addEventListener('click', close); });
 })();
@@ -558,394 +522,161 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="../js/jquery-3.4.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
 
-<!-- Config n8n -->
+<!-- Config do n8n + API helpers -->
 <script>
-  window.CRM_API_BASE = 'https://primary-odonto.up.railway.app/webhook';
-  // window.CRM_API_KEY = '...';
+  // ajuste se precisar (sem barra no final)
+  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
+  // opcional: window.CRM_API_KEY = '...';
 </script>
 <script src="js/crm-api.js"></script>
 
+<!-- ===== Auto-preencher paciente no agendamento + salvar paciente real ===== -->
 <script>
+/* util */
+function debounce(fn, wait=220){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
+
+/* cache de pacientes para o datalist */
+let PATIENT_CACHE = new Map();
+
+/* Renderiza <option> no datalist e popula cache */
+function renderPatientsIntoDatalist(list){
+  const dl = document.getElementById('dl-pacientes');
+  if(!dl) return;
+  PATIENT_CACHE = PATIENT_CACHE || new Map();
+  const opts = [];
+  for(const p of (list||[])){
+    if(p?.id) PATIENT_CACHE.set(p.id, p);
+    opts.push(
+      `<option value="${(p.full_name||p.name||'').replace(/"/g,'&quot;')}"
+               data-id="${(p.id||'').replace(/"/g,'&quot;')}"
+               data-phone="${(p.phone||'').replace(/"/g,'&quot;')}"
+               data-email="${(p.email||'').replace(/"/g,'&quot;')}">`
+    );
+  }
+  dl.innerHTML = opts.join('');
+}
+
+/* Busca inicial + incremental, hidrata formulário de agendamento */
+async function setupPatientsDatalist(){
+  const formAg = document.getElementById('form-agendamento');
+  const input  = formAg?.querySelector('input[name="paciente"]');
+  const dl     = document.getElementById('dl-pacientes');
+  const phone  = formAg?.querySelector('input[name="phone"]');
+  const email  = formAg?.querySelector('input[name="email"]');
+  const canal  = formAg?.querySelector('select[name="channel"]');
+  const hidden = document.getElementById('ag-patient-id');
+
+  if(!formAg || !input || !dl || !hidden) return;
+
+  // 1) lista inicial
+  try{
+    const first = await (typeof listPatients==='function' ? listPatients(50) : []);
+    renderPatientsIntoDatalist(first);
+  }catch(e){ console.warn('listPatients falhou', e); }
+
+  // 2) busca incremental ao digitar (mín. 2 chars)
+  input.addEventListener('input', debounce(async ()=>{
+    const q = input.value.trim();
+    if(q.length < 2) return;
+    try{
+      const res = await (typeof searchPatients==='function' ? searchPatients(q) : []);
+      renderPatientsIntoDatalist(res);
+    }catch(e){ console.warn('searchPatients falhou', e); }
+  }));
+
+  // 3) quando selecionar/preencher, hidrata
+  function selectedPatient(){
+    const val = input.value.trim().toLowerCase();
+    if(!val) return null;
+    const opt = Array.from(dl.options).find(o => o.value.trim().toLowerCase() === val);
+    if(!opt) return null;
+    const id = opt.dataset.id;
+    return (id && PATIENT_CACHE.get(id)) || null;
+  }
+  function hydrate(){
+    const p = selectedPatient();
+    if(!p){ hidden.value=''; return; }
+    hidden.value = p.id || '';
+    if(phone && !phone.value) phone.value = p.phone || '';
+    if(email && !email.value) email.value = p.email || '';
+    if(canal && !canal.value){
+      if(p.phone) canal.value = 'WhatsApp';
+      else if(p.email) canal.value = 'E-mail';
+    }
+  }
+  input.addEventListener('change', hydrate);
+  input.addEventListener('blur', hydrate);
+}
+
+/* Submissão REAL do paciente: Supabase via n8n */
 document.addEventListener('DOMContentLoaded', ()=>{
-  const ORG_ID = document.getElementById('org-id')?.value;
-  // Preenche o select de procedimentos e configura a duração
-  CRMApi.loadProceduresSelect({
-    select:'#ag-proc',
-    dur:'#ag-dur',
-    orgId: ORG_ID
-  });
-});
-</script>
+  const formPac = document.getElementById('form-paciente');
+  const orgHidden = document.getElementById('org-id');
 
+  // injeta org_id do header no modal (fonte única)
+  const ORG_ID = orgHidden?.value || '00000000-0000-0000-0000-000000000000';
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const f   = document.getElementById('form-agendamento');
-  const dt  = document.getElementById('ag-date');
-  const time= document.getElementById('ag-time');
-  const dur = document.getElementById('ag-dur');
-  const doc = document.getElementById('ag-doctor');
+  // CEP -> auto-preenchimento (se sua helper existir)
+  if (formPac && typeof attachCepAutofill === 'function') attachCepAutofill(formPac);
 
-  async function refreshTimes(){
-    const date = dt.value;
-    if (!date) return;
-    time.innerHTML = '<option>Carregando…</option>';
-    try{
-      const bag   = await CRMApi.getAppointmentsByDay(date, doc?.value);
-      const slots = CRMApi.computeAvailableSlots(bag, Number(dur.value || 60));
-      time.innerHTML = slots.length
-        ? slots.map(t=>`<option value="${t}">${t}</option>`).join('')
-        : '<option value="">Sem horários disponíveis</option>';
-    }catch(err){
-      console.error(err);
-      time.innerHTML = '<option value="">Erro ao carregar</option>';
-    }
-  }
+  // prepara datalist
+  setupPatientsDatalist();
 
-  dt?.addEventListener('change', refreshTimes);
-  dur?.addEventListener('change', refreshTimes);
-  doc?.addEventListener('change', refreshTimes);
-
-  // Procedimento define sugestão de duração se houver no banco (data-dur)
-  document.getElementById('ag-proc')?.addEventListener('change', (e)=>{
-    const d = parseInt(e.target.selectedOptions[0]?.dataset?.dur || '60', 10);
-    if ([60,120,180,240].includes(d)) { dur.value = String(d); refreshTimes(); }
-  });
-
-  // Envio real do agendamento (duração em minutos)
-  f?.addEventListener('submit', async (e)=>{
+  // submit real
+  formPac?.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const procOpt = document.getElementById('ag-proc')?.selectedOptions[0];
+    const f = e.target;
     const payload = {
-      paciente: f.paciente?.value || '',
-      phone:    f.phone?.value || null,
-      email:    f.email?.value || null,
-      canalPreferido: f.channel?.value || 'WhatsApp',
-      procedimento:   f.proc?.value || procOpt?.value || '',
-      procedimentoId: procOpt?.dataset?.id || null,
-      data:      f.date?.value || null,
-      hora:      f.time?.value || null,
-      duracaoMin: Number(f.dur?.value || 60),
-      dentista:  f.doctor?.value || '',
-      obs:       f.notes?.value || '',
-      confirmar: document.getElementById('ag-status')?.checked || false,
-      enviar:{
-        whatsapp: f.querySelector('[name="send_whats"]')?.checked || false,
-        email:    f.querySelector('[name="send_mail"]')?.checked  || false,
-        sms:      f.querySelector('[name="send_sms"]')?.checked   || false
+      org_id: ORG_ID,
+      full_name: f.name.value.trim(),
+      cpf:  f.cpf.value.trim() || null,
+      dob:  f.dob.value || null,
+      sex:  f.gender.value || null,
+      phone:f.phone.value || null,
+      email:f.email.value || null,
+      address:{
+        cep: f.cep.value || null, street:f.street.value || null, number:f.number.value || null,
+        district:f.district.value || null, city:f.city.value || null, uf:f.uf.value || null
+      },
+      source: f.source.value || null,
+      notes:  f.notes.value  || null
+    };
+
+    try{
+      const btn = f.querySelector('[type="submit"]');
+      btn?.setAttribute('disabled','disabled');
+
+      const saved = await upsertPaciente(payload);
+      $('#md-paciente').modal('hide');
+      alert(`Paciente salvo: ${saved?.full_name || payload.full_name} ✅`);
+
+      // Recarrega o datalist e já preenche o agendamento
+      setupPatientsDatalist();
+
+      const agForm = document.getElementById('form-agendamento');
+      if (agForm){
+        agForm.querySelector('input[name="paciente"]').value = saved?.full_name || payload.full_name;
+        agForm.querySelector('input[name="phone"]').value    = saved?.phone || payload.phone || '';
+        agForm.querySelector('input[name="email"]').value    = saved?.email || payload.email || '';
+        const canalSel = agForm.querySelector('select[name="channel"]');
+        if (canalSel){
+          if(saved?.phone) canalSel.value = 'WhatsApp';
+          else if(saved?.email) canalSel.value = 'E-mail';
+        }
+        const hidden = document.getElementById('ag-patient-id');
+        if(hidden) hidden.value = saved?.id || '';
+        // volta para o modal de agendamento se quiser já marcar horário
+        $('#md-agendamento').modal('show');
       }
-    };
-    try{
-      const resp = await CRMApi.createAppointment(payload);
-      $('#md-agendamento').modal('hide');
-      alert(`Agendamento #${resp?.id||'—'} salvo ✅`);
-    }catch(err){ alert(err.message); }
-  });
-});
-</script>
-
-
-<!-- Autocomplete + Trocar paciente -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  CRMApi.bindPatientAutocomplete({
-    input: '#ag-paciente',
-    onSelect(patient){ CRMApi.fillAgendamentoFromPatient(patient); },
-    onCreateNew(query){
-      openModal('#md-paciente');
-      const form = document.getElementById('form-paciente');
-      form?.querySelector('[name="name"]').focus();
-      if (query) form.querySelector('[name="name"]').value = query;
-    }
-  });
-
-  document.getElementById('ag-paciente-trocar')?.addEventListener('click', (e)=>{
-    e.preventDefault();
-    CRMApi.clearAgendamentoPatient();
-    document.getElementById('ag-paciente').focus();
-  });
-
-  // Garantia: se abrir qualquer modal via data-target, feche a sidebar
-  $(document).on('show.bs.modal', '.modal', function(){
-    document.querySelector('.crm-app')?.classList.remove('sidebar-open');
-  });
-});
-</script>
-
-<!-- Overlay para sheets -->
-<div id="crm-sheet-overlay" class="crm-sheet-overlay"></div>
-
-<!-- Action Sheet: Atalhos do botão "+" -->
-<div id="crm-quick-sheet" class="crm-action-sheet">
-  <div class="sheet-header">Ações rápidas</div>
-  <button class="sheet-item" data-quick="agendamento">
-    <i class="fa-regular fa-calendar-plus"></i> Novo agendamento
-  </button>
-  <button class="sheet-item" data-quick="paciente">
-    <i class="fa-regular fa-user"></i> Novo paciente
-  </button>
-  <button class="sheet-item" data-quick="orcamento">
-    <i class="fa-regular fa-clipboard"></i> Novo orçamento
-  </button>
-  <button class="sheet-item" data-quick="procedimentos">
-    <i class="fa-solid fa-tooth"></i> Procedimentos
-  </button>
-</div>
-
-<!-- Action Sheet: Atalhos do botão "Lista" -->
-<div id="crm-menu-sheet" class="crm-action-sheet">
-  <div class="sheet-header">Ir para</div>
-  <a class="sheet-item" href="inicio.html"><i class="fa-solid fa-house"></i> Início</a>
-  <a class="sheet-item" href="agenda.html"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
-  <a class="sheet-item" href="pacientes.html"><i class="fa-regular fa-user"></i> Pacientes</a>
-  <a class="sheet-item" href="orcamentos.html"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
-  <a class="sheet-item" href="procedimentos.html"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
-  <a class="sheet-item" href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
-</div>
-
-<!-- BOTTOM BAR • DRIBBBLE-LIKE -->
-<nav class="bb-dribbble" id="bbBar" aria-label="Navegação rápida">
-  <!-- fundo com onda + notch -->
-  <svg class="bb-bg" viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <filter id="bbShadow" x="-20%" y="-50%" width="140%" height="200%">
-        <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="rgba(15,23,42,.10)"/>
-        <feDropShadow dx="0" dy="4"  stdDeviation="6"  flood-color="rgba(15,23,42,.08)"/>
-      </filter>
-    </defs>
-
-    <!-- Path com notch (estado “em repouso”) -->
-    <path id="bbPath" class="bb-path" filter="url(#bbShadow)"
-      d="M18,26
-         H360
-         C420,26 440,6 500,6
-         C560,6 580,26 640,26
-         H982 Q994,26 994,38 V140
-         Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
-
-    <!-- Morph da onda ao tocar -->
-    <animate id="bbMorph" xlink:href="#bbPath" attributeName="d" dur="420ms" fill="freeze"
-      values="
-        M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
-        M18,26 H330 C400,26 440,-18 500,-18 C560,-18 600,26 670,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
-        M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z
-      " />
-  </svg>
-
-  <!-- Slots (mesma “placa”, sem borda) -->
-  <button class="bb-tab" data-act="agenda" aria-label="Agenda">
-    <i class="fa-regular fa-calendar-days"></i>
-    <span>Agenda</span>
-  </button>
-
-  <button class="bb-fab" data-act="quick" aria-label="Ações rápidas">
-    <i class="fa-solid fa-plus"></i>
-  </button>
-
-  <button class="bb-tab" data-act="menu" aria-label="Menu">
-    <i class="fa-solid fa-list-ul"></i>
-    <span>Menu</span>
-  </button>
-</nav>
-
-
-<script>
-(function () {
-  const bar     = document.getElementById('crm-bottombar');
-  const overlay = document.getElementById('crm-sheet-overlay');
-  const quick   = document.getElementById('crm-quick-sheet');
-  const menu    = document.getElementById('crm-menu-sheet');
-
-  if (!bar) return;
-
-  const openSheet = sheet => {
-    closeSheets();
-    overlay.classList.add('show');
-    sheet.classList.add('show');
-  };
-  const closeSheets = () => {
-    overlay.classList.remove('show');
-    quick.classList.remove('show');
-    menu.classList.remove('show');
-  };
-
-  // Navegação dos botões principais
-  bar.addEventListener('click', (e) => {
-    const act = e.target.closest('button')?.dataset?.act;
-    if (!act) return;
-
-    if (act === 'agenda') {
-      window.location.href = 'agenda.html';
-    } else if (act === 'menu') {
-      openSheet(menu);
-    } else if (act === 'quick') {
-      openSheet(quick);
-    }
-  });
-
-  // Fecha overlay
-  overlay.addEventListener('click', closeSheets);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheets(); });
-
-  // Ações rápidas (+)
-  quick.addEventListener('click', (e)=>{
-    const btn = e.target.closest('[data-quick]');
-    if(!btn) return;
-    const what = btn.dataset.quick;
-
-    const openModal = (id, fallbackUrl) => {
-      if (window.$ && $(id).length) { $(id).modal('show'); }
-      else window.location.href = fallbackUrl;
-    };
-
-    if (what === 'agendamento') {
-      openModal('#md-agendamento','inicio.html'); // ou agenda.html, se preferir
-    }
-    if (what === 'paciente') {
-      openModal('#md-paciente','inicio.html');
-    }
-    if (what === 'orcamento') {
-      openModal('#md-orcamento','orcamentos.html');
-    }
-    if (what === 'procedimentos') {
-      window.location.href = 'procedimentos.html';
-    }
-    closeSheets();
-  });
-})();
-</script>
-
-<script>
-(function(){
-  const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,'');
-  const UL = document.getElementById('upcoming-list');
-
-  const qs = o => {
-    const p = new URLSearchParams();
-    Object.entries(o||{}).forEach(([k,v])=>{
-      if(v!==undefined && v!==null && v!=='') p.append(k, String(v));
-    });
-    return p.toString() ? '?' + p.toString() : '';
-  };
-
-  function labelData(startISO, allDay){
-    const d  = new Date(startISO);
-    const n  = new Date();
-    const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    const n0 = new Date(n.getFullYear(), n.getMonth(), n.getDate());
-    const diffDays = Math.round((d0 - n0)/86400000);
-
-    const hhmm = allDay ? '' : ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    if (diffDays === 0) return 'Hoje'    + hhmm;
-    if (diffDays === 1) return 'Amanhã'  + hhmm;
-    return d.toLocaleDateString('pt-BR', { weekday:'short' }) + hhmm; // ex: seg., ter., qua...
-  }
-
-  function render(items){
-    UL.innerHTML = '';
-    if(!items || !items.length){
-      UL.innerHTML = '<li class="py-2 text-muted">Sem próximos agendamentos</li>';
-      return;
-    }
-    items.forEach(ev=>{
-      const when = labelData(ev.start, ev.allDay);
-      const li = document.createElement('li');
-      li.className = 'py-2 border-bottom';
-      li.innerHTML = `
-        <i class="fa-regular fa-clock mr-2" style="color:#10b981"></i>
-        <strong>${when}</strong> – ${ev.title || '(sem título)'}
-      `;
-      UL.appendChild(li);
-    });
-  }
-
-  async function loadUpcoming(){
-    try{
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const url = API_BASE + 'odonto/appointments/day' + qs({ days: 7, limit: 3, tz });
-      const data = await CRMApi.getCalendarUpcoming({days:7, limit:3});
-      const data = await res.json();
-      const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
-      render(items);
     }catch(err){
       console.error(err);
-      UL.innerHTML = '<li class="py-2 text-danger">Erro ao carregar agenda</li>';
+      alert(err.message || 'Erro ao salvar paciente');
+    }finally{
+      formPac.querySelector('[type="submit"]')?.removeAttribute('disabled');
     }
-  }
-
-  loadUpcoming();
-})();
-</script>
-
-<script>
-(function(){
-  const bar = document.getElementById('bbBar');
-  if(!bar) return;
-
-  const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]');
-  const tabMenu   = bar.querySelector('.bb-tab[data-act="menu"]');
-  const fab       = bar.querySelector('.bb-fab');
-  const morph     = document.getElementById('bbMorph');
-
-  // seus sheets existentes
-  const overlay = document.getElementById('crm-sheet-overlay');
-  const quick   = document.getElementById('crm-quick-sheet');
-  const menu    = document.getElementById('crm-menu-sheet');
-  const openSheet = el => { overlay?.classList.add('show'); el?.classList.add('show'); };
-  const closeSheets = () => { overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
-  overlay?.addEventListener('click', closeSheets);
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
-
-  function wave(){ try{ morph.beginElement(); }catch(e){} }
-  function bounce(el){
-    const i = el.querySelector('i'), s=el.querySelector('span');
-    i?.classList.remove('bb-bounce'); s?.classList.remove('bb-bounce');
-    void i?.offsetWidth; void s?.offsetWidth; // reflow
-    i?.classList.add('bb-bounce'); s?.classList.add('bb-bounce');
-  }
-  function setActive(btn){
-    [tabAgenda, tabMenu].forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  tabAgenda.addEventListener('click', ()=>{
-    setActive(tabAgenda); wave(); bounce(tabAgenda);
-    setTimeout(()=> location.href='agenda.html', 120);
   });
-
-  tabMenu.addEventListener('click', ()=>{
-    setActive(tabMenu); wave(); bounce(tabMenu);
-    openSheet(menu);
-  });
-
-  fab.addEventListener('click', ()=>{
-    wave(); fab.classList.remove('bb-fab-pop'); void fab.offsetWidth; fab.classList.add('bb-fab-pop');
-    openSheet(quick);
-  });
-
-  // estado inicial
-  setActive(tabAgenda);
-})();
+});
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

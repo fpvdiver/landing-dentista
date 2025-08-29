@@ -425,7 +425,7 @@
 
 <!-- Config da API -->
 <script>
-  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
+  window.CRM_API_BASE = 'https://primary-odonto.up.railway.app/webhook/odonto';
   window.TIMEZONE     = 'America/Sao_Paulo';
   if (!window.CRM_AVAILABILITY && window.CRM_API_BASE) {
     window.CRM_AVAILABILITY = window.CRM_API_BASE.replace(/\/odonto$/, '') + '/availability';
@@ -1100,5 +1100,6 @@ function renderReagendarSlots(container, withStatus){
 </script>
 </body>
 </html>
+
 
 

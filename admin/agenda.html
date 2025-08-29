@@ -74,6 +74,15 @@
     .drop-target{outline:2px dashed var(--drop);outline-offset:-6px;background:rgba(96,165,250,.06)}
     @media (max-width: 991.98px){ .drag-handle{display:none} } /* evita DnD no mobile */
   </style>
+
+  <style>
+  /* bottom bar visível só no mobile */
+  .bb-dribbble{display:none}
+  @media (max-width: 991.98px){
+    .bb-dribbble{display:flex}
+  }
+</style>
+
 </head>
 
 <body data-page="agenda">
@@ -1074,3 +1083,4 @@ function renderReagendarSlots(container, withStatus){
 </script>
 </body>
 </html>
+

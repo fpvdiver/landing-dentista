@@ -239,6 +239,98 @@
 .bk-spinner{width:1rem;height:1rem;border:.18rem solid #fff;border-right-color:transparent;border-radius:50%;display:inline-block;animation:bkspin .7s linear infinite;vertical-align:-2px}
 @keyframes bkspin{to{transform:rotate(360deg)}}
 
+
+            /* ===== Botões responsivos da área de agendamento ===== */
+:root{
+  --btn-radius: 999px;
+  --btn-height: 52px;
+  --btn-gap: 12px;
+}
+
+.bk-actions{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--btn-gap);
+  margin-top: .5rem;
+}
+
+/* base */
+.bk-actions .btnAgendar,
+.bk-actions .btnAgendarwpp{
+  flex: 1 1 240px;               /* cresce e encolhe; base ~240px */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 22px;
+  border-radius: var(--btn-radius);
+  font-weight: 700;
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;           /* evita quebrar no desktop */
+  border: 1px solid transparent;
+  box-shadow: 0 8px 20px rgba(15,23,42,.06);
+  transition: transform .06s ease, box-shadow .2s ease, background-color .2s ease, opacity .2s;
+  user-select: none;
+}
+
+/* variações de cor */
+.bk-actions .btnAgendar{
+  background: #fbbf24;           /* amarelo */
+  color: #111827;
+}
+.bk-actions .btnAgendar:hover{ background:#f59e0b; }
+.bk-actions .btnAgendarwpp{
+  background:#25D366;            /* WhatsApp */
+  color:#fff;
+}
+.bk-actions .btnAgendarwpp:hover{ background:#1ebe5d; }
+
+/* feedback */
+.bk-actions .btnAgendar:active,
+.bk-actions .btnAgendarwpp:active{ transform: translateY(1px) scale(.99); }
+
+.bk-actions .btnAgendar:focus-visible,
+.bk-actions .btnAgendarwpp:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.35); /* anel de foco */
+}
+
+/* estados desabilitados */
+.bk-actions .btnAgendar.disabled,
+.bk-actions .btnAgendarwpp.disabled,
+.bk-actions .btnAgendar[disabled],
+.bk-actions .btnAgendarwpp[disabled],
+.bk-actions .btnAgendar[aria-disabled="true"],
+.bk-actions .btnAgendarwpp[aria-disabled="true"]{
+  opacity:.55;
+  pointer-events:none;
+}
+
+/* ===== Responsivo ===== */
+/* < 520px: empilha e ocupa 100% */
+@media (max-width: 520px){
+  .bk-actions{ flex-direction: column; }
+  .bk-actions .btnAgendar,
+  .bk-actions .btnAgendarwpp{
+    width: 100%;
+    flex: 1 1 auto;
+    white-space: normal; /* permite quebrar a linha do rótulo no mobile */
+    text-align: center;
+  }
+}
+
+/* entre 520px e 768px: deixa lado a lado, mas permite quebra se faltar espaço */
+@media (min-width: 520px) and (max-width: 768px){
+  .bk-actions .btnAgendar,
+  .bk-actions .btnAgendarwpp{
+    flex-basis: 48%;
+  }
+}
+
+
           </style>
 
           <div class="bk-wrap w-100">
@@ -673,6 +765,7 @@ btnNext.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anc
 
 </body>
 </html>
+
 
 
 

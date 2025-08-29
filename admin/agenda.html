@@ -3,123 +3,107 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dra. Elen Nogata – Agenda Ultra</title>
+  <title>Dra. Elen Nogata – Agenda</title>
 
-  <!-- CSS básicos do projeto -->
+  <!-- CSS do projeto -->
   <link rel="stylesheet" href="../css/bootstrap.css" />
   <link rel="stylesheet" href="css/crm.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="js/sidebar.js" defer></script>
 
- <style>
-  /* ---------- tokens ---------- */
-  :root{
-    --bg: #f7f8fb;
-    --card: #fff;
-    --ring: #e7eaf0;
-    --shadow: 0 6px 18px rgba(15,23,42,.06);
-    --muted: #667085;
-    --brand: #0ea5e9;
-    --radius: 14px;
-    --pad: clamp(14px, 2.2vw, 22px);
-    --container: min(1200px, 92vw);
-  }
+  <style>
+    /* ===== design tokens ===== */
+    :root{
+      --bg:#f7f8fb; --card:#fff; --ring:#e7eaf0; --muted:#667085; --brand:#0ea5e9;
+      --shadow:0 8px 22px rgba(15,23,42,.06); --radius:14px; --pad:clamp(14px,2vw,22px);
+      --container:min(1200px,92vw);
+    }
 
-  /* fundo + container */
-  body{background: var(--bg);}
-  .crm-main{max-width: var(--container); margin: 0 auto; padding: var(--pad);}
+    body{background:var(--bg);}
+    .crm-main{max-width:var(--container); margin:0 auto; padding:var(--pad);}
+    .muted{color:var(--muted)}
 
-  /* ---------- hero & toolbar ---------- */
-  .crm-hero{padding: 18px 0 10px}
-  .crm-hero h1{font-weight: 800; letter-spacing:.2px; margin-bottom: .6rem}
+    /* ===== toolbar ===== */
+    .crm-hero{padding:18px 0 10px}
+    .crm-hero h1{font-weight:800; letter-spacing:.2px; margin-bottom:.6rem}
+    .crm-search{
+      display:grid; align-items:center; gap:.6rem; grid-template-columns:1fr repeat(4,max-content);
+      background:var(--card); border:1px solid var(--ring); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow);
+    }
+    .crm-search input[type="date"]{min-width:170px}
+    .crm-search .btn{white-space:nowrap}
+    @media (max-width:991.98px){
+      .crm-search{grid-template-columns:1fr 1fr; border-radius:16px}
+      .crm-search>*:nth-child(n+3){grid-column:span 2}
+      .crm-hero h1{font-size:1.55rem}
+    }
 
-  .crm-search{
-    display: grid; align-items: center; gap:.6rem;
-    grid-template-columns: 1fr repeat(4, max-content);
-    background: var(--card); border:1px solid var(--ring); border-radius: 999px;
-    padding: 10px 12px; box-shadow: var(--shadow);
-  }
-  .crm-search input[type="date"]{min-width: 170px}
-  .crm-search .btn{white-space: nowrap}
+    /* ===== cards ===== */
+    .crm-card{background:var(--card); border:1px solid var(--ring); border-radius:var(--radius); padding:var(--pad); box-shadow:var(--shadow)}
+    .crm-head-row{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px}
 
-  /* quebra suave no mobile */
-  @media (max-width: 991.98px){
-    .crm-search{ grid-template-columns: 1fr 1fr; border-radius: 16px }
-    .crm-search > *:nth-child(n+3){ grid-column: span 2 }
-    .crm-hero h1{ font-size: 1.55rem }
-  }
+    /* ===== calendário mensal ===== */
+    .agenda-inline .cal{padding:12px}
+    .agenda-inline .month{font-weight:800}
+    .agenda-inline .dow{display:grid; grid-template-columns:repeat(7,1fr); text-align:center; color:var(--muted); font-size:.8rem}
+    .agenda-inline .grid{display:grid; gap:8px; grid-template-columns:repeat(7,minmax(36px,1fr)); padding-top:8px}
+    .agenda-inline .day{
+      height:clamp(42px,7vw,60px); border-radius:12px; position:relative; display:flex; align-items:center; justify-content:center;
+      background:#fff; border:1px solid var(--ring);
+    }
+    .agenda-inline .day:hover{box-shadow:var(--shadow)}
+    .agenda-inline .day.out{opacity:.35}
+    .agenda-inline .day.sel{outline:2px solid #c7e6ff; outline-offset:-2px}
+    .agenda-inline .day .underline{position:absolute; left:20%; right:20%; bottom:6px; height:3px; background:#10b981; border-radius:3px; opacity:0}
+    .agenda-inline .day.avail .underline{opacity:1}
 
-  /* ---------- calendário mensal ---------- */
-  .agenda-inline .crm-card{border-radius: var(--radius)}
-  .agenda-inline .cal{padding: 12px}
-  .agenda-inline .cal-head{padding: 0 4px 8px}
-  .agenda-inline .month{font-weight: 800}
-  .agenda-inline .dow{
-    display:grid; grid-template-columns:repeat(7,1fr);
-    color:var(--muted); font-size:.8rem; text-align:center;
-  }
-  .agenda-inline .grid{
-    display:grid; gap:8px; grid-template-columns:repeat(7, minmax(36px,1fr));
-    padding-top:8px;
-  }
-  .agenda-inline .day{
-    height: clamp(42px, 7.2vw, 60px);
-    border-radius: 12px; position:relative;
-    display:flex; align-items:center; justify-content:center;
-    background:#fff; border:1px solid var(--ring);
-  }
-  .agenda-inline .day:hover{box-shadow: var(--shadow)}
-  .agenda-inline .day.out{opacity:.35}
-  .agenda-inline .day.sel{outline:2px solid #c7e6ff; outline-offset:-2px}
-  .agenda-inline .day .underline{
-    position:absolute; left:20%; right:20%; bottom:6px; height:3px;
-    background:#10b981; border-radius:3px; opacity:0;
-  }
-  .agenda-inline .day.avail .underline{opacity:1}
+    /* ===== KPIs ===== */
+    .kpi-cards{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+    .kpi{background:#fff; border:1px solid var(--ring); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow)}
+    .kpi .lab{font-size:.85rem; color:var(--muted)}
+    .kpi .val{font-weight:800; font-size:clamp(1.1rem,1.8vw,1.35rem)}
 
-  /* ---------- KPIs ---------- */
-  .kpi-cards{ display:grid; gap:10px; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); }
-  .kpi{ background:var(--card); border:1px solid var(--ring); border-radius: var(--radius);
-        padding:14px; box-shadow: var(--shadow); }
-  .kpi .lab{font-size:.85rem; color:var(--muted)}
-  .kpi .val{font-weight:800; font-size: clamp(1.15rem, 1.8vw, 1.35rem)}
+    /* ===== chips ===== */
+    .legend,.dentist-chips{display:flex; flex-wrap:wrap; gap:.45rem}
+    .crm-chip{border-radius:999px; border:1px solid var(--ring); padding:.35rem .65rem; background:#fff}
+    .crm-chip.small{font-size:.85rem}
+    .crm-chip.active{outline:2px solid rgba(14,165,233,.25)}
 
-  /* ---------- chips/legenda ---------- */
-  .legend, .dentist-chips{ display:flex; flex-wrap:wrap; gap:.45rem }
-  .crm-chip{ border-radius:999px; border:1px solid var(--ring); padding:.35rem .65rem; background:#fff }
-  .crm-chip.active{ outline:2px solid rgba(14,165,233,.25) }
+    /* ===== tabela do dia ===== */
+    .agenda-wrap{position:relative}
+    .now-line{position:absolute; left:0; right:0; height:2px; background:#ef4444; transform:translateY(-50%); display:none}
+    .now-line::after{content:"Agora"; position:absolute; right:0; top:-10px; font-size:.7rem; background:#fee2e2; color:#991b1b; padding:.1rem .35rem; border-radius:999px; border:1px solid #fecaca}
+    .table-wrap{overflow:auto; border-radius:10px}
+    #agenda-table thead th{border-bottom:1px solid var(--ring); color:var(--muted); font-weight:600}
+    #agenda-table td{vertical-align:middle; padding-top:.55rem; padding-bottom:.55rem}
+    .badge-soft{display:inline-block; padding:.25rem .6rem; border-radius:999px; border:1px solid var(--ring); font-weight:600}
+    .bg-soft-green{background:#ecfdf5; border-color:#a7f3d0}
+    .bg-soft-amber{background:#fffbeb; border-color:#fde68a}
+    .bg-soft-red{background:#fef2f2; border-color:#fecaca}
+    .bg-soft-purple{background:#f5f3ff; border-color:#ddd6fe}
 
-  /* ---------- cards ---------- */
-  .crm-card{ background:var(--card); border:1px solid var(--ring); border-radius: var(--radius); padding: var(--pad); box-shadow: var(--shadow)}
-  .crm-head-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px}
-  .muted{ color:var(--muted) }
+    /* marcador por dentista */
+    tr[data-dentist] td:first-child{position:relative}
+    tr[data-dentist] td:first-child::before{
+      content:""; position:absolute; left:0; top:0; bottom:0; width:4px; border-top-left-radius:6px; border-bottom-left-radius:6px;
+      background:var(--dentist-color,#94a3b8); transform:translateX(-6px);
+    }
 
-  /* ---------- tabela do dia ---------- */
-  #agenda-table td{ padding-top:.55rem; padding-bottom:.55rem }
-  #agenda-table thead th{ border-bottom:1px solid var(--ring); color:var(--muted); font-weight:600 }
-  #agenda-table td{ vertical-align:middle }
-  .badge-soft{ display:inline-block; padding:.25rem .6rem; border-radius:999px; border:1px solid var(--ring); background:#f8fafc; font-weight:600 }
+    /* DnD hints */
+    .drag-handle{cursor:grab; opacity:.65; margin-right:.35rem}
+    .dragging{opacity:.75}
+    .drop-target{outline:2px dashed #60a5fa; outline-offset:-6px; background:rgba(96,165,250,.06)}
+    @media (min-width:768px) and (max-width:991.98px){
+      #agenda-table th:last-child,#agenda-table td:last-child{display:none}
+    }
 
-  /* rolagem horizontal sutil em telas pequenas */
-  .table-wrap{ overflow:auto; border-radius: 10px }
-  .table-wrap::-webkit-scrollbar{ height:8px }
-  .table-wrap::-webkit-scrollbar-thumb{ background:#dbe3ef; border-radius:999px }
+    /* lateral sticky */
+    @media (min-width:992px){ .aside-sticky{position:sticky; top:16px} }
 
-  /* reduzir ruído em md: esconde coluna ações */
-  @media (min-width: 768px) and (max-width: 991.98px){
-    #agenda-table th:last-child, #agenda-table td:last-child{ display:none }
-  }
-
-  /* ---------- lateral sticky em desktop ---------- */
-  @media (min-width: 992px){
-    .aside-sticky{ position: sticky; top: 18px }
-  }
-
-  /* ---------- bottom bar só no mobile ---------- */
-  .bb-dribbble{ display:none }
-  @media (max-width: 991.98px){ .bb-dribbble{ display:flex } }
-</style>
-
+    /* bottom bar só no mobile */
+    .bb-dribbble{display:none}
+    @media (max-width:991.98px){ .bb-dribbble{display:flex} }
+  </style>
 </head>
 
 <body data-page="agenda">
@@ -136,7 +120,7 @@
 
     <nav class="crm-nav">
       <a href="inicio.html"        data-nav="inicio"><i class="fa-solid fa-house"></i> Início</a>
-      <a href="agendaultra.html"   data-nav="agenda" class="active"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+      <a href="agenda.html"        data-nav="agenda" class="active"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
       <a href="pacientes.html"     data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
       <a href="orcamentos.html"    data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
       <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
@@ -157,7 +141,7 @@
   <main class="crm-main">
     <!-- HERO -->
     <section class="crm-hero">
-      <h1 class="text-center mb-1">Agenda Ultra</h1>
+      <h1 class="text-center mb-1">Agenda</h1>
 
       <div class="crm-search">
         <i class="fa-regular fa-calendar" style="color:var(--muted)"></i>
@@ -191,19 +175,17 @@
         </a>
       </div>
 
-      <!-- Calendário mensal (com disponibilidade) -->
-      <div class="agenda-inline">
+      <!-- Calendário mensal -->
+      <div class="agenda-inline mt-3">
         <div class="crm-card">
-          <div class="cal-head">
+          <div class="d-flex align-items-center justify-content-between mb-2">
             <button class="btn btn-sm btn-outline-secondary btn-pill" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
             <div class="month" id="cal-month">—</div>
             <button class="btn btn-sm btn-outline-secondary btn-pill" id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
           </div>
 
           <div class="cal">
-            <div class="dow">
-              <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-            </div>
+            <div class="dow"><div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div></div>
             <div class="grid" id="cal-grid"></div>
           </div>
 
@@ -232,18 +214,16 @@
         <div class="kpi"><div class="lab">Cancelados</div><div class="val" id="kpi-canc">—</div></div>
       </div>
 
-      <div class="day-toolbar d-flex justify-content-between align-items-center mb-2">
-        <div class="day-nav d-flex align-items-center">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex align-items-center">
           <h5 class="mb-0" id="agenda-dia-titulo">Dia —</h5>
           <div class="muted ml-2" id="agenda-intervalo">Intervalo —</div>
         </div>
-        <div class="d-flex align-items-center" style="gap:1rem">
-          <div class="legend">
-            <div class="crm-chip small active" data-filter="all"><i class="fa-regular fa-eye"></i> Todos</div>
-            <div class="crm-chip small" data-filter="confirmado"><i class="fa-regular fa-square-check"></i> Confirmados</div>
-            <div class="crm-chip small" data-filter="pendente"><i class="fa-regular fa-bell"></i> Pendentes</div>
-            <div class="crm-chip small" data-filter="cancelado"><i class="fa-regular fa-circle-xmark"></i> Cancelados</div>
-          </div>
+        <div class="legend">
+          <div class="crm-chip small active" data-filter="all"><i class="fa-regular fa-eye"></i> Todos</div>
+          <div class="crm-chip small" data-filter="confirmado"><i class="fa-regular fa-square-check"></i> Confirmados</div>
+          <div class="crm-chip small" data-filter="pendente"><i class="fa-regular fa-bell"></i> Pendentes</div>
+          <div class="crm-chip small" data-filter="cancelado"><i class="fa-regular fa-circle-xmark"></i> Cancelados</div>
         </div>
       </div>
 
@@ -256,25 +236,24 @@
           <div class="crm-card agenda-wrap">
             <div class="now-line" id="now-line"></div>
             <div class="table-wrap">
-            <table class="table table-hover mb-0" id="agenda-table">
-              <thead>
-                <tr>
-                  <th style="width:90px">Hora</th>
-                  <th>Paciente</th>
-                  <th>Procedimento</th>
-                  <th style="width:130px">Status</th>
-                  <th style="width:110px" class="text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody id="agenda-tbody"></tbody>
-            </table>
-              </div>
+              <table class="table table-hover mb-0" id="agenda-table">
+                <thead>
+                  <tr>
+                    <th style="width:90px">Hora</th>
+                    <th>Paciente</th>
+                    <th>Procedimento</th>
+                    <th style="width:130px">Status</th>
+                    <th style="width:110px" class="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="agenda-tbody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         <!-- Lateral -->
         <div class="col-lg-4 mb-3 aside-sticky">
-        <div class="col-lg-4 mb-3">
           <div class="crm-card">
             <h6 class="mb-3">Notas do dia</h6>
             <ul class="mb-0" id="notes-day">
@@ -282,7 +261,6 @@
               <li>Reagendar retorno de Felipe</li>
               <li>Materiais para implante às 16:45</li>
             </ul>
-          </div>
           </div>
 
           <div class="crm-card mt-3">
@@ -307,7 +285,7 @@
 <div class="modal fade" id="md-agenda-ver" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header themed">
+      <div class="modal-header" style="background:linear-gradient(180deg,#e0f2fe 0,#f5f3ff 100%); border-bottom:1px solid var(--ring);">
         <div>
           <h5 class="modal-title mb-0"><i class="fa-regular fa-calendar-check mr-2"></i><span id="ver-proc">Procedimento</span></h5>
           <div class="muted" id="ver-datahora" style="font-size:12px;"></div>
@@ -391,7 +369,7 @@
 <div class="modal fade" id="md-reagendar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header themed">
+      <div class="modal-header" style="background:linear-gradient(180deg,#e0f2fe 0,#f5f3ff 100%); border-bottom:1px solid var(--ring);">
         <h5 class="modal-title"><i class="fa-regular fa-calendar-days mr-2"></i>Reagendar</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
       </div>
@@ -421,7 +399,7 @@
   </div>
 </div>
 
-<!-- Sheets / bottom bar (só mobile) -->
+<!-- Sheets / bottom bar (mobile) -->
 <div id="crm-sheet-overlay" class="crm-sheet-overlay"></div>
 <div id="crm-quick-sheet" class="crm-action-sheet">
   <div class="sheet-header">Ações rápidas</div>
@@ -433,7 +411,7 @@
 <div id="crm-menu-sheet" class="crm-action-sheet">
   <div class="sheet-header">Ir para</div>
   <a class="sheet-item" href="inicio.html"><i class="fa-solid fa-house"></i> Início</a>
-  <a class="sheet-item" href="agendaultra.html"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+  <a class="sheet-item" href="agenda.html"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
   <a class="sheet-item" href="pacientes.html"><i class="fa-regular fa-user"></i> Pacientes</a>
   <a class="sheet-item" href="orcamentos.html"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
   <a class="sheet-item" href="procedimentos.html"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
@@ -468,15 +446,16 @@
 <!-- libs -->
 <script src="../js/jquery-3.4.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
+<script src="js/crm-api.js"></script>
 
 <!-- Config da API -->
 <script>
-  // Prefixo único (NÃO coloque /odonto aqui, os paths já vêm completos abaixo)
+  // Prefixo (não repita /odonto nos helpers abaixo)
   window.CRM_API_BASE = 'https://primary-odonto.up.railway.app/webhook';
   window.TIMEZONE     = 'America/Sao_Paulo';
 </script>
 
-<!-- Utils e API -->
+<!-- ===== helpers ===== -->
 <script>
 function el(q, r=document){ return r.querySelector(q); }
 function els(q, r=document){ return Array.from(r.querySelectorAll(q)); }
@@ -500,7 +479,7 @@ function blockByBusy(slots, busy){
   });
 }
 
-/* ===== API calls ===== */
+/* API */
 const BASE = (window.CRM_API_BASE||'').replace(/\/+$/,'');
 const TZ   = window.TIMEZONE || 'America/Sao_Paulo';
 
@@ -524,7 +503,6 @@ async function submitReschedule(payload){
   if(!res.ok) throw new Error(data?.message||'Falha ao reagendar');
   return data;
 }
-// best-effort: se não existir no fluxo, só exibe erro elegante
 async function createBlock(payload){
   const res=await fetch(`${BASE}/availability/block`,{
     method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
@@ -534,7 +512,7 @@ async function createBlock(payload){
 }
 </script>
 
-<!-- Render / lógica -->
+<!-- ===== render / lógica ===== -->
 <script>
 function statusBadge(status){
   const s=(status||'').toLowerCase();
@@ -567,12 +545,11 @@ function applyNowLine(tbody, start, end, step){
     const target = rows[idx];
     if(!target){ line.style.display='none'; return; }
     line.style.display='block';
-    const top = target.offsetTop;
-    line.style.top = (top+2) + 'px';
+    line.style.top = (target.offsetTop+2) + 'px';
   }catch{}
 }
 
-/* Dentist colors palette + chips */
+/* Dentistas */
 const DENTIST_COLORS = ['#0ea5e9','#10b981','#f59e0b','#8b5cf6','#ef4444','#14b8a6','#84cc16','#eab308','#6366f1','#f97316'];
 function dentistColorMap(events){
   const map={}; let i=0;
@@ -585,19 +562,19 @@ function dentistColorMap(events){
 function renderDentistChips(container, map, onChange){
   container.innerHTML='';
   const all = document.createElement('div');
-  all.className='dentist-chip active'; all.dataset.dentist='__all';
-  all.innerHTML = `<span class="dentist-dot" style="background:linear-gradient(90deg,#cbd5e1,#94a3b8)"></span> Todos`;
+  all.className='crm-chip active'; all.dataset.dentist='__all';
+  all.innerHTML = `<i class="fa-regular fa-user"></i> Todos`;
   container.appendChild(all);
 
   Object.entries(map).forEach(([name,color])=>{
     const chip=document.createElement('div');
-    chip.className='dentist-chip'; chip.dataset.dentist=name;
-    chip.innerHTML=`<span class="dentist-dot" style="background:${color}"></span> ${name}`;
+    chip.className='crm-chip'; chip.dataset.dentist=name;
+    chip.innerHTML=`<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color}"></span> ${name}`;
     container.appendChild(chip);
   });
   container.addEventListener('click', (e)=>{
-    const c=e.target.closest('.dentist-chip'); if(!c) return;
-    container.querySelectorAll('.dentist-chip').forEach(x=>x.classList.remove('active'));
+    const c=e.target.closest('.crm-chip'); if(!c) return;
+    container.querySelectorAll('.crm-chip').forEach(x=>x.classList.remove('active'));
     c.classList.add('active');
     onChange(c.dataset.dentist);
   }, { once:false });
@@ -614,7 +591,7 @@ function buildDayTable(tbody, dayData, filter='all', dentistFilter='__all', dCol
   slots.forEach(hhmm=>{
     const ev=evByStart[hhmm];
     if(!ev){
-      if(filter==='all' && (dentistFilter==='__all')){
+      if(filter==='all' && dentistFilter==='__all'){
         tbody.insertAdjacentHTML('beforeend', `
           <tr data-row="livre"><td>${hhmm}</td><td>-</td><td>-</td><td>${statusBadge('livre')}</td>
             <td class="text-right"><span class="drag-handle" title="Arraste um evento aqui">≡</span></td></tr>`);
@@ -661,17 +638,17 @@ function buildDayTable(tbody, dayData, filter='all', dentistFilter='__all', dCol
 }
 </script>
 
-<!-- Modais / reagendar -->
+<!-- ===== modais ===== -->
 <script>
 const STATUS_MAP={
-  confirmado: {label:'Confirmado',klass:'bg-soft-green'},
-  'pré-agendamento': {label:'Pré-agendamento',klass:'bg-soft-amber'},
-  pendente: {label:'Pendente',klass:'bg-soft-amber'},
-  aguardando: {label:'Aguardando',klass:'bg-soft-blue'},
-  cancelado: {label:'Cancelado',klass:'bg-soft-red'},
-  concluido: {label:'Concluído',klass:'bg-soft-purple'},
-  concluído: {label:'Concluído',klass:'bg-soft-purple'},
-  faltou: {label:'Faltou',klass:'bg-soft-gray'},
+  confirmado:{label:'Confirmado',klass:'bg-soft-green'},
+  'pré-agendamento':{label:'Pré-agendamento',klass:'bg-soft-amber'},
+  pendente:{label:'Pendente',klass:'bg-soft-amber'},
+  aguardando:{label:'Aguardando',klass:'bg-soft-blue'},
+  cancelado:{label:'Cancelado',klass:'bg-soft-red'},
+  concluido:{label:'Concluído',klass:'bg-soft-purple'},
+  concluído:{label:'Concluído',klass:'bg-soft-purple'},
+  faltou:{label:'Faltou',klass:'bg-soft-gray'},
 };
 const toWhats=raw=>{const d=(raw||'').replace(/\D/g,''); if(!d) return null; return d.length===11?`55${d}`:d;};
 
@@ -683,14 +660,13 @@ function openVerModal(data){
   const map=STATUS_MAP[st]||STATUS_MAP.confirmado;
   const badge=el('#ver-status'); badge.textContent=map.label; badge.className=`badge-soft ${map.klass}`;
 
-  const when=`${fmtBR(data.date)} • ${data.start}`;
-  el('#ver-when').textContent=when;
+  const when=`${fmtBR(data.date)} • ${data.start}`; el('#ver-when').textContent=when;
   el('#ver-datahora').textContent=`${when} — Duração ${data.durMin||data.dur||60} min`;
 
   el('#ver-paciente').textContent=data.paciente||data.patientName||'-';
-  const waNumber = toWhats(data.phone);
-  const msg = `Olá${data.paciente?` ${data.paciente}`:''}! Lembrete da sua consulta em ${fmtBR(data.date)} às ${data.start}. Qualquer dúvida, estamos à disposição.`;
-  if (waNumber){ el('#ver-whats').href=`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`; }
+  const waNumber=toWhats(data.phone);
+  const msg=`Olá${data.paciente?` ${data.paciente}`:''}! Lembrete da sua consulta em ${fmtBR(data.date)} às ${data.start}.`;
+  if(waNumber){ el('#ver-whats').href=`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`; }
   el('#ver-mail').href=`mailto:${data.email||''}`;
   el('#ver-dentista').textContent=data.dentista||'—';
   el('#ver-sala').textContent=data.sala||'—';
@@ -746,8 +722,7 @@ function renderReagendarSlots(container, withStatus){
     b.type='button';
     b.className='slot btn btn-sm '+(s.available?'':'disabled');
     b.textContent=s.time; b.disabled=!s.available;
-    b.onclick=()=>{
-      if(!s.available) return;
+    b.onclick=()=>{ if(!s.available) return;
       els('.slot.selected',container).forEach(x=>x.classList.remove('selected'));
       b.classList.add('selected'); el('#reag-selected-time').value=s.time;
     };
@@ -759,7 +734,7 @@ function renderReagendarSlots(container, withStatus){
 }
 </script>
 
-<!-- Boot + calendário + filtros + DnD + bloqueio + export -->
+<!-- ===== boot + calendário + filtros + DnD + extras ===== -->
 <script>
 (async function(){
   const gMonth  = document.getElementById('cal-month');
@@ -806,8 +781,8 @@ function renderReagendarSlots(container, withStatus){
   }
 
   async function markAvailabilityForMonth(days){
-    const chunks = []; for(let i=0;i<days.length;i+=14){ chunks.push(days.slice(i,i+14)); }
-    const availMap = {};
+    const chunks=[]; for(let i=0;i<days.length;i+=14){ chunks.push(days.slice(i,i+14)); }
+    const availMap={};
     for(const chunk of chunks){
       await Promise.all(chunk.map(async d=>{
         try{
@@ -832,38 +807,26 @@ function renderReagendarSlots(container, withStatus){
     const padStart = first.getDay();
     const totalDays= last.getDate();
 
-    const cells = [];
-    const prev = new Date(first);
-    prev.setDate(1 - padStart);
-    for(let i=0;i<padStart;i++){
-      const d = new Date(prev); d.setDate(prev.getDate()+i);
-      cells.push({date:d, out:true});
-    }
-    for(let i=1;i<=totalDays;i++){
-      const d = new Date(first); d.setDate(i);
-      cells.push({date:d, out:false});
-    }
-    while(cells.length % 7 !== 0){
-      const d = new Date(last); d.setDate(d.getDate() + (cells.length%7));
-      cells.push({date:d, out:true});
-    }
+    const cells=[];
+    const prev=new Date(first); prev.setDate(1-padStart);
+    for(let i=0;i<padStart;i++){ const d=new Date(prev); d.setDate(prev.getDate()+i); cells.push({date:d,out:true}); }
+    for(let i=1;i<=totalDays;i++){ const d=new Date(first); d.setDate(i); cells.push({date:d,out:false}); }
+    while(cells.length%7!==0){ const d=new Date(last); d.setDate(d.getDate()+(cells.length%7)); cells.push({date:d,out:true}); }
 
     const onlyDays = cells.filter(c=>!c.out).map(c=>c.date);
     const availMap = await markAvailabilityForMonth(onlyDays);
 
     gGrid.innerHTML = cells.map(c=>{
-      const id  = ymd(c.date);
-      const sel = ymd(c.date) === ymd(selDate);
-      const av  = !!availMap[id];
-      return dayCellTemplate(c.date, {outMonth:c.out, hasAvail:av, isSel:sel});
+      const id=ymd(c.date), sel=(id===ymd(selDate)), av=!!availMap[id];
+      return dayCellTemplate(c.date,{outMonth:c.out,hasAvail:av,isSel:sel});
     }).join('');
 
     gGrid.querySelectorAll('.day').forEach(div=>{
       div.addEventListener('click', async ()=>{
-        selDate = new Date(div.dataset.date);
+        selDate=new Date(div.dataset.date);
         gGrid.querySelectorAll('.day.sel').forEach(x=>x.classList.remove('sel'));
         div.classList.add('sel');
-        if (dateInput) dateInput.value = div.dataset.date;
+        if(dateInput) dateInput.value = div.dataset.date;
         await loadDay(true);
         await loadDayMobile(false);
       });
@@ -874,24 +837,23 @@ function renderReagendarSlots(container, withStatus){
     const ds = dateInput.value;
     titleDay.textContent=`Dia ${fmtBR(ds)}`;
     tbody.innerHTML='<tr><td colspan="5">Carregando...</td></tr>';
-    dentistFilter='__all'; // reset ao trocar dia
+    dentistFilter='__all';
     try{
       const day=await fetchDay(ds);
       lastDayData = day;
       lblIntervalo.textContent=`Intervalo de ${day.intervalMinutes||30} min`;
 
-      // Dentist map/chips
       lastDentMap = dentistColorMap(day.events||[]);
       renderDentistChips(chipsDent, lastDentMap, (who)=>{
         dentistFilter = who;
         if(lastDayData) buildDayTable(tbody, lastDayData, filterState, dentistFilter, lastDentMap);
-        wireDnD(); // rebind
+        wireDnD();
       });
 
       buildDayTable(tbody, day, filterState, dentistFilter, lastDentMap);
 
       if(syncKPIs){
-        const k = computeKPIs(day.events||[]); kpiTotal.textContent=k.total; kpiConf.textContent=k.conf; kpiPend.textContent=k.pend; kpiCanc.textContent=k.canc;
+        const k=computeKPIs(day.events||[]); kpiTotal.textContent=k.total; kpiConf.textContent=k.conf; kpiPend.textContent=k.pend; kpiCanc.textContent=k.canc;
       }
 
       wireDnD();
@@ -953,20 +915,17 @@ function renderReagendarSlots(container, withStatus){
     }
   }
 
-  // Filtros por status
+  // filtros
   document.querySelectorAll('.legend .crm-chip').forEach(ch=>{
     ch.addEventListener('click', ()=>{
       document.querySelectorAll('.legend .crm-chip').forEach(x=>x.classList.remove('active'));
       ch.classList.add('active');
       filterState = ch.dataset.filter || 'all';
-      if(lastDayData) {
-        buildDayTable(tbody, lastDayData, filterState, dentistFilter, lastDentMap);
-        wireDnD();
-      }
+      if(lastDayData){ buildDayTable(tbody, lastDayData, filterState, dentistFilter, lastDentMap); wireDnD(); }
     });
   });
 
-  // Navegação dia a dia + teclas
+  // navegação de dia
   function shiftDay(delta){
     const d = new Date(dateInput.value || ymdToday());
     d.setDate(d.getDate()+delta);
@@ -976,16 +935,16 @@ function renderReagendarSlots(container, withStatus){
   el('#btn-prev-day')?.addEventListener('click', ()=>shiftDay(-1));
   el('#btn-next-day')?.addEventListener('click', ()=>shiftDay(1));
   el('#btn-today')?.addEventListener('click', ()=>{ dateInput.value=ymdToday(); loadDay(true); loadDayMobile(); });
-  el('#btn-filtrar')?.addEventListener('click', ()=>{ if(dateInput.value) { loadDay(true); loadDayMobile(); }});
+  el('#btn-filtrar')?.addEventListener('click', ()=>{ if(dateInput.value){ loadDay(true); loadDayMobile(); }});
   document.addEventListener('keydown', (e)=>{
     if(e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA') return;
     if(e.key==='ArrowLeft') shiftDay(-1);
     if(e.key==='ArrowRight') shiftDay(1);
-    if(e.key.toLowerCase()==='t') { dateInput.value=ymdToday(); loadDay(true); loadDayMobile(); }
-    if(e.key.toLowerCase()==='n') { window.location.href='../book.html'; }
+    if(e.key.toLowerCase()==='t'){ dateInput.value=ymdToday(); loadDay(true); loadDayMobile(); }
+    if(e.key.toLowerCase()==='n'){ window.location.href='../book.html'; }
   });
 
-  // Abrir modal ao clicar em "Ver"
+  // abrir modal Ver
   document.addEventListener('click', ev=>{
     const a=ev.target.closest('.agenda-item'); if(!a) return;
     openVerModal({
@@ -995,20 +954,14 @@ function renderReagendarSlots(container, withStatus){
     });
   });
 
-  // Drag to reschedule (desktop)
+  // DnD
   function wireDnD(){
-    let dragging = null; // {id, date, start}
+    let dragging=null;
     tbody.querySelectorAll('.drag-handle[data-id]').forEach(h=>{
       h.addEventListener('mousedown', (e)=>{
         const row = e.target.closest('tr');
-        dragging = {
-          id: e.target.dataset.id,
-          date: dateInput.value,
-          start: row?.querySelector('td')?.textContent?.trim()
-        };
-        row?.classList.add('dragging');
-        tbody.classList.add('drag-active');
-        document.body.style.userSelect='none';
+        dragging={ id:e.target.dataset.id, date:dateInput.value, start: row?.querySelector('td')?.textContent?.trim() };
+        row?.classList.add('dragging'); tbody.classList.add('drag-active'); document.body.style.userSelect='none';
       });
     });
     document.addEventListener('mouseup', async (e)=>{
@@ -1016,22 +969,15 @@ function renderReagendarSlots(container, withStatus){
       document.body.style.userSelect='';
       tbody.querySelectorAll('tr').forEach(r=>r.classList.remove('dragging','drop-target'));
       const targetRow = e.target.closest('#agenda-tbody tr');
-      const from = dragging.start;
-      const id = dragging.id;
-      dragging=null;
-
-      if(!targetRow) { return; }
+      const from = dragging.start; const id = dragging.id; dragging=null;
+      if(!targetRow) return;
       const targetTime = (targetRow.children[0]?.textContent||'').trim();
-      const isSame = targetTime===from;
-      if(!targetTime || isSame) return;
-
+      if(!targetTime || targetTime===from) return;
       if(!confirm(`Mover ${from} → ${targetTime}?`)) return;
       try{
         await submitReschedule({ eventId:id, date: dateInput.value, time: targetTime, tz: TZ });
         await loadDay(true); await loadDayMobile();
-      }catch(err){
-        alert(err.message||'Falha ao reagendar');
-      }
+      }catch(err){ alert(err.message||'Falha ao reagendar'); }
     });
     tbody.querySelectorAll('tr').forEach(r=>{
       r.addEventListener('mouseenter', ()=>{ if(!document.body.style.userSelect) return; r.classList.add('drop-target'); });
@@ -1039,62 +985,51 @@ function renderReagendarSlots(container, withStatus){
     });
   }
 
-  // Bloquear horário
+  // bloqueio
   btnBloq?.addEventListener('click', async ()=>{
-    const time = prompt('Bloquear a partir de qual horário? (HH:MM)', '12:00');
-    if(!time) return;
-    const dur = parseInt(prompt('Duração em minutos', '60')||'60', 10);
-    try{
-      await createBlock({ date: dateInput.value, time, dur, notes:'Bloqueio pela agenda' });
-      await loadDay(true); await loadDayMobile();
-      alert('Horário bloqueado ✅');
-    }catch(err){
-      alert(err.message||'Falha ao bloquear (verifique se o endpoint /availability/block existe no n8n)');
-    }
+    const time = prompt('Bloquear a partir de qual horário? (HH:MM)','12:00'); if(!time) return;
+    const dur  = parseInt(prompt('Duração em minutos','60')||'60',10);
+    try{ await createBlock({ date:dateInput.value, time, dur, notes:'Bloqueio pela agenda' }); await loadDay(true); await loadDayMobile(); alert('Horário bloqueado ✅'); }
+    catch(err){ alert(err.message||'Falha ao bloquear (confira o endpoint /availability/block no n8n)'); }
   });
 
-  // Export CSV
+  // export & print
   el('#btn-export')?.addEventListener('click', ()=>{
     const rows=[['Hora','Paciente','Procedimento','Status']];
     els('#agenda-tbody tr').forEach(tr=>{
       const tds=els('td',tr).map(td=>td.innerText.replace(/\s+/g,' ').trim());
       rows.push(tds.slice(0,4));
     });
-    const csv = rows.map(r=>r.map(v=>`"${(v||'').replaceAll('"','""')}"`).join(',')).join('\n');
+    const csv=rows.map(r=>r.map(v=>`"${(v||'').replaceAll('"','""')}"`).join(',')).join('\n');
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
     const a=document.createElement('a'); a.href=url; a.download=`agenda-${dateInput.value}.csv`; a.click(); URL.revokeObjectURL(url);
   });
+  el('#btn-print')?.addEventListener('click', ()=>window.print());
 
-  // Imprimir
-  el('#btn-print')?.addEventListener('click', ()=> window.print());
+  // mês
+  btnPrev?.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anchor.getMonth()-1,1); renderMonth(); });
+  btnNext?.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anchor.getMonth()+1,1); renderMonth(); });
 
-  // Mês
-  btnPrev?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()-1, 1); renderMonth(); });
-  btnNext?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()+1, 1); renderMonth(); });
-
-  // Bottom bar (mobile)
+  // bottom bar (mobile)
   (function(){
-    const bar = document.getElementById('bbBar'); if(!bar) return;
-    const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]');
-    const tabMenu   = bar.querySelector('.bb-tab[data-act="menu"]');
-    const fab       = bar.querySelector('.bb-fab');
-    const morph     = document.getElementById('bbMorph');
-    const overlay   = document.getElementById('crm-sheet-overlay');
-    const quick     = document.getElementById('crm-quick-sheet');
-    const menu      = document.getElementById('crm-menu-sheet');
-    const openSheet = el => { overlay?.classList.add('show'); el?.classList.add('show'); };
-    const closeSheets = () => { overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
-    overlay?.addEventListener('click', closeSheets);
-    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
-    function wave(){ try{ morph.beginElement(); }catch(e){} }
-    function setActive(btn){ [tabAgenda, tabMenu].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+    const bar=document.getElementById('bbBar'); if(!bar) return;
+    const tabAgenda=bar.querySelector('.bb-tab[data-act="agenda"]');
+    const tabMenu=bar.querySelector('.bb-tab[data-act="menu"]');
+    const fab=bar.querySelector('.bb-fab'); const morph=document.getElementById('bbMorph');
+    const overlay=document.getElementById('crm-sheet-overlay');
+    const quick=document.getElementById('crm-quick-sheet'); const menu=document.getElementById('crm-menu-sheet');
+    const openSheet=el=>{ overlay?.classList.add('show'); el?.classList.add('show'); };
+    const closeSheets=()=>{ overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
+    overlay?.addEventListener('click', closeSheets); document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
+    function wave(){ try{ morph.beginElement(); }catch{} }
+    function setActive(btn){ [tabAgenda,tabMenu].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
     tabAgenda.addEventListener('click', ()=>{ setActive(tabAgenda); wave(); });
     tabMenu.addEventListener('click', ()=>{ setActive(tabMenu); wave(); openSheet(menu); });
     fab.addEventListener('click', ()=>{ wave(); openSheet(quick); });
     setActive(tabAgenda);
   })();
 
-  // Boot
+  // boot
   dateInput.value = ymdToday();
   await renderMonth();
   await loadDay(true);
@@ -1104,21 +1039,17 @@ function renderReagendarSlots(container, withStatus){
 
 <!-- Sidebar mobile -->
 <script>
-(function () {
-  const app = document.querySelector('.crm-app');
-  const btn = document.getElementById('btn-sidebar');
-  const overlay = document.getElementById('crm-overlay');
+(function(){
+  const app=document.querySelector('.crm-app');
+  const btn=document.getElementById('btn-sidebar');
+  const overlay=document.getElementById('crm-overlay');
   function close(){ app.classList.remove('sidebar-open'); }
   function toggle(){ app.classList.toggle('sidebar-open'); }
   btn?.addEventListener('click', toggle);
   overlay?.addEventListener('click', close);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
-  document.querySelectorAll('.crm-nav a').forEach(a => a.addEventListener('click', close));
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
+  document.querySelectorAll('.crm-nav a').forEach(a=>a.addEventListener('click', close));
 })();
 </script>
 </body>
 </html>
-
-
-
-

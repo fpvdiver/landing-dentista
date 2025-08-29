@@ -208,6 +208,37 @@
             /* deixa o btn1 (tema) com estado "desabilitado" para o agendamento */
             .bk-actions .btn1.disabled{opacity:.55;pointer-events:none;filter:grayscale(.1)}
             @media(min-width:992px){.bk-wrap{display:grid;grid-template-columns:360px 1fr;gap:16px}}
+            /* ===== Modal estilizado ===== */
+.bk-modal{border:1px solid #e5e7eb;border-radius:18px;overflow:hidden}
+.bk-modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;background:#0ea5e9;color:#fff}
+.bk-title-eyebrow{display:block;font-size:.7rem;letter-spacing:.08em;opacity:.9;text-transform:uppercase}
+.bk-title-main{margin:2px 0 0;font-weight:800}
+.bk-close{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:10px;width:36px;height:36px}
+.bk-close:hover{background:rgba(255,255,255,.25)}
+
+.bk-summary{padding:12px 18px;background:#f8fafc;border-bottom:1px solid #eef2f7}
+.bk-chip{display:inline-flex;gap:8px;align-items:center;background:#e0f2fe;border:1px solid #bae6fd;color:#0c4a6e;border-radius:999px;padding:6px 12px;font-weight:600}
+.bk-chip i{color:#0369a1}
+
+.bk-modal-body{padding:16px 18px}
+.bk-label{font-weight:700;margin-bottom:6px;display:block}
+.bk-input{position:relative}
+.bk-input i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#64748b}
+.bk-input .form-control{padding-left:36px}
+.bk-privacy{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:.9rem;color:#64748b}
+.bk-privacy i{color:#10b981}
+
+.bk-modal-footer{display:flex;gap:10px;justify-content:flex-end;padding:14px 18px;border-top:1px solid #eef2f7;background:#fcfdff}
+
+#lead-form.was-validated .form-control:invalid{border-color:#ef4444}
+#lead-form.was-validated .form-control:invalid~.invalid-feedback{display:block}
+
+.btn-primary{background:#0ea5e9;border-color:#0ea5e9}
+.btn-primary:hover{background:#0284c7;border-color:#0284c7}
+
+.bk-spinner{width:1rem;height:1rem;border:.18rem solid #fff;border-right-color:transparent;border-radius:50%;display:inline-block;animation:bkspin .7s linear infinite;vertical-align:-2px}
+@keyframes bkspin{to{transform:rotate(360deg)}}
+
           </style>
 
           <div class="bk-wrap w-100">
@@ -239,7 +270,6 @@
               <div id="bk-slots" class="bk-slots">Selecione um dia do calendário…</div>
 
               <div class="bk-actions">
-                <!-- Estilo do tema (btn1) + controle de disabled via classe -->
                 <a id="bk-submit" class="btnAgendar" href="javascript:void(0)">Agendar</a>
                 <a id="bk-chat" class="btnAgendarwpp" target="_blank" rel="noopener">Agendar via Whatsapp</a>
               </div>
@@ -247,30 +277,79 @@
             </div>
           </div>
 
-          <!-- Modal: dados do paciente apenas ao confirmar -->
-          <div class="modal fade" id="md-lead" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-              <form class="modal-content" id="lead-form">
-                <div class="modal-header">
-                  <h5 class="modal-title">Finalizar agendamento</h5>
-                  <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                </div>
-                <div class="modal-body">
-                  <div class="form-group"><label>Nome</label>
-                    <input id="lead-name" class="form-control" required></div>
-                  <div class="form-group"><label>Telefone (WhatsApp)</label>
-                    <input id="lead-phone" class="form-control" required placeholder="(11) 9 9999-9999"></div>
-                  <div class="form-group"><label>E-mail</label>
-                    <input id="lead-email" class="form-control" type="email" placeholder="opcional"></div>
-                  <div class="small text-muted" id="lead-when">—</div>
-                </div>
-                <div class="modal-footer">
-                  <button class="btn btn-outline-secondary" data-dismiss="modal" type="button">Cancelar</button>
-                  <button class="btn btn-primary" type="submit" id="lead-send">Confirmar</button>
-                </div>
-              </form>
-            </div>
+       <!-- Modal: Finalizar agendamento (novo) -->
+<div class="modal fade" id="md-lead" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content bk-modal" id="lead-form" novalidate>
+      <div class="bk-modal-header">
+        <div class="bk-title">
+          <span class="bk-title-eyebrow">Agendamento</span>
+          <h5 class="bk-title-main">Finalizar consulta</h5>
+        </div>
+        <button type="button" class="bk-close" data-dismiss="modal" aria-label="Fechar">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <!-- resumo -->
+      <div class="bk-summary">
+        <div class="bk-chip">
+          <i class="fa fa-calendar"></i>
+          <span id="lead-when">Você está marcando para —</span>
+        </div>
+      </div>
+
+      <div class="bk-modal-body">
+        <div class="form-group">
+          <label class="bk-label">Nome</label>
+          <div class="bk-input">
+            <i class="fa fa-user"></i>
+            <input id="lead-name" class="form-control" placeholder="Seu nome completo" required>
           </div>
+          <div class="invalid-feedback">Informe seu nome.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="bk-label">Telefone (WhatsApp)</label>
+          <div class="bk-input">
+            <i class="fa fa-whatsapp"></i>
+            <input id="lead-phone" class="form-control" inputmode="numeric" placeholder="(11) 9 9999-9999" required>
+          </div>
+          <div class="invalid-feedback">Informe um WhatsApp válido.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="bk-label">E-mail <span class="text-muted">(opcional)</span></label>
+          <div class="bk-input">
+            <i class="fa fa-envelope"></i>
+            <input id="lead-email" class="form-control" type="email" placeholder="voce@exemplo.com">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="bk-label">Observações <span class="text-muted">(opcional)</span></label>
+          <textarea id="lead-notes" class="form-control" rows="2" placeholder="Ex.: sensibilidade, preferências…"></textarea>
+        </div>
+
+        <div class="bk-privacy">
+          <i class="fa fa-shield"></i>
+          Seus dados são usados apenas para confirmar o agendamento.
+        </div>
+      </div>
+
+      <div class="bk-modal-footer">
+        <button class="btn btn-light" data-dismiss="modal" type="button">Cancelar</button>
+        <button class="btn btn-primary" type="submit" id="lead-send">
+          <span class="bk-spinner d-none"></span>
+          <span class="bk-cta-text">Confirmar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
 
           <script>
             /* ===== CONFIG ===== */
@@ -545,6 +624,7 @@
 
 </body>
 </html>
+
 
 
 

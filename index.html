@@ -554,6 +554,86 @@
             (async function init(){ await renderMonth(); await loadSlotsForDay(); })();
           </script>
 
+          <script>
+  // Máscara leve para WhatsApp (sem plugins)
+  const phoneMask = (v) => {
+    return v
+      .replace(/\D/g,'')
+      .replace(/^(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d{4}).*/, '$1-$2')
+  };
+  const phoneInput = document.getElementById('lead-phone');
+  phoneInput.addEventListener('input', (e)=> e.target.value = phoneMask(e.target.value));
+
+  // Validação e feedback visual
+  const form = document.getElementById('lead-form');
+  const btnSend = document.getElementById('lead-send');
+  const spin = btnSend.querySelector('.bk-spinner');
+  const cta = btnSend.querySelector('.bk-cta-text');
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    form.classList.add('was-validated');
+
+    const name = document.getElementById('lead-name').value.trim();
+    const phone= document.getElementById('lead-phone').value.replace(/\D/g,'');
+    const email= document.getElementById('lead-email').value.trim();
+    const notes= document.getElementById('lead-notes').value.trim();
+
+    // regras simples
+    if (!name || phone.length < 10) return;
+
+    // loading state
+    btnSend.disabled = true;
+    spin.classList.remove('d-none');
+    cta.textContent = 'Enviando…';
+
+    try{
+      // Envia para o mesmo BOOK_URL já usado no widget
+      const payload = {
+        paciente: name,
+        phone: `+55${phone}`,
+        email,
+        notas: notes,
+        data: ymd(selDate),
+        hora: selTime,
+        duracaoMin: 60,
+        procedimento: 'Consulta',
+        canalPreferido: 'WhatsApp',
+        confirmar: true,
+        tz: TZ
+      };
+
+      const r = await fetch(BOOK_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+
+      if (!r.ok) throw new Error('Falha ao agendar');
+
+      $('#md-lead').modal('hide');
+      document.getElementById('bk-feedback').innerHTML =
+        '<div class="text-success">Agendado com sucesso! Você receberá a confirmação no WhatsApp.</div>';
+      form.reset();
+      form.classList.remove('was-validated');
+
+    }catch(err){
+      document.getElementById('bk-feedback').innerHTML =
+        `<div class="text-danger">${err.message || 'Erro ao agendar.'}</div>`;
+    }finally{
+      btnSend.disabled = false;
+      spin.classList.add('d-none');
+      cta.textContent = 'Confirmar';
+    }
+  });
+
+  // Preenche o resumo quando abrir o modal
+  // (você já atualiza `leadWhen` na ação do botão Agendar)
+  // Ex.: leadWhen.textContent = `Você está marcando para ${fmtBR(ymd(selDate))} às ${selTime}.`;
+</script>
+
+
         </div>
       </div>
     </div>
@@ -624,6 +704,7 @@
 
 </body>
 </html>
+
 
 
 

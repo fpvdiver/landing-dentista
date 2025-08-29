@@ -102,6 +102,17 @@ display: inline-block;
     transition: all 0.3s;
     border: none;
 }
+
+.btnAgendarwpp{
+display: inline-block;
+    padding: 8px 30px;
+    background-color: #25d366;
+    color: #ffffff;
+    border-radius: 45px;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    border: none;
+}
 /* Header */
 .lead-header{
   display:flex; align-items:center; justify-content:space-between;

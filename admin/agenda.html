@@ -1,125 +1,92 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Agenda — Clínica</title>
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Agenda Ultra — Clínica</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"/>
-
   <style>
     :root{
-      --ring:#e5e7eb;
-      --muted:#64748b;
-      --soft:#f8fafc;
-      --brand:#0ea5e9;
-      --green:#10b981;
-      --red:#ef4444;
-      --amber:#f59e0b;
+      --ring:#e5e7eb; --muted:#64748b; --soft:#f8fafc; --brand:#0ea5e9;
+      --green:#10b981; --red:#ef4444; --amber:#f59e0b; --purple:#7c3aed;
     }
-    body{ background:#f6f7fb; }
-    .crm-wrap{ max-width: 1160px; margin: 24px auto 48px; }
-    .crm-card{ background:#fff; border:1px solid var(--ring); border-radius:12px; box-shadow:0 4px 16px rgba(15,23,42,.06); }
-    .crm-card .card-body{ padding: 14px 16px; }
-    h1{ font-weight:800; font-size: 1.6rem; }
-    .muted{ color:var(--muted); }
-    .toolbar{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
-    .toolbar .btn{ border-radius: 999px; }
-    .kpis{ display:grid; grid-template-columns: repeat(5,1fr); gap:10px; }
-    .kpi{ background:#fff; border:1px solid var(--ring); border-radius:12px; padding:.75rem; }
-    .kpi .lab{ color:var(--muted); font-size:.8rem }
-    .kpi .val{ font-weight:800; font-size:1.2rem }
-    .table thead th{ border-top:0; background:var(--soft); }
-    .badge-soft{ border:1px solid var(--ring); padding:.25rem .45rem; border-radius:999px; font-weight:600; background:#fff; }
-    .bg-soft-green{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
-    .bg-soft-amber{ background:#fffbeb; border-color:#fde68a; color:#92400e; }
-    .bg-soft-red{ background:#fef2f2; border-color:#fecaca; color:#991b1b; }
-    .bg-soft-gray{ background:#f3f4f6; border-color:#e5e7eb; color:#374151; }
-    .legend{ display:flex; gap:.5rem; flex-wrap:wrap; }
-    .legend .chip{ padding:.25rem .6rem; border:1px solid var(--ring); border-radius:999px; cursor:pointer; user-select:none; }
-    .legend .chip.active{ background:var(--brand); color:#fff; border-color:var(--brand); }
-    .status-cell{ width: 150px; }
-    .actions-cell{ width: 240px; }
-    .btn-icon{
-      border:1px solid var(--ring); background:#fff; border-radius:8px;
-      padding: .25rem .45rem; margin-right: .25rem; margin-bottom:.25rem;
-      line-height: 1; display:inline-flex; align-items:center; gap:.25rem;
-    }
-    .btn-icon:hover{ border-color:#cbd5e1; }
-    .btn-icon[disabled]{ opacity:.45; cursor:not-allowed; }
-    .btn-success-soft{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
-    .btn-danger-soft{ background:#fef2f2; border-color:#fecaca; color:#991b1b; }
-    .btn-wapp{ color:#128C7E; border-color:#a7f3d0; }
-    .pill{ border-radius:999px; }
-    @media (max-width: 991px){
-      .kpis{ grid-template-columns: repeat(2,1fr); }
-      .actions-cell{ width: 100%; }
-    }
+    body{background:#f6f7fb}
+    .wrap{max-width:1240px;margin:24px auto 48px}
+    .cardx{background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:0 4px 16px rgba(15,23,42,.06)}
+    .cardx>.hd{padding:10px 14px;border-bottom:1px solid var(--ring);background:linear-gradient(180deg,#eef6ff 0,#fff 100%)}
+    .pill{border-radius:999px}
+    .muted{color:var(--muted)}
+    .kpis{display:grid;gap:10px;grid-template-columns:repeat(6,1fr)}
+    .kpi{background:#fff;border:1px solid var(--ring);border-radius:12px;padding:.75rem}
+    .kpi .lab{font-size:.8rem;color:var(--muted)} .kpi .val{font-weight:800;font-size:1.2rem}
+    .legend .chip{padding:.25rem .6rem;border:1px solid var(--ring);border-radius:999px;cursor:pointer}
+    .legend .chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .badge-soft{border:1px solid var(--ring);padding:.2rem .45rem;border-radius:999px;font-weight:600;background:#fff}
+    .bg-soft-green{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+    .bg-soft-amber{background:#fffbeb;border-color:#fde68a;color:#92400e}
+    .bg-soft-red{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+    .bg-soft-purple{background:#f5f3ff;border-color:#ddd6fe;color:#4c1d95}
+    .btn-ic{border:1px solid var(--ring);background:#fff;border-radius:8px;padding:.25rem .45rem;margin:.15rem}
+    .btn-ic:hover{border-color:#cbd5e1}
+    .btn-ic[disabled]{opacity:.45;cursor:not-allowed}
+    .table thead th{border-top:0;background:var(--soft)}
+    .right-col{min-width:330px}
+    @media(max-width:1199px){.kpis{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:991px){.layout{display:block}.right-col{width:100%}}
   </style>
 </head>
 <body>
-  <div class="crm-wrap">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="mb-0">Agenda</h1>
-      <div class="toolbar">
-        <a href="book.html" class="btn btn-sm btn-primary pill">Novo agendamento</a>
-        <input type="date" id="flt-date" class="form-control form-control-sm"/>
-        <button class="btn btn-sm btn-outline-secondary pill" id="btn-prev-day">Dia anterior</button>
-        <button class="btn btn-sm btn-outline-secondary pill" id="btn-today">Hoje</button>
-        <button class="btn btn-sm btn-outline-secondary pill" id="btn-next-day">Próximo dia</button>
+<div class="wrap">
+
+  <!-- TOP BAR -->
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h4 class="mb-0 font-weight-bold">Agenda</h4>
+    <div class="d-flex align-items-center">
+      <input type="date" id="flt-date" class="form-control form-control-sm mr-2"/>
+      <button class="btn btn-sm btn-outline-secondary pill mr-1" id="btn-prev">◀ Dia</button>
+      <button class="btn btn-sm btn-outline-secondary pill mr-1" id="btn-today">Hoje</button>
+      <button class="btn btn-sm btn-outline-secondary pill mr-2" id="btn-next">Dia ▶</button>
+      <a href="book.html" class="btn btn-sm btn-primary pill">Novo</a>
+    </div>
+  </div>
+
+  <!-- MASS ACTIONS / LEGEND -->
+  <div class="cardx mb-3">
+    <div class="hd d-flex align-items-center justify-content-between flex-wrap">
+      <div>
+        <div class="muted">Dia</div>
+        <div class="h5 mb-0" id="day-title">—</div>
+        <div class="muted" id="day-intv" style="font-size:.85rem">—</div>
+      </div>
+      <div class="legend">
+        <span class="chip active" data-filter="all">Todos</span>
+        <span class="chip" data-filter="confirmado">Confirmados</span>
+        <span class="chip" data-filter="pendente">Pendentes</span>
+        <span class="chip" data-filter="cancelado">Cancelados</span>
+      </div>
+      <div class="d-flex flex-wrap mt-2 mt-md-0">
+        <button class="btn btn-sm btn-outline-secondary pill mr-1" id="act-confirm-pending">Confirmar pendentes</button>
+        <button class="btn btn-sm btn-outline-secondary pill mr-1" id="act-send-reminders">Lembretes (WA)</button>
+        <button class="btn btn-sm btn-outline-secondary pill mr-1" id="act-lunch">Bloquear almoço</button>
+        <button class="btn btn-sm btn-outline-secondary pill" id="act-print">Imprimir</button>
       </div>
     </div>
+  </div>
 
-    <!-- Ações em massa -->
-    <div class="crm-card mb-3">
-      <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
-        <div>
-          <div class="muted">Dia</div>
-          <div class="h5 mb-0" id="agenda-title">—</div>
-          <div class="muted" id="agenda-intervalo" style="font-size:.85rem">—</div>
-        </div>
-        <div class="legend">
-          <div class="chip active" data-filter="all">Todos</div>
-          <div class="chip" data-filter="confirmado">Confirmados</div>
-          <div class="chip" data-filter="pendente">Pendentes</div>
-          <div class="chip" data-filter="cancelado">Cancelados</div>
-        </div>
-        <div class="mt-2 mt-md-0">
-          <button class="btn btn-sm btn-outline-secondary pill" id="act-confirm-all">Confirmar pendentes</button>
-          <button class="btn btn-sm btn-outline-secondary pill" id="act-send-reminders">Enviar lembretes (WhatsApp)</button>
-          <button class="btn btn-sm btn-outline-secondary pill" id="act-block-lunch">Bloquear almoço (12:00–13:00)</button>
-          <button class="btn btn-sm btn-outline-secondary pill" id="act-print">Imprimir dia</button>
-        </div>
-      </div>
-    </div>
+  <!-- KPIs -->
+  <div class="kpis mb-3">
+    <div class="kpi"><div class="lab">Agendamentos</div><div class="val" id="kpi-total">—</div></div>
+    <div class="kpi"><div class="lab">Confirmados</div><div class="val" id="kpi-conf">—</div></div>
+    <div class="kpi"><div class="lab">Pendentes</div><div class="val" id="kpi-pend">—</div></div>
+    <div class="kpi"><div class="lab">Cancelados</div><div class="val" id="kpi-canc">—</div></div>
+    <div class="kpi"><div class="lab">Ocupação</div><div class="val"><span id="kpi-occ">—</span>% <span class="muted" style="font-size:.8rem">(<span id="kpi-hours">—</span>)</span></div></div>
+    <div class="kpi"><div class="lab">Est. Faturamento</div><div class="val">R$ <span id="kpi-rev">—</span></div></div>
+  </div>
 
-    <!-- KPIs -->
-    <div class="kpis mb-3">
-      <div class="kpi">
-        <div class="lab">Agendamentos</div>
-        <div class="val" id="kpi-total">—</div>
-      </div>
-      <div class="kpi">
-        <div class="lab">Confirmados</div>
-        <div class="val" id="kpi-conf">—</div>
-      </div>
-      <div class="kpi">
-        <div class="lab">Pendentes</div>
-        <div class="val" id="kpi-pend">—</div>
-      </div>
-      <div class="kpi">
-        <div class="lab">Cancelados</div>
-        <div class="val" id="kpi-canc">—</div>
-      </div>
-      <div class="kpi">
-        <div class="lab">Ocupação</div>
-        <div class="val"><span id="kpi-occup">—</span>% <span class="muted" style="font-size:.8rem">(<span id="kpi-hours">—</span>)</span></div>
-      </div>
-    </div>
-
-    <!-- Tabela -->
-    <div class="crm-card">
-      <div class="card-body">
+  <!-- GRID + RIGHT -->
+  <div class="layout d-flex">
+    <div class="flex-grow-1 mr-lg-3">
+      <div class="cardx">
         <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead>
@@ -127,326 +94,425 @@
                 <th style="width:90px">Hora</th>
                 <th>Paciente</th>
                 <th>Procedimento</th>
-                <th class="status-cell">Status</th>
+                <th style="width:150px">Status</th>
                 <th style="width:120px">Dentista</th>
-                <th style="width:100px">Sala</th>
-                <th class="actions-cell">Ações</th>
+                <th style="width:90px">Sala</th>
+                <th style="width:260px">Ações</th>
               </tr>
             </thead>
-            <tbody id="agenda-tbody">
-              <tr><td colspan="7">Carregando…</td></tr>
-            </tbody>
+            <tbody id="grid-body"><tr><td colspan="7">Carregando…</td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-  </div>
-
-  <script>
-    // ===== CONFIG =====
-    const CRM_API_BASE = 'https://primary-odonto.up.railway.app/webhook/odonto';
-    const TIMEZONE     = 'America/Sao_Paulo';
-    const CLINIC_NAME  = 'Clínica Elen Nogata';
-
-    // ===== Helpers =====
-    const pad2 = n => String(n).padStart(2, '0');
-    const ymdToday = () => { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
-    const fmtBR = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }catch{ return iso; } };
-
-    function statusBadge(s=''){
-      s = (s||'').toLowerCase();
-      if (s.includes('confirm')) return '<span class="badge-soft bg-soft-green">Confirmado</span>';
-      if (s.includes('cancel'))  return '<span class="badge-soft bg-soft-red">Cancelado</span>';
-      return '<span class="badge-soft bg-soft-amber">Pendente</span>';
-    }
-
-    function rangeSlots(start,end,step){
-      const out=[], [sh,sm]=start.split(':').map(Number), [eh,em]=end.split(':').map(Number);
-      let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
-      while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+step*60000); }
-      return out;
-    }
-
-    function computeKPIs(day){
-      const events = day?.events || [];
-      const k = { total:0, conf:0, pend:0, canc:0, minutesBooked:0, minutesOpen:0 };
-      const start = day?.officeHours?.start || '08:00';
-      const end   = day?.officeHours?.end   || '19:00';
-      const step  = day?.intervalMinutes ?? 60;
-      const [sh,sm] = start.split(':').map(Number);
-      const [eh,em] = end.split(':').map(Number);
-      k.minutesOpen = (eh*60+em) - (sh*60+sm);
-
-      events.forEach(ev=>{
-        k.total++;
-        const s = (ev.status||'').toLowerCase();
-        if (s.includes('confirm')) k.conf++;
-        else if (s.includes('cancel')) k.canc++;
-        else k.pend++;
-
-        const dur = Number(ev.durationMin||step);
-        if (!s.includes('cancel')) k.minutesBooked += dur;
-      });
-      k.occup = Math.round(100 * (k.minutesBooked / Math.max(1,k.minutesOpen)));
-      return k;
-    }
-
-    function toWA(num){ if(!num) return ''; const d=num.replace(/\D/g,''); return (d.length===11?`55${d}`:d); }
-
-    // ===== API =====
-    async function fetchDay(dateStr){
-      const url = `${CRM_API_BASE}/appointments/day?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
-      const res = await fetch(url, { headers: { 'Accept':'application/json' } });
-      if(!res.ok) {
-        const t = await res.text().catch(()=> '');
-        throw new Error(t || 'Falha ao buscar agenda');
-      }
-      return res.json();
-    }
-
-    // ===== Mensagens WhatsApp =====
-    function messageReminder(dayStr, timeStr, nome, proc){
-      return `Olá ${nome||''}! Lembramos sua consulta ${proc?`de ${proc} `:''}em ${CLINIC_NAME} no dia ${fmtBR(dayStr)} às ${timeStr}. `+
-             `Qualquer imprevisto nos avise por aqui. Até breve!`;
-    }
-    function messageConfirm(dayStr, timeStr, nome, proc){
-      return `Olá ${nome||''}! Poderia confirmar sua consulta ${proc?`de ${proc} `:''}em ${CLINIC_NAME} `+
-             `para ${fmtBR(dayStr)} às ${timeStr}? Responda OK.`;
-    }
-
-    // ===== Render =====
-    function renderRowActions(ev, ds){
-      // Data attributes para handlers
-      const baseAttrs = `data-id="${ev.id||''}" data-start="${ev.start||''}" data-date="${ds}"`;
-      const wa = toWA(ev.phone||'');
-      const waHref = wa ? `https://wa.me/${wa}?text=${encodeURIComponent(messageReminder(ds, ev.start, ev.patientName, ev.procedure))}` : '';
-      return `
-        <div class="d-flex flex-wrap">
-          <a class="btn-icon btn-wapp" ${wa?`href="${waHref}" target="_blank"`:'disabled'} title="WhatsApp"><span>🟢</span><small>WA</small></a>
-          <button class="btn-icon btn-success-soft" data-action="confirm" ${baseAttrs} title="Confirmar">✅</button>
-          <button class="btn-icon" data-action="checkin" ${baseAttrs} title="Check-in">⏱</button>
-          <button class="btn-icon" data-action="finish" ${baseAttrs} title="Concluir">✔</button>
-          <button class="btn-icon btn-danger-soft" data-action="noshow" ${baseAttrs} title="Falta">🚫</button>
-          <button class="btn-icon" data-action="reschedule" ${baseAttrs} title="Reagendar">↔</button>
+    <div class="right-col">
+      <!-- Espera -->
+      <div class="cardx mb-3">
+        <div class="hd"><strong>Lista de Espera</strong></div>
+        <div class="p-2">
+          <form id="wl-form" class="mb-2">
+            <div class="form-row">
+              <div class="col-6"><input class="form-control form-control-sm" placeholder="Nome" id="wl-name" required></div>
+              <div class="col-6"><input class="form-control form-control-sm" placeholder="WhatsApp" id="wl-phone"></div>
+            </div>
+            <input class="form-control form-control-sm mt-1" placeholder="Procedimento" id="wl-proc">
+            <input class="form-control form-control-sm mt-1" placeholder="Observações" id="wl-notes">
+            <button class="btn btn-sm btn-outline-secondary pill mt-2 btn-block">Adicionar à lista</button>
+          </form>
+          <ul class="list-unstyled mb-0" id="wl-list"><li class="muted">Carregando…</li></ul>
         </div>
-      `;
-    }
+      </div>
 
-    function renderDay(tbody, dayData, filter='all'){
-      const start = dayData.officeHours?.start || '08:00';
-      const end   = dayData.officeHours?.end   || '19:00';
-      const step  = dayData.intervalMinutes ?? 60;
+      <!-- Tarefas do dia -->
+      <div class="cardx mb-3">
+        <div class="hd d-flex align-items-center justify-content-between">
+          <strong>Tarefas do dia</strong>
+          <button class="btn btn-sm btn-outline-secondary pill" id="task-add">Nova</button>
+        </div>
+        <div class="p-2">
+          <ul id="tasks" class="list-unstyled mb-0"></ul>
+        </div>
+      </div>
 
-      const slots = rangeSlots(start,end,step);
-      const events = dayData.events || [];
-      const byStart = {};
-      events.forEach(ev => { if (ev?.start) byStart[ev.start] = ev; });
+      <!-- Notas -->
+      <div class="cardx">
+        <div class="hd"><strong>Notas do dia</strong></div>
+        <div class="p-2">
+          <ul class="mb-0" id="day-notes">
+            <li>Checar estoque de anestésico.</li>
+            <li>Retorno de Felipe — confirmar Raio-X.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-      tbody.innerHTML = '';
-      slots.forEach(hhmm=>{
-        const ev = byStart[hhmm];
-        if (!ev) {
-          if (filter==='all') {
-            tbody.insertAdjacentHTML('beforeend', `
-              <tr>
-                <td>${hhmm}</td>
-                <td class="text-muted">—</td>
-                <td class="text-muted">—</td>
-                <td class="status-cell">${statusBadge('livre')}</td>
-                <td>—</td>
-                <td>—</td>
-                <td class="actions-cell">
-                  <div class="d-flex flex-wrap">
-                    <a href="book.html" class="btn-icon" title="Agendar">➕ Agendar</a>
-                    <button class="btn-icon" data-action="block" data-date="${dayData.date}" data-start="${hhmm}" title="Bloquear">🚧 Bloquear</button>
-                  </div>
-                </td>
-              </tr>
-            `);
-          }
-          return;
-        }
+<!-- Reagendar -->
+<div class="modal fade" id="md-reag" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Reagendar</h5><button class="close" data-dismiss="modal"><span>&times;</span></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="md-id">
+        <div class="form-row">
+          <div class="form-group col-md-5">
+            <label>Data</label>
+            <input type="date" class="form-control" id="md-date" required>
+          </div>
+          <div class="form-group col-md-7">
+            <label>Horários</label>
+            <div id="md-slots" class="d-flex flex-wrap" style="gap:8px"></div>
+            <small class="text-muted d-block mt-1">Selecione um horário disponível.</small>
+            <input type="hidden" id="md-time">
+          </div>
+        </div>
+        <div id="md-feedback" class="mt-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary pill" data-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary pill" id="md-save">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        const s = (ev.status||'').toLowerCase();
-        const sKey = s.includes('confirm')?'confirmado':(s.includes('cancel')?'cancelado':'pendente');
-        if (filter!=='all' && filter!==sKey) return;
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ========= CONFIG ========= */
+const API_BASE = 'https://primary-odonto.up.railway.app/webhook/odonto';
+const AVAIL_URL = 'https://primary-odonto.up.railway.app/webhook/availability';
+const TZ = 'America/Sao_Paulo';
+const CLINIC = 'Clínica Elen Nogata';
 
-        tbody.insertAdjacentHTML('beforeend', `
+/* ========= HELPERS ========= */
+const pad2 = n => String(n).padStart(2,'0');
+const ymdToday = () => { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
+const fmtBR = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }catch{ return iso; } };
+const toWA = raw => { if(!raw) return ''; const d=raw.replace(/\D/g,''); return d.length===11?`55${d}`:d; };
+
+function statusBadge(s=''){
+  s=(s||'').toLowerCase();
+  if(s.includes('confirm')) return '<span class="badge-soft bg-soft-green">Confirmado</span>';
+  if(s.includes('cancel'))  return '<span class="badge-soft bg-soft-red">Cancelado</span>';
+  if(s.includes('check-in'))return '<span class="badge-soft bg-soft-purple">Check-in</span>';
+  if(s.includes('concluded'))return '<span class="badge-soft">Concluído</span>';
+  return '<span class="badge-soft bg-soft-amber">Pendente</span>';
+}
+
+function rangeSlots(start,end,step){
+  const out=[], [sh,sm]=start.split(':').map(Number), [eh,em]=end.split(':').map(Number);
+  let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
+  while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+step*60000); }
+  return out;
+}
+
+/* ========= API ========= */
+async function fetchDay(date){
+  const u = `${API_BASE}/appointments/day?date=${encodeURIComponent(date)}&tz=${encodeURIComponent(TZ)}`;
+  const r = await fetch(u, {headers:{Accept:'application/json'}}); if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function fetchAvailability(date){
+  const u = `${AVAIL_URL}?date=${encodeURIComponent(date)}&tz=${encodeURIComponent(TZ)}`;
+  const r = await fetch(u, {headers:{Accept:'application/json'}}); if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function fetchProcedures(){
+  // opcional: precificação para KPI de faturamento
+  try{
+    const r = await fetch(`${API_BASE}/procedures`,{headers:{Accept:'application/json'}});
+    if(!r.ok) return [];
+    return r.json();
+  }catch{ return []; }
+}
+async function apiPost(path, payload){
+  const r = await fetch(`${API_BASE}${path}`,{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const data = await r.json().catch(()=> ({}));
+  if(!r.ok) throw new Error(data?.message||'Erro');
+  return data;
+}
+
+/* ========= STATE ========= */
+let gDay=null, gFilter='all', gProcedures=[], gProcByName={};
+
+/* ========= RENDER ========= */
+function rowActions(ev, date){
+  const wa=toWA(ev.phone||'');
+  const waHref= wa? `https://wa.me/${wa}?text=${encodeURIComponent(
+    `Olá ${ev.patientName||''}! Lembramos sua consulta ${ev.procedure?`de ${ev.procedure} `:''}em ${CLINIC} em ${fmtBR(date)} às ${ev.start}.`
+  )}` : '#';
+  const common = `data-id="${ev.id||''}" data-date="${date}" data-time="${ev.start||''}"`;
+  return `
+    <a class="btn-ic" ${wa?`href="${waHref}" target="_blank"`:'disabled'} title="WhatsApp">🟢</a>
+    <button class="btn-ic" data-act="confirm" ${common} title="Confirmar">✅</button>
+    <button class="btn-ic" data-act="checkin" ${common} title="Check-in">⏱</button>
+    <button class="btn-ic" data-act="finish" ${common} title="Concluir">✔</button>
+    <button class="btn-ic" data-act="noshow" ${common} title="Falta">🚫</button>
+    <button class="btn-ic" data-act="reag" ${common} title="Reagendar">↔</button>
+  `;
+}
+
+function renderTable(){
+  const tb=document.getElementById('grid-body'); tb.innerHTML='';
+  const start=gDay?.officeHours?.start||'08:00', end=gDay?.officeHours?.end||'19:00', step=gDay?.intervalMinutes||60;
+  const slots=rangeSlots(start,end,step); const evByStart={}; (gDay?.events||[]).forEach(e=>{ if(e.start) evByStart[e.start]=e; });
+
+  slots.forEach(h=>{
+    const ev=evByStart[h];
+    if(!ev){
+      if(gFilter==='all'){
+        tb.insertAdjacentHTML('beforeend',`
           <tr>
-            <td>${ev.start||'--:--'}</td>
-            <td>${ev.patientName||'-'}</td>
-            <td>${ev.procedure||'-'}</td>
-            <td class="status-cell">${statusBadge(ev.status)}</td>
-            <td>${ev.dentist||'—'}</td>
-            <td>${ev.room||'—'}</td>
-            <td class="actions-cell">${renderRowActions(ev, dayData.date)}</td>
+            <td>${h}</td><td class="text-muted">—</td><td class="text-muted">—</td>
+            <td>${statusBadge('livre')}</td><td>—</td><td>—</td>
+            <td>
+              <a href="book.html" class="btn-ic" title="Agendar">➕</a>
+              <button class="btn-ic" data-act="block" data-date="${gDay.date}" data-time="${h}">🚧</button>
+            </td>
           </tr>
         `);
-      });
+      }
+      return;
     }
 
-    // ===== Estado / Boot =====
-    (function(){
-      const dateInput   = document.getElementById('flt-date');
-      const tbody       = document.getElementById('agenda-tbody');
-      const titleEl     = document.getElementById('agenda-title');
-      const lblInt      = document.getElementById('agenda-intervalo');
-      const kTotal      = document.getElementById('kpi-total');
-      const kConf       = document.getElementById('kpi-conf');
-      const kPend       = document.getElementById('kpi-pend');
-      const kCanc       = document.getElementById('kpi-canc');
-      const kOccup      = document.getElementById('kpi-occup');
-      const kHours      = document.getElementById('kpi-hours');
+    const s=(ev.status||'').toLowerCase();
+    const sKey=s.includes('confirm')?'confirmado':(s.includes('cancel')?'cancelado':(s.includes('check-in')?'confirmado':'pendente'));
+    if(gFilter!=='all' && gFilter!==sKey) return;
+    tb.insertAdjacentHTML('beforeend',`
+      <tr>
+        <td>${ev.start}</td>
+        <td>${ev.patientName||'-'}</td>
+        <td>${ev.procedure||'-'}</td>
+        <td>${statusBadge(ev.status)}</td>
+        <td>${ev.dentist||'—'}</td>
+        <td>${ev.room||'—'}</td>
+        <td>${rowActions(ev,gDay.date)}</td>
+      </tr>
+    `);
+  });
+}
 
-      let filterState = 'all';
-      let lastDay = null;
+function computeKPIs(){
+  const ev=gDay?.events||[], step=gDay?.intervalMinutes||60;
+  const k={total:0,conf:0,pend:0,canc:0,bookedMin:0,openMin:0,rev:0};
+  const [sh,sm]=(gDay?.officeHours?.start||'08:00').split(':').map(Number);
+  const [eh,em]=(gDay?.officeHours?.end||'19:00').split(':').map(Number);
+  k.openMin=(eh*60+em)-(sh*60+sm);
 
-      async function loadDay(){
-        const ds = dateInput.value || ymdToday();
-        titleEl.textContent = `${fmtBR(ds)} • ${TIMEZONE.replace('_',' ')}`;
-        tbody.innerHTML = '<tr><td colspan="7">Carregando…</td></tr>';
+  ev.forEach(e=>{
+    k.total++;
+    const s=(e.status||'').toLowerCase();
+    if(s.includes('cancel')) k.canc++;
+    else if(s.includes('confirm')||s.includes('check-in')||s.includes('concluded')) k.conf++;
+    else k.pend++;
 
-        try{
-          const day = await fetchDay(ds);
-          lastDay = day;
-          lblInt.textContent = `Intervalo de ${day?.intervalMinutes ?? 60} min`;
-          renderDay(tbody, day, filterState);
+    const dur=Number(e.durationMin||step);
+    if(!s.includes('cancel')) k.bookedMin+=dur;
 
-          const k = computeKPIs(day);
-          kTotal.textContent = k.total; kConf.textContent = k.conf; kPend.textContent = k.pend; kCanc.textContent = k.canc;
-          kOccup.textContent = isFinite(k.occup)? k.occup : '—';
-          const hrsBooked = (k.minutesBooked/60).toFixed(1);
-          const hrsOpen   = (k.minutesOpen/60).toFixed(1);
-          kHours.textContent = `${hrsBooked}h / ${hrsOpen}h`;
-        }catch(e){
-          console.error(e);
-          tbody.innerHTML = `<tr><td colspan="7" class="text-danger">${e.message||'Erro ao carregar agenda'}</td></tr>`;
-          [kTotal,kConf,kPend,kCanc,kOccup,kHours].forEach(x=>x.textContent='—');
-        }
-      }
+    const price = gProcByName[(e.procedure||'').trim()]?.price || 0;
+    if(!s.includes('cancel')) k.rev += price;
+  });
 
-      // Navegação
-      function shiftDay(delta){
-        const d = new Date(dateInput.value || ymdToday());
-        d.setDate(d.getDate()+delta);
-        dateInput.value = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-        loadDay();
-      }
-      document.getElementById('btn-prev-day').addEventListener('click', ()=>shiftDay(-1));
-      document.getElementById('btn-next-day').addEventListener('click', ()=>shiftDay(1));
-      document.getElementById('btn-today').addEventListener('click', ()=>{ dateInput.value = ymdToday(); loadDay(); });
+  document.getElementById('kpi-total').textContent=k.total;
+  document.getElementById('kpi-conf').textContent=k.conf;
+  document.getElementById('kpi-pend').textContent=k.pend;
+  document.getElementById('kpi-canc').textContent=k.canc;
+  document.getElementById('kpi-occ').textContent = Math.round(100*(k.bookedMin/Math.max(1,k.openMin)));
+  document.getElementById('kpi-hours').textContent = `${(k.bookedMin/60).toFixed(1)}h / ${(k.openMin/60).toFixed(1)}h`;
+  document.getElementById('kpi-rev').textContent = k.rev.toLocaleString('pt-BR',{minimumFractionDigits:2});
+}
 
-      // Filtro
-      document.querySelectorAll('.legend .chip').forEach(ch=>{
-        ch.addEventListener('click', ()=>{
-          document.querySelectorAll('.legend .chip').forEach(x=>x.classList.remove('active'));
-          ch.classList.add('active');
-          filterState = ch.dataset.filter || 'all';
-          if (lastDay) renderDay(tbody, lastDay, filterState);
-        });
-      });
+async function loadDay(){
+  const ds=document.getElementById('flt-date').value || ymdToday();
+  document.getElementById('day-title').textContent=`${fmtBR(ds)} • ${TZ.replace('_',' ')}`;
+  document.getElementById('grid-body').innerHTML='<tr><td colspan="7">Carregando…</td></tr>';
+  try{
+    gDay=await fetchDay(ds);
+    document.getElementById('day-intv').textContent=`Intervalo de ${gDay?.intervalMinutes||60} min`;
+    renderTable(); computeKPIs(); loadWaitlist();
+  }catch(e){
+    document.getElementById('grid-body').innerHTML=`<tr><td colspan="7" class="text-danger">${e.message}</td></tr>`;
+  }
+}
 
-      // Ações de linha / massa
-      document.addEventListener('click', (e)=>{
-        const btn = e.target.closest('[data-action]');
-        if(!btn) return;
-        const action = btn.dataset.action;
+async function loadProceduresIndex(){
+  gProcedures = await fetchProcedures();
+  gProcByName = Object.fromEntries((gProcedures||[]).map(p=>[String(p.name||'').trim(), p]));
+}
 
-        // linha
-        if(['confirm','checkin','finish','noshow','reschedule','block'].includes(action)){
-          e.preventDefault();
-          if(!lastDay) return;
-          const id    = btn.dataset.id;
-          const time  = btn.dataset.start;
-          const date  = btn.dataset.date || (lastDay?.date);
+/* ========= WAITLIST ========= */
+async function loadWaitlist(){
+  const ds=document.getElementById('flt-date').value || ymdToday();
+  const ul=document.getElementById('wl-list'); ul.innerHTML='Carregando…';
+  try{
+    const r=await fetch(`${API_BASE}/waitlist/list?date=${encodeURIComponent(ds)}`); 
+    const items= await r.json().catch(()=>[]);
+    if(!items.length){ ul.innerHTML='<li class="muted">Sem itens</li>'; return; }
+    ul.innerHTML='';
+    items.forEach(w=>{
+      const wa=toWA(w.phone||''); const assignAttrs=`data-name="${w.name||''}" data-proc="${w.procedure||''}" data-phone="${w.phone||''}"`;
+      ul.insertAdjacentHTML('beforeend',`
+        <li class="py-1 border-bottom">
+          <div class="d-flex justify-content-between">
+            <div><strong>${w.name||'-'}</strong> <span class="muted">(${w.procedure||'—'})</span></div>
+            <div>
+              <button class="btn btn-sm btn-outline-secondary pill" data-act="assign" ${assignAttrs}>Agendar</button>
+              ${wa?`<a class="btn btn-sm btn-outline-secondary pill" target="_blank" href="https://wa.me/${wa}?text=${encodeURIComponent('Temos uma vaga hoje, gostaria?')}">WA</a>`:''}
+            </div>
+          </div>
+        </li>
+      `);
+    });
+  }catch{ ul.innerHTML='<li class="text-danger">Falha ao carregar</li>'; }
+}
 
-          if(action==='block'){
-            // cria um "evento visual" de bloqueio
-            const already = (lastDay.events||[]).some(ev => ev.start===time);
-            if(!already){
-              (lastDay.events ||= []).push({
-                id: `block-${date}-${time}`,
-                start: time,
-                end: time,
-                durationMin: lastDay.intervalMinutes||60,
-                patientName: 'Bloqueado',
-                procedure: 'Indisponível',
-                status: 'cancelled',
-                dentist: '',
-                room: '',
-                notes: 'Bloqueio manual'
-              });
-              renderDay(tbody, lastDay, filterState);
-            }
-            // TODO: POST para criar bloqueio real (n8n/Google Calendar)
-            return;
-          }
+document.getElementById('wl-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const payload={ name:wl-name.value.trim(), phone:wl-phone.value.trim(), procedure:wl-proc.value.trim(), notes:wl-notes.value.trim(), tz:TZ, date:flt-date.value };
+  try{ await apiPost('/waitlist/add', payload); wl-form.reset(); loadWaitlist(); }catch(err){ alert(err.message); }
+});
 
-          const ev = (lastDay.events||[]).find(x => (id && x.id===id) || (!id && x.start===time));
-          if(!ev) return;
+/* ========= ACTIONS ========= */
+document.addEventListener('click', async (ev)=>{
+  const b = ev.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, id=b.dataset.id, date=b.dataset.date, time=b.dataset.time;
 
-          if(action==='confirm'){ ev.status='confirmed'; }
-          if(action==='checkin'){ ev.status='check-in'; }       // rótulo interno
-          if(action==='finish'){  ev.status='concluded'; }
-          if(action==='noshow'){  ev.status='cancelled'; }      // tratar como cancelado
-          if(action==='reschedule'){ alert('Abriria modal de reagendamento aqui.'); /* TODO: abrir seu modal/endpoint */ }
+  if(act==='block'){ // bloqueio manual
+    try{
+      await apiPost('/appointments/block',{date,time,reason:'Bloqueio manual',durationMin:gDay.intervalMinutes||60,tz:TZ});
+      await loadDay();
+    }catch(err){ alert(err.message); }
+    return;
+  }
 
-          renderDay(tbody, lastDay, filterState);
-          // TODO: POST status para n8n -> Google Calendar / base de dados
-          return;
-        }
-      });
+  if(act==='reag'){ // abrir modal
+    $('#md-reag').modal('show');
+    md-id.value=id; md-date.value=date; md-time.value=''; md-slots.innerHTML='Carregando…'; md-feedback.textContent='';
+    try{
+      const bag=await fetchAvailability(date);
+      const slots=rangeSlots(bag?.officeHours?.start||'08:00', bag?.officeHours?.end||'19:00', bag?.intervalMinutes||60);
+      const busy=(bag?.busy||[]);
+      const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
+      const free=slots.filter(s=>!busy.some(([a,b])=>toMin(s)>=toMin(a)&&toMin(s)<toMin(b)));
+      md-slots.innerHTML = free.map(t=>`<button class="btn btn-sm btn-outline-secondary pill m-1" data-sel="${t}">${t}</button>`).join('') || '<div class="muted">Sem horários disponíveis</div>';
+    }catch{ md-slots.innerHTML='<div class="text-danger">Erro ao carregar disponibilidade.</div>'; }
+    return;
+  }
 
-      // Massa: confirmar pendentes
-      document.getElementById('act-confirm-all').addEventListener('click', ()=>{
-        if(!lastDay?.events) return;
-        lastDay.events.forEach(ev=>{
-          const s = (ev.status||'').toLowerCase();
-          if(!s.includes('confirm') && !s.includes('cancel')) ev.status='confirmed';
-        });
-        renderDay(tbody, lastDay, filterState);
-        // TODO: POST em lote
-      });
+  if(b.dataset.sel){ // selecionar slot do modal
+    md-time.value=b.dataset.sel;
+    document.querySelectorAll('#md-slots [data-sel]').forEach(x=>x.classList.remove('btn-primary')); 
+    b.classList.add('btn-primary');
+    return;
+  }
 
-      // Massa: lembretes WA
-      document.getElementById('act-send-reminders').addEventListener('click', ()=>{
-        if(!lastDay?.events) return;
-        const ds = lastDay.date;
-        lastDay.events.forEach(ev=>{
-          if(!ev.start) return;
-          const wa = toWA(ev.phone||'');
-          if(!wa) return;
-          const msg = messageReminder(ds, ev.start, ev.patientName, ev.procedure);
-          window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
-        });
-      });
+  if(['confirm','checkin','finish','noshow'].includes(act)){ // status
+    const statusMap={confirm:'confirmed',checkin:'check-in',finish:'concluded',noshow:'cancelled'};
+    try{
+      await apiPost('/appointments/updateStatus',{id,date,time,status:statusMap[act],tz:TZ});
+      await loadDay();
+    }catch(err){ alert(err.message); }
+    return;
+  }
 
-      // Bloquear almoço
-      document.getElementById('act-block-lunch').addEventListener('click', ()=>{
-        if(!lastDay) return;
-        const lunchStart = '12:00';
-        const dur = lastDay.intervalMinutes||60;
-        const exists = (lastDay.events||[]).some(x=>x.start===lunchStart);
-        if(!exists){
-          (lastDay.events ||= []).push({
-            id: `lunch-${lastDay.date}`,
-            start:lunchStart, end:lunchStart,
-            durationMin: dur,
-            patientName:'Almoço', procedure:'Bloqueio',
-            status:'cancelled', notes:'Almoço'
-          });
-          renderDay(tbody, lastDay, filterState);
-          // TODO: POST bloqueio almoço
-        }
-      });
+  if(act==='assign'){ // atribuir espera à primeira vaga (simples: abre modal já com a data atual)
+    $('#md-reag').modal('show');
+    md-id.value=''; md-date.value=flt-date.value;
+    md-slots.innerHTML='Carregando…'; md-feedback.textContent=`Agendando ${b.dataset.name} • ${b.dataset.proc||''}`;
+    try{
+      const bag=await fetchAvailability(md-date.value);
+      const slots=rangeSlots(bag?.officeHours?.start||'08:00', bag?.officeHours?.end||'19:00', bag?.intervalMinutes||60);
+      const busy=(bag?.busy||[]); const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
+      const free=slots.filter(s=>!busy.some(([a,b])=>toMin(s)>=toMin(a)&&toMin(s)<toMin(b)));
+      md-slots.innerHTML = free.map(t=>`<button class="btn btn-sm btn-outline-secondary pill m-1" data-sel="${t}">${t}</button>`).join('') || '<div class="muted">Sem horários</div>';
+      md-feedback.dataset.wl = JSON.stringify({name:b.dataset.name, phone:b.dataset.phone, procedure:b.dataset.proc});
+    }catch{ md-slots.innerHTML='<div class="text-danger">Erro ao carregar disponibilidade.</div>'; }
+    return;
+  }
+});
 
-      document.getElementById('act-print').addEventListener('click', ()=>window.print());
+/* salvar reagendamento / novo */
+document.getElementById('md-save').addEventListener('click', async ()=>{
+  const id=md-id.value, date=md-date.value, time=md-time.value;
+  if(!time){ md-feedback.innerHTML='<div class="text-danger">Selecione um horário.</div>'; return; }
+  try{
+    const extra = md-feedback.dataset.wl ? JSON.parse(md-feedback.dataset.wl) : null;
+    await apiPost('/appointments/reschedule',{ id,date,time,tz:TZ, waitlistAssign:extra });
+    md-feedback.innerHTML='<div class="text-success">Salvo!</div>';
+    setTimeout(()=>{$('#md-reag').modal('hide'); md-feedback.innerHTML=''; md-feedback.dataset.wl='';}, 400);
+    await loadDay();
+  }catch(err){ md-feedback.innerHTML=`<div class="text-danger">${err.message}</div>`; }
+});
 
-      // Boot
-      dateInput.value = ymdToday();
-      loadDay();
-    })();
-  </script>
+/* ========= MASS ========= */
+document.getElementById('act-confirm-pending').addEventListener('click', async ()=>{
+  const pend=(gDay?.events||[]).filter(e=>!(String(e.status||'').toLowerCase().includes('confirm') || String(e.status||'').toLowerCase().includes('cancel')));
+  for(const e of pend){
+    try{ await apiPost('/appointments/updateStatus',{id:e.id,date:gDay.date,time:e.start,status:'confirmed',tz:TZ}); }catch{}
+  }
+  await loadDay();
+});
+document.getElementById('act-send-reminders').addEventListener('click', ()=>{
+  (gDay?.events||[]).forEach(e=>{
+    const wa=toWA(e.phone||''); if(!wa || !e.start) return;
+    const msg=`Olá ${e.patientName||''}! Lembramos sua consulta ${e.procedure?`de ${e.procedure} `:''}em ${CLINIC} em ${fmtBR(gDay.date)} às ${e.start}.`;
+    window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`,'_blank');
+  });
+});
+document.getElementById('act-lunch').addEventListener('click', async ()=>{
+  try{ await apiPost('/appointments/block',{date:gDay.date,time:'12:00',durationMin:gDay?.intervalMinutes||60,reason:'Almoço',tz:TZ}); await loadDay(); }
+  catch(err){ alert(err.message); }
+});
+document.getElementById('act-print').addEventListener('click',()=>window.print());
+
+/* ========= NAV / FILTER ========= */
+document.getElementById('btn-prev').addEventListener('click',()=>shift(-1));
+document.getElementById('btn-next').addEventListener('click',()=>shift(+1));
+document.getElementById('btn-today').addEventListener('click',()=>{flt-date.value=ymdToday();loadDay();});
+function shift(dlt){ const d=new Date(flt-date.value||ymdToday()); d.setDate(d.getDate()+dlt); flt-date.value=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; loadDay(); }
+document.getElementById('flt-date').addEventListener('change',loadDay);
+document.querySelectorAll('.legend .chip').forEach(ch=>ch.addEventListener('click',()=>{
+  document.querySelectorAll('.legend .chip').forEach(x=>x.classList.remove('active'));
+  ch.classList.add('active'); gFilter=ch.dataset.filter||'all'; renderTable();
+}));
+
+/* ========= TASKS (local) ========= */
+const TASKS_KEY='dent_tasks';
+function loadTasks(){ const ul=document.getElementById('tasks'); const arr=JSON.parse(localStorage.getItem(TASKS_KEY)||'[]'); ul.innerHTML=''; arr.forEach((t,i)=>ul.insertAdjacentHTML('beforeend',`
+  <li class="d-flex align-items-center justify-content-between py-1 border-bottom">
+    <div><input type="checkbox" ${t.done?'checked':''} data-tk="${i}" class="mr-2"/> ${t.text}</div>
+    <button class="btn btn-sm btn-outline-secondary pill" data-rm="${i}">Remover</button>
+  </li>`));
+}
+document.getElementById('task-add').addEventListener('click',()=>{
+  const text=prompt('Nova tarefa'); if(!text) return;
+  const arr=JSON.parse(localStorage.getItem(TASKS_KEY)||'[]'); arr.push({text,done:false}); localStorage.setItem(TASKS_KEY,JSON.stringify(arr)); loadTasks();
+});
+document.addEventListener('change',(e)=>{ if(e.target.matches('[data-tk]')){ const idx=+e.target.dataset.tk; const arr=JSON.parse(localStorage.getItem(TASKS_KEY)||'[]'); arr[idx].done=e.target.checked; localStorage.setItem(TASKS_KEY,JSON.stringify(arr)); }});
+document.addEventListener('click',(e)=>{ if(e.target.matches('[data-rm]')){ const idx=+e.target.dataset.rm; const arr=JSON.parse(localStorage.getItem(TASKS_KEY)||'[]'); arr.splice(idx,1); localStorage.setItem(TASKS_KEY,JSON.stringify(arr)); loadTasks(); }});
+
+/* ========= SHORTCUTS ========= */
+document.addEventListener('keydown',(e)=>{
+  if(e.altKey||e.ctrlKey||e.metaKey) return;
+  if(e.key==='n') window.location='book.html';
+  if(e.key==='t') {flt-date.value=ymdToday(); loadDay();}
+  if(e.key==='ArrowLeft') shift(-1);
+  if(e.key==='ArrowRight') shift(+1);
+});
+
+/* ========= BOOT ========= */
+(async function(){
+  flt-date.value=ymdToday();
+  await loadProceduresIndex();
+  loadTasks();
+  loadDay();
+})();
+</script>
 </body>
 </html>

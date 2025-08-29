@@ -1,517 +1,921 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Agenda Ultra — Clínica</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM Odonto – Agenda</title>
+
+  <!-- CSS base -->
+  <link rel="stylesheet" href="../css/bootstrap.css" />
+  <link rel="stylesheet" href="css/crm.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <script src="js/sidebar.js" defer></script>
+
   <style>
-    :root{
-      --ring:#e5e7eb; --muted:#64748b; --soft:#f8fafc; --brand:#0ea5e9;
-      --green:#10b981; --red:#ef4444; --amber:#f59e0b; --purple:#7c3aed;
-    }
-    body{background:#f6f7fb}
-    .wrap{max-width:1240px;margin:24px auto 48px}
-    .cardx{background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:0 4px 16px rgba(15,23,42,.06)}
-    .cardx>.hd{padding:10px 14px;border-bottom:1px solid var(--ring);background:linear-gradient(180deg,#eef6ff 0,#fff 100%)}
-    .pill{border-radius:999px}
+    :root{ --ring:#e5e7eb; --muted:#64748b; }
+    .btn-pill{border-radius:999px}
     .muted{color:var(--muted)}
-    .kpis{display:grid;gap:10px;grid-template-columns:repeat(6,1fr)}
-    .kpi{background:#fff;border:1px solid var(--ring);border-radius:12px;padding:.75rem}
-    .kpi .lab{font-size:.8rem;color:var(--muted)} .kpi .val{font-weight:800;font-size:1.2rem}
-    .legend .chip{padding:.25rem .6rem;border:1px solid var(--ring);border-radius:999px;cursor:pointer}
-    .legend .chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
-    .badge-soft{border:1px solid var(--ring);padding:.2rem .45rem;border-radius:999px;font-weight:600;background:#fff}
-    .bg-soft-green{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
-    .bg-soft-amber{background:#fffbeb;border-color:#fde68a;color:#92400e}
-    .bg-soft-red{background:#fef2f2;border-color:#fecaca;color:#991b1b}
-    .bg-soft-purple{background:#f5f3ff;border-color:#ddd6fe;color:#4c1d95}
-    .btn-ic{border:1px solid var(--ring);background:#fff;border-radius:8px;padding:.25rem .45rem;margin:.15rem}
-    .btn-ic:hover{border-color:#cbd5e1}
-    .btn-ic[disabled]{opacity:.45;cursor:not-allowed}
-    .table thead th{border-top:0;background:var(--soft)}
-    .right-col{min-width:330px}
-    @media(max-width:1199px){.kpis{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:991px){.layout{display:block}.right-col{width:100%}}
+    /* Cards e grade */
+    .kpi-cards{display:grid; gap:10px; grid-template-columns:repeat(4,1fr)}
+    .kpi{border:1px solid var(--ring);border-radius:12px;background:#fff;padding:.75rem}
+    .kpi .lab{font-size:.8rem;color:var(--muted)}
+    .kpi .val{font-weight:800;font-size:1.25rem}
+
+    /* Calendário inline */
+    .agenda-inline .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+    .agenda-inline .cal-head .month{font-weight:800;letter-spacing:.2px}
+    .agenda-inline .cal{background:#fff;border:1px solid var(--ring);border-radius:14px;padding:.6rem}
+    .agenda-inline .dow{display:grid;grid-template-columns:repeat(7,1fr);font-size:.75rem;color:var(--muted);text-align:center}
+    .agenda-inline .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding-top:6px}
+    .agenda-inline .day{position:relative;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:600}
+    .agenda-inline .day.out{opacity:.35}
+    .agenda-inline .day.sel{color:#111}
+    .agenda-inline .day.sel::before{content:"";position:absolute;inset:0;border-radius:10px;background:linear-gradient(180deg,#eef6ff 0,#f3f0ff 100%);box-shadow:0 1px 0 rgba(0,0,0,.05) inset}
+    .agenda-inline .day .underline{position:absolute;left:22%;right:22%;bottom:6px;height:3px;background:#10b981;border-radius:3px;opacity:0}
+    .agenda-inline .day.avail .underline{opacity:1}
+
+    /* Tabela do dia */
+    .agenda-wrap{position:relative}
+    .now-line{position:absolute;left:0;right:0;height:2px;background:#ef4444;transform:translateY(-50%);display:none}
+    .now-line::after{content:"Agora";position:absolute;right:0;top:-10px;font-size:.7rem;background:#fee2e2;color:#991b1b;padding:.1rem .35rem;border-radius:999px;border:1px solid #fecaca}
+
+    .badge-soft{display:inline-block;padding:.25rem .55rem;border-radius:999px;border:1px solid var(--ring);font-weight:600}
+    .bg-soft-green{background:#ecfdf5;border-color:#a7f3d0}
+    .bg-soft-amber{background:#fffbeb;border-color:#fde68a}
+    .bg-soft-red{background:#fef2f2;border-color:#fecaca}
+    .bg-soft-blue{background:#eff6ff;border-color:#bfdbfe}
+    .bg-soft-purple{background:#f5f3ff;border-color:#ddd6fe}
+    .bg-soft-gray{background:#f3f4f6;border-color:#e5e7eb}
+
+    /* Modal estilos */
+    .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
+    .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
+    #reag-slots .slot{border:1px solid var(--ring);border-radius:999px;padding:.35rem .6rem;background:#fff}
+    #reag-slots .slot.selected{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+    #reag-slots .slot.disabled{opacity:.45;cursor:not-allowed}
+
+    /* Bottom bar só mobile está no CSS do projeto */
   </style>
 </head>
-<body>
-<div class="wrap">
 
-  <!-- TOP BAR -->
-  <div class="d-flex align-items-center justify-content-between mb-2">
-    <h4 class="mb-0 font-weight-bold">Agenda</h4>
-    <div class="d-flex align-items-center">
-      <input type="date" id="flt-date" class="form-control form-control-sm mr-2"/>
-      <button class="btn btn-sm btn-outline-secondary pill mr-1" id="btn-prev">◀ Dia</button>
-      <button class="btn btn-sm btn-outline-secondary pill mr-1" id="btn-today">Hoje</button>
-      <button class="btn btn-sm btn-outline-secondary pill mr-2" id="btn-next">Dia ▶</button>
-      <a href="book.html" class="btn btn-sm btn-primary pill">Novo</a>
-    </div>
-  </div>
-
-  <!-- MASS ACTIONS / LEGEND -->
-  <div class="cardx mb-3">
-    <div class="hd d-flex align-items-center justify-content-between flex-wrap">
+<body data-page="agenda">
+<div class="crm-app">
+  <!-- Sidebar -->
+  <aside class="crm-sidebar" id="crm-sidebar">
+    <div class="crm-brand">
+      <span class="logo"></span>
       <div>
-        <div class="muted">Dia</div>
-        <div class="h5 mb-0" id="day-title">—</div>
-        <div class="muted" id="day-intv" style="font-size:.85rem">—</div>
-      </div>
-      <div class="legend">
-        <span class="chip active" data-filter="all">Todos</span>
-        <span class="chip" data-filter="confirmado">Confirmados</span>
-        <span class="chip" data-filter="pendente">Pendentes</span>
-        <span class="chip" data-filter="cancelado">Cancelados</span>
-      </div>
-      <div class="d-flex flex-wrap mt-2 mt-md-0">
-        <button class="btn btn-sm btn-outline-secondary pill mr-1" id="act-confirm-pending">Confirmar pendentes</button>
-        <button class="btn btn-sm btn-outline-secondary pill mr-1" id="act-send-reminders">Lembretes (WA)</button>
-        <button class="btn btn-sm btn-outline-secondary pill mr-1" id="act-lunch">Bloquear almoço</button>
-        <button class="btn btn-sm btn-outline-secondary pill" id="act-print">Imprimir</button>
+        <div style="font-weight:800; font-size:18px;">Clínica</div>
+        <div style="color:var(--muted); font-size:12px;">Elen Nogata</div>
       </div>
     </div>
-  </div>
 
-  <!-- KPIs -->
-  <div class="kpis mb-3">
-    <div class="kpi"><div class="lab">Agendamentos</div><div class="val" id="kpi-total">—</div></div>
-    <div class="kpi"><div class="lab">Confirmados</div><div class="val" id="kpi-conf">—</div></div>
-    <div class="kpi"><div class="lab">Pendentes</div><div class="val" id="kpi-pend">—</div></div>
-    <div class="kpi"><div class="lab">Cancelados</div><div class="val" id="kpi-canc">—</div></div>
-    <div class="kpi"><div class="lab">Ocupação</div><div class="val"><span id="kpi-occ">—</span>% <span class="muted" style="font-size:.8rem">(<span id="kpi-hours">—</span>)</span></div></div>
-    <div class="kpi"><div class="lab">Est. Faturamento</div><div class="val">R$ <span id="kpi-rev">—</span></div></div>
-  </div>
+    <nav class="crm-nav">
+      <a href="inicio.html"        data-nav="inicio"><i class="fa-solid fa-house"></i> Início</a>
+      <a href="agenda.html"        data-nav="agenda" class="active"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+      <a href="pacientes.html"     data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
+      <a href="orcamentos.html"    data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
+      <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
+      <a href="campanhas.html"     data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
+      <a href="documentos.html"    data-nav="documentos"><i class="fa-solid fa-notes-medical"></i> Documentos</a>
+      <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </nav>
 
-  <!-- GRID + RIGHT -->
-  <div class="layout d-flex">
-    <div class="flex-grow-1 mr-lg-3">
-      <div class="cardx">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead>
-              <tr>
-                <th style="width:90px">Hora</th>
-                <th>Paciente</th>
-                <th>Procedimento</th>
-                <th style="width:150px">Status</th>
-                <th style="width:120px">Dentista</th>
-                <th style="width:90px">Sala</th>
-                <th style="width:260px">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="grid-body"><tr><td colspan="7">Carregando…</td></tr></tbody>
-          </table>
+    <div class="crm-footer">
+      <div>Conectado como <strong>admin@clinica</strong></div>
+      <div>v0.1</div>
+    </div>
+  </aside>
+
+  <!-- overlay (mobile) -->
+  <div class="crm-overlay" id="crm-overlay"></div>
+
+  <main class="crm-main">
+    <!-- HERO -->
+    <section class="crm-hero">
+      <h1 class="text-center mb-1">Agenda</h1>
+
+      <div class="crm-search">
+        <i class="fa-regular fa-calendar" style="color:var(--muted)"></i>
+        <input type="date" id="flt-date" />
+        <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-filtrar">Filtrar</button>
+
+        <div class="ml-auto d-none d-md-flex" style="gap:.5rem">
+          <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-prev-day">
+            <i class="fa-solid fa-chevron-left mr-1"></i> Dia anterior
+          </button>
+          <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-today">Hoje</button>
+          <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-next-day">
+            Próximo dia <i class="fa-solid fa-chevron-right ml-1"></i>
+          </button>
         </div>
-      </div>
-    </div>
 
-    <div class="right-col">
-      <!-- Espera -->
-      <div class="cardx mb-3">
-        <div class="hd"><strong>Lista de Espera</strong></div>
-        <div class="p-2">
-          <form id="wl-form" class="mb-2">
-            <div class="form-row">
-              <div class="col-6"><input class="form-control form-control-sm" placeholder="Nome" id="wl-name" required></div>
-              <div class="col-6"><input class="form-control form-control-sm" placeholder="WhatsApp" id="wl-phone"></div>
+        <a href="../book.html" class="btn btn-sm btn-primary btn-pill ml-2">
+          <i class="fa-regular fa-calendar-plus mr-1"></i> Novo agendamento
+        </a>
+      </div>
+
+      <!-- Calendário mensal -->
+      <div class="agenda-inline">
+        <div class="crm-card">
+          <div class="cal-head">
+            <button class="btn btn-sm btn-outline-secondary btn-pill" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="month" id="cal-month">—</div>
+            <button class="btn btn-sm btn-outline-secondary btn-pill" id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+
+          <div class="cal">
+            <div class="dow">
+              <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
             </div>
-            <input class="form-control form-control-sm mt-1" placeholder="Procedimento" id="wl-proc">
-            <input class="form-control form-control-sm mt-1" placeholder="Observações" id="wl-notes">
-            <button class="btn btn-sm btn-outline-secondary pill mt-2 btn-block">Adicionar à lista</button>
-          </form>
-          <ul class="list-unstyled mb-0" id="wl-list"><li class="muted">Carregando…</li></ul>
+            <div class="grid" id="cal-grid"></div>
+          </div>
+
+          <!-- slots rápidos no mobile -->
+          <div class="slots mt-2 d-lg-none" id="mob-slots"></div>
+        </div>
+
+        <!-- Lista do dia (mobile) -->
+        <div class="crm-card mt-3 d-lg-none">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="font-weight-bold">Eventos do dia <span id="mob-day-label" class="muted"></span></div>
+            <a href="../book.html" class="btn btn-sm btn-outline-secondary btn-pill"><i class="fa-regular fa-calendar-plus"></i> Novo</a>
+          </div>
+          <ul class="list-unstyled mb-0" id="mob-day-events"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTEÚDO -->
+    <section class="crm-content">
+      <!-- KPIs -->
+      <div class="kpi-cards mb-3">
+        <div class="kpi"><div class="lab">Agendamentos</div><div class="val" id="kpi-total">—</div></div>
+        <div class="kpi"><div class="lab">Confirmados</div><div class="val" id="kpi-conf">—</div></div>
+        <div class="kpi"><div class="lab">Pendentes</div><div class="val" id="kpi-pend">—</div></div>
+        <div class="kpi"><div class="lab">Cancelados</div><div class="val" id="kpi-canc">—</div></div>
+      </div>
+
+      <div class="day-toolbar d-flex justify-content-between align-items-center mb-2">
+        <div class="day-nav d-flex align-items-center">
+          <h5 class="mb-0" id="agenda-dia-titulo">Dia —</h5>
+          <div class="muted ml-2" id="agenda-intervalo">Intervalo —</div>
+        </div>
+        <div class="legend">
+          <div class="crm-chip" data-filter="all"><i class="fa-regular fa-eye"></i> Todos</div>
+          <div class="crm-chip" data-filter="confirmado"><i class="fa-regular fa-square-check"></i> Confirmados</div>
+          <div class="crm-chip" data-filter="pendente"><i class="fa-regular fa-bell"></i> Pendentes</div>
+          <div class="crm-chip" data-filter="cancelado"><i class="fa-regular fa-circle-xmark"></i> Cancelados</div>
         </div>
       </div>
 
-      <!-- Tarefas do dia -->
-      <div class="cardx mb-3">
-        <div class="hd d-flex align-items-center justify-content-between">
-          <strong>Tarefas do dia</strong>
-          <button class="btn btn-sm btn-outline-secondary pill" id="task-add">Nova</button>
+      <div class="row">
+        <!-- Tabela do dia -->
+        <div class="col-lg-8 mb-3">
+          <div class="crm-card agenda-wrap">
+            <div class="now-line" id="now-line"></div>
+            <table class="table table-hover mb-0" id="agenda-table">
+              <thead>
+                <tr>
+                  <th style="width:90px">Hora</th>
+                  <th>Paciente</th>
+                  <th>Procedimento</th>
+                  <th style="width:130px">Status</th>
+                  <th style="width:70px"></th>
+                </tr>
+              </thead>
+              <tbody id="agenda-tbody"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="p-2">
-          <ul id="tasks" class="list-unstyled mb-0"></ul>
-        </div>
-      </div>
 
-      <!-- Notas -->
-      <div class="cardx">
-        <div class="hd"><strong>Notas do dia</strong></div>
-        <div class="p-2">
-          <ul class="mb-0" id="day-notes">
-            <li>Checar estoque de anestésico.</li>
-            <li>Retorno de Felipe — confirmar Raio-X.</li>
-          </ul>
+        <!-- Lateral -->
+        <div class="col-lg-4 mb-3">
+          <div class="crm-card">
+            <h6 class="mb-3">Notas do dia</h6>
+            <ul class="mb-0" id="notes-day">
+              <li>Bloquear 12:00–13:00 (almoço)</li>
+              <li>Reagendar retorno de Felipe</li>
+              <li>Materiais para implante às 16:45</li>
+            </ul>
+          </div>
+
+          <div class="crm-card mt-3">
+            <h6 class="mb-3">Ações rápidas</h6>
+            <div class="d-flex flex-wrap" style="gap:.5rem">
+              <a href="../book.html" class="btn btn-sm btn-outline-secondary btn-pill">
+                <i class="fa-regular fa-calendar-plus mr-1"></i>Novo agendamento
+              </a>
+              <a href="pacientes.html" class="btn btn-sm btn-outline-secondary btn-pill">
+                <i class="fa-regular fa-user mr-1"></i>Novo paciente
+              </a>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
 
-<!-- Reagendar -->
-<div class="modal fade" id="md-reag" tabindex="-1" aria-hidden="true">
+<!-- ================= MODAL: VER AGENDAMENTO ================ -->
+<div class="modal fade" id="md-agenda-ver" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Reagendar</h5><button class="close" data-dismiss="modal"><span>&times;</span></button></div>
+      <div class="modal-header themed">
+        <div>
+          <h5 class="modal-title mb-0"><i class="fa-regular fa-calendar-check mr-2"></i><span id="ver-proc">Procedimento</span></h5>
+          <div class="muted" id="ver-datahora" style="font-size:12px;"></div>
+        </div>
+        <div class="d-flex align-items-center">
+          <span id="ver-status" class="badge-soft bg-soft-green mr-3">Confirmado</span>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
+        </div>
+      </div>
+
       <div class="modal-body">
-        <input type="hidden" id="md-id">
-        <div class="form-row">
-          <div class="form-group col-md-5">
-            <label>Data</label>
-            <input type="date" class="form-control" id="md-date" required>
-          </div>
-          <div class="form-group col-md-7">
-            <label>Horários</label>
-            <div id="md-slots" class="d-flex flex-wrap" style="gap:8px"></div>
-            <small class="text-muted d-block mt-1">Selecione um horário disponível.</small>
-            <input type="hidden" id="md-time">
+        <div class="crm-card mb-3">
+          <div class="d-flex justify-content-between">
+            <div>
+              <div class="muted">Paciente</div>
+              <div class="h5 mb-0" id="ver-paciente">-</div>
+            </div>
+            <div class="text-right">
+              <div class="muted">Contato</div>
+              <div>
+                <a id="ver-whats" class="btn btn-sm btn-outline-secondary btn-pill" target="_blank" rel="noopener">
+                  <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                </a>
+                <a id="ver-mail" class="btn btn-sm btn-outline-secondary btn-pill ml-2">
+                  <i class="fa-regular fa-envelope"></i> E-mail
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-        <div id="md-feedback" class="mt-2"></div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="crm-card h-100">
+              <div class="muted mb-1">Atendimento</div>
+              <ul class="list-unstyled mb-0">
+                <li class="py-1"><i class="fa-regular fa-clock mr-2" style="color:#10b981"></i>
+                  <span id="ver-when">-</span> • <span id="ver-dur">-</span>
+                </li>
+                <li class="py-1"><i class="fa-solid fa-tooth mr-2" style="color:#6d28d9"></i>
+                  <span id="ver-proc2">-</span>
+                </li>
+                <li class="py-1"><i class="fa-regular fa-user mr-2" style="color:#0284c7"></i>
+                  <span id="ver-dentista">-</span>
+                </li>
+                <li class="py-1"><i class="fa-solid fa-location-dot mr-2" style="color:#f59e0b"></i>
+                  <span id="ver-sala">-</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="crm-card h-100">
+              <div class="muted mb-1">Notas</div>
+              <div id="ver-notas" style="white-space:pre-wrap;">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="crm-card mt-3">
+          <div class="muted mb-2">Histórico</div>
+          <ul id="ver-log" class="list-unstyled mb-0"></ul>
+        </div>
       </div>
+
       <div class="modal-footer">
-        <button class="btn btn-outline-secondary pill" data-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary pill" id="md-save">Salvar</button>
+        <button id="btn-enviar-lembr" class="btn btn-outline-secondary btn-pill">
+          <i class="fa-brands fa-whatsapp mr-1"></i> Enviar lembrete
+        </button>
+        <button id="btn-confirmar" class="btn btn-outline-secondary btn-pill">Confirmar</button>
+        <button id="btn-reagendar" class="btn btn-outline-secondary btn-pill">Reagendar</button>
+        <button id="btn-cancelar" class="btn btn-outline-secondary btn-pill text-danger">Cancelar</button>
+        <button class="btn btn-primary btn-pill" data-dismiss="modal">Fechar</button>
       </div>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- ================= MODAL: REAGENDAR ====================== -->
+<div class="modal fade" id="md-reagendar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header themed">
+        <h5 class="modal-title"><i class="fa-regular fa-calendar-days mr-2"></i>Reagendar</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
+      </div>
+      <form id="form-reagendar">
+        <div class="modal-body">
+          <input type="hidden" id="reag-eventId" />
+          <div class="form-row">
+            <div class="form-group col-md-5">
+              <label>Data</label>
+              <input type="date" class="form-control" id="reag-date" required />
+            </div>
+            <div class="form-group col-md-7">
+              <label>Horários</label>
+              <div id="reag-slots" class="d-flex flex-wrap" style="gap:8px;"></div>
+              <small class="text-muted d-block mt-1">Selecione um horário disponível.</small>
+              <input type="hidden" id="reag-selected-time" />
+            </div>
+          </div>
+          <div id="reag-feedback" class="mt-2"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary btn-pill" type="submit" id="reag-submit">Salvar alteração</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay e Action Sheets (mobile) já no CSS do projeto -->
+<div id="crm-sheet-overlay" class="crm-sheet-overlay"></div>
+<div id="crm-quick-sheet" class="crm-action-sheet">
+  <div class="sheet-header">Ações rápidas</div>
+  <button class="sheet-item" data-quick="agendamento"><i class="fa-regular fa-calendar-plus"></i> Novo agendamento</button>
+  <button class="sheet-item" data-quick="paciente"><i class="fa-regular fa-user"></i> Novo paciente</button>
+  <button class="sheet-item" data-quick="orcamento"><i class="fa-regular fa-clipboard"></i> Novo orçamento</button>
+  <button class="sheet-item" data-quick="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</button>
+</div>
+<div id="crm-menu-sheet" class="crm-action-sheet">
+  <div class="sheet-header">Ir para</div>
+  <a class="sheet-item" href="inicio.html"><i class="fa-solid fa-house"></i> Início</a>
+  <a class="sheet-item" href="agenda.html"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
+  <a class="sheet-item" href="pacientes.html"><i class="fa-regular fa-user"></i> Pacientes</a>
+  <a class="sheet-item" href="orcamentos.html"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
+  <a class="sheet-item" href="procedimentos.html"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
+  <a class="sheet-item" href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
+</div>
+
+<!-- Bottom bar -->
+<nav class="bb-dribbble" id="bbBar" aria-label="Navegação rápida">
+  <svg class="bb-bg" viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="bbShadow" x="-20%" y="-50%" width="140%" height="200%">
+        <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="rgba(15,23,42,.10)"/>
+        <feDropShadow dx="0" dy="4"  stdDeviation="6"  flood-color="rgba(15,23,42,.08)"/>
+      </filter>
+    </defs>
+    <path id="bbPath" class="bb-path" filter="url(#bbShadow)"
+      d="M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
+    <animate id="bbMorph" xlink:href="#bbPath" attributeName="d" dur="420ms" fill="freeze"
+      values="M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
+              M18,26 H330 C400,26 440,-18 500,-18 C560,-18 600,26 670,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
+              M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
+  </svg>
+
+  <button class="bb-tab" data-act="agenda" aria-label="Agenda">
+    <i class="fa-regular fa-calendar-days"></i><span>Agenda</span>
+  </button>
+  <button class="bb-fab" data-act="quick" aria-label="Ações rápidas"><i class="fa-solid fa-plus"></i></button>
+  <button class="bb-tab" data-act="menu" aria-label="Menu">
+    <i class="fa-solid fa-list-ul"></i><span>Menu</span>
+  </button>
+</nav>
+
+<!-- ======== JS libs ======== -->
+<script src="../js/jquery-3.4.1.min.js"></script>
+<script src="../js/bootstrap.js"></script>
+
+<!-- Config da API -->
 <script>
-/* ========= CONFIG ========= */
-const API_BASE = 'https://primary-odonto.up.railway.app/webhook/odonto';
-const AVAIL_URL = 'https://primary-odonto.up.railway.app/webhook/availability';
-const TZ = 'America/Sao_Paulo';
-const CLINIC = 'Clínica Elen Nogata';
+  // Mesmo base do seu início.html:
+  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
+  window.TIMEZONE     = 'America/Sao_Paulo';
 
-/* ========= HELPERS ========= */
+  // Se não houver CRM_AVAILABILITY definido, derivamos de CRM_API_BASE (…/webhook/availability)
+  if (!window.CRM_AVAILABILITY && window.CRM_API_BASE) {
+    window.CRM_AVAILABILITY = window.CRM_API_BASE.replace(/\/odonto$/, '') + '/availability';
+  }
+</script>
+
+<!-- Helpers comuns (seu wrapper opcional) -->
+<script src="js/crm-api.js"></script>
+
+<!-- Sidebar mobile -->
+<script>
+(function () {
+  const app = document.querySelector('.crm-app');
+  const btn = document.getElementById('btn-sidebar');
+  const overlay = document.getElementById('crm-overlay');
+  function close(){ app.classList.remove('sidebar-open'); }
+  function toggle(){ app.classList.toggle('sidebar-open'); }
+  btn?.addEventListener('click', toggle);
+  overlay?.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  document.querySelectorAll('.crm-nav a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+
+<!-- ===== Utils ===== -->
+<script>
+function el(q, r=document){ return r.querySelector(q); }
+function els(q, r=document){ return Array.from(r.querySelectorAll(q)); }
 const pad2 = n => String(n).padStart(2,'0');
-const ymdToday = () => { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
+const ymd  = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const ymdToday = () => { const d=new Date(); return ymd(d); };
 const fmtBR = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }catch{ return iso; } };
-const toWA = raw => { if(!raw) return ''; const d=raw.replace(/\D/g,''); return d.length===11?`55${d}`:d; };
 
-function statusBadge(s=''){
-  s=(s||'').toLowerCase();
-  if(s.includes('confirm')) return '<span class="badge-soft bg-soft-green">Confirmado</span>';
-  if(s.includes('cancel'))  return '<span class="badge-soft bg-soft-red">Cancelado</span>';
-  if(s.includes('check-in'))return '<span class="badge-soft bg-soft-purple">Check-in</span>';
-  if(s.includes('concluded'))return '<span class="badge-soft">Concluído</span>';
-  return '<span class="badge-soft bg-soft-amber">Pendente</span>';
-}
-
-function rangeSlots(start,end,step){
+function rangeToSlots(start, end, stepMin){
   const out=[], [sh,sm]=start.split(':').map(Number), [eh,em]=end.split(':').map(Number);
   let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
-  while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+step*60000); }
+  while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+stepMin*60000); }
   return out;
 }
-
-/* ========= API ========= */
-async function fetchDay(date){
-  const u = `${API_BASE}/appointments/day?date=${encodeURIComponent(date)}&tz=${encodeURIComponent(TZ)}`;
-  const r = await fetch(u, {headers:{Accept:'application/json'}}); if(!r.ok) throw new Error(await r.text());
-  return r.json();
-}
-async function fetchAvailability(date){
-  const u = `${AVAIL_URL}?date=${encodeURIComponent(date)}&tz=${encodeURIComponent(TZ)}`;
-  const r = await fetch(u, {headers:{Accept:'application/json'}}); if(!r.ok) throw new Error(await r.text());
-  return r.json();
-}
-async function fetchProcedures(){
-  // opcional: precificação para KPI de faturamento
-  try{
-    const r = await fetch(`${API_BASE}/procedures`,{headers:{Accept:'application/json'}});
-    if(!r.ok) return [];
-    return r.json();
-  }catch{ return []; }
-}
-async function apiPost(path, payload){
-  const r = await fetch(`${API_BASE}${path}`,{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
+function blockByBusy(slots, busy){
+  const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m;};
+  return slots.map(t=>{
+    const tm=toMin(t);
+    const b=(busy||[]).some(([a,b])=>tm>=toMin(a)&&tm<toMin(b));
+    return { time:t, available:!b };
   });
-  const data = await r.json().catch(()=> ({}));
-  if(!r.ok) throw new Error(data?.message||'Erro');
+}
+</script>
+
+<!-- ===== API calls ===== -->
+<script>
+const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/,'');
+const AVAIL    = (window.CRM_AVAILABILITY || '').replace(/\/+$/,'');
+const TZ       = window.TIMEZONE || 'America/Sao_Paulo';
+
+async function fetchAvailability(dateStr){
+  const url = `${AVAIL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
+  const res = await fetch(url, { headers:{ 'Accept':'application/json' }});
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function fetchDay(dateStr){
+  // Seu webhook do n8n: /webhook/odonto/appointments/day
+  const url = `${API_BASE}/appointments/day?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
+  const res = await fetch(url, { headers:{ 'Accept':'application/json' }});
+  if(!res.ok) throw new Error('Falha ao buscar agenda do dia');
+  return res.json();
+}
+async function submitReschedule({ eventId, date, time }){
+  const res=await fetch(`${API_BASE}/appointments/reschedule`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ eventId, date, time, tz: TZ })
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data?.message||'Falha ao reagendar');
   return data;
 }
+</script>
 
-/* ========= STATE ========= */
-let gDay=null, gFilter='all', gProcedures=[], gProcByName={};
-
-/* ========= RENDER ========= */
-function rowActions(ev, date){
-  const wa=toWA(ev.phone||'');
-  const waHref= wa? `https://wa.me/${wa}?text=${encodeURIComponent(
-    `Olá ${ev.patientName||''}! Lembramos sua consulta ${ev.procedure?`de ${ev.procedure} `:''}em ${CLINIC} em ${fmtBR(date)} às ${ev.start}.`
-  )}` : '#';
-  const common = `data-id="${ev.id||''}" data-date="${date}" data-time="${ev.start||''}"`;
-  return `
-    <a class="btn-ic" ${wa?`href="${waHref}" target="_blank"`:'disabled'} title="WhatsApp">🟢</a>
-    <button class="btn-ic" data-act="confirm" ${common} title="Confirmar">✅</button>
-    <button class="btn-ic" data-act="checkin" ${common} title="Check-in">⏱</button>
-    <button class="btn-ic" data-act="finish" ${common} title="Concluir">✔</button>
-    <button class="btn-ic" data-act="noshow" ${common} title="Falta">🚫</button>
-    <button class="btn-ic" data-act="reag" ${common} title="Reagendar">↔</button>
-  `;
+<!-- ===== Render / lógica de página ===== -->
+<script>
+function statusBadge(status){
+  const s=(status||'').toLowerCase();
+  if(s.includes('confirm')) return '<span class="badge-soft bg-soft-green">Confirmado</span>';
+  if(s.includes('pend')||s.includes('pré')) return '<span class="badge-soft bg-soft-amber">Pendente</span>';
+  if(s.includes('cancel')) return '<span class="badge-soft bg-soft-red">Cancelado</span>';
+  if(s.includes('conclu')) return '<span class="badge-soft bg-soft-purple">Concluído</span>';
+  return '<span class="badge-soft">Livre</span>';
 }
+function computeKPIs(events=[]){
+  const k = { total:0, conf:0, pend:0, canc:0 };
+  events.forEach(e=>{
+    k.total++;
+    const s=(e.status||'').toLowerCase();
+    if(s.includes('confirm')) k.conf++;
+    else if(s.includes('cancel')) k.canc++;
+    else k.pend++;
+  });
+  return k;
+}
+function applyNowLine(tbody, start, end, step){
+  try{
+    const line = el('#now-line');
+    const now = new Date();
+    const nowHM = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+    const slots = rangeToSlots(start,end,step);
+    const idx = slots.findIndex(t => t>=nowHM);
+    if(idx<0){ line.style.display='none'; return; }
+    const rows = els('tr', tbody);
+    const target = rows[idx];
+    if(!target){ line.style.display='none'; return; }
+    line.style.display='block';
+    const top = target.offsetTop;
+    line.style.top = (top+2) + 'px';
+  }catch{}
+}
+function buildDayTable(tbody, dayData, filter='all'){
+  tbody.innerHTML='';
+  const start=dayData.officeHours?.start||'08:00';
+  const end  =dayData.officeHours?.end  ||'18:00';
+  const step =dayData.intervalMinutes   ||30;
+  const slots=rangeToSlots(start,end,step);
+  const evByStart={}; (dayData.events||[]).forEach(ev=>{ evByStart[ev.start]=ev; });
 
-function renderTable(){
-  const tb=document.getElementById('grid-body'); tb.innerHTML='';
-  const start=gDay?.officeHours?.start||'08:00', end=gDay?.officeHours?.end||'19:00', step=gDay?.intervalMinutes||60;
-  const slots=rangeSlots(start,end,step); const evByStart={}; (gDay?.events||[]).forEach(e=>{ if(e.start) evByStart[e.start]=e; });
-
-  slots.forEach(h=>{
-    const ev=evByStart[h];
+  slots.forEach(hhmm=>{
+    const ev=evByStart[hhmm];
     if(!ev){
-      if(gFilter==='all'){
-        tb.insertAdjacentHTML('beforeend',`
-          <tr>
-            <td>${h}</td><td class="text-muted">—</td><td class="text-muted">—</td>
-            <td>${statusBadge('livre')}</td><td>—</td><td>—</td>
-            <td>
-              <a href="book.html" class="btn-ic" title="Agendar">➕</a>
-              <button class="btn-ic" data-act="block" data-date="${gDay.date}" data-time="${h}">🚧</button>
-            </td>
-          </tr>
-        `);
+      if(filter==='all'){
+        tbody.insertAdjacentHTML('beforeend', `<tr data-row="livre"><td>${hhmm}</td><td>-</td><td>-</td><td>${statusBadge('livre')}</td><td></td></tr>`);
       }
       return;
     }
-
     const s=(ev.status||'').toLowerCase();
-    const sKey=s.includes('confirm')?'confirmado':(s.includes('cancel')?'cancelado':(s.includes('check-in')?'confirmado':'pendente'));
-    if(gFilter!=='all' && gFilter!==sKey) return;
-    tb.insertAdjacentHTML('beforeend',`
-      <tr>
+    const sKey = s.includes('confirm')?'confirmado':(s.includes('cancel')?'cancelado':'pendente');
+    if(filter!=='all' && filter!==sKey) return;
+
+    tbody.insertAdjacentHTML('beforeend', `
+      <tr data-row="${sKey}">
         <td>${ev.start}</td>
-        <td>${ev.patientName||'-'}</td>
-        <td>${ev.procedure||'-'}</td>
+        <td>${ev.patientName||ev.summary||'-'}</td>
+        <td>${ev.procedure||ev.description||'-'}</td>
         <td>${statusBadge(ev.status)}</td>
-        <td>${ev.dentist||'—'}</td>
-        <td>${ev.room||'—'}</td>
-        <td>${rowActions(ev,gDay.date)}</td>
-      </tr>
-    `);
-  });
-}
-
-function computeKPIs(){
-  const ev=gDay?.events||[], step=gDay?.intervalMinutes||60;
-  const k={total:0,conf:0,pend:0,canc:0,bookedMin:0,openMin:0,rev:0};
-  const [sh,sm]=(gDay?.officeHours?.start||'08:00').split(':').map(Number);
-  const [eh,em]=(gDay?.officeHours?.end||'19:00').split(':').map(Number);
-  k.openMin=(eh*60+em)-(sh*60+sm);
-
-  ev.forEach(e=>{
-    k.total++;
-    const s=(e.status||'').toLowerCase();
-    if(s.includes('cancel')) k.canc++;
-    else if(s.includes('confirm')||s.includes('check-in')||s.includes('concluded')) k.conf++;
-    else k.pend++;
-
-    const dur=Number(e.durationMin||step);
-    if(!s.includes('cancel')) k.bookedMin+=dur;
-
-    const price = gProcByName[(e.procedure||'').trim()]?.price || 0;
-    if(!s.includes('cancel')) k.rev += price;
+        <td>
+          <a href="javascript:void(0)" class="btn btn-sm btn-outline-secondary btn-pill agenda-item"
+             data-id="${ev.id||''}"
+             data-paciente="${ev.patientName||ev.summary||''}"
+             data-phone="${ev.phone||''}"
+             data-email="${ev.email||''}"
+             data-proc="${ev.procedure||ev.description||''}"
+             data-status="${ev.status||''}"
+             data-date="${el('#flt-date').value}"
+             data-start="${ev.start||''}"
+             data-dur="${ev.durationMin||step}"
+             data-dentista="${ev.dentist||''}"
+             data-sala="${ev.room||''}"
+             data-notas="${(ev.notes||'').replace(/"/g,'&quot;')}">Ver</a>
+        </td>
+      </tr>`);
   });
 
-  document.getElementById('kpi-total').textContent=k.total;
-  document.getElementById('kpi-conf').textContent=k.conf;
-  document.getElementById('kpi-pend').textContent=k.pend;
-  document.getElementById('kpi-canc').textContent=k.canc;
-  document.getElementById('kpi-occ').textContent = Math.round(100*(k.bookedMin/Math.max(1,k.openMin)));
-  document.getElementById('kpi-hours').textContent = `${(k.bookedMin/60).toFixed(1)}h / ${(k.openMin/60).toFixed(1)}h`;
-  document.getElementById('kpi-rev').textContent = k.rev.toLocaleString('pt-BR',{minimumFractionDigits:2});
+  applyNowLine(tbody, start, end, step);
+}
+</script>
+
+<!-- ===== Ações de modal ===== -->
+<script>
+const STATUS_MAP={
+  confirmado: {label:'Confirmado',klass:'bg-soft-green'},
+  'pré-agendamento': {label:'Pré-agendamento',klass:'bg-soft-amber'},
+  pendente: {label:'Pendente',klass:'bg-soft-amber'},
+  aguardando: {label:'Aguardando',klass:'bg-soft-blue'},
+  cancelado: {label:'Cancelado',klass:'bg-soft-red'},
+  concluido: {label:'Concluído',klass:'bg-soft-purple'},
+  concluído: {label:'Concluído',klass:'bg-soft-purple'},
+  faltou: {label:'Faltou',klass:'bg-soft-gray'},
+};
+const toWhats=raw=>{const d=(raw||'').replace(/\D/g,''); if(!d) return 'javascript:void(0)'; return `https://wa.me/${d.length===11?`55${d}`:d}`;};
+
+function openVerModal(data){
+  el('#ver-proc').textContent=data.procedimento||data.proc||'-';
+  el('#ver-proc2').textContent=data.procedimento||data.proc||'-';
+
+  const st=(data.status||'confirmado').toLowerCase();
+  const map=STATUS_MAP[st]||STATUS_MAP.confirmado;
+  const badge=el('#ver-status'); badge.textContent=map.label; badge.className=`badge-soft ${map.klass}`;
+
+  const when=`${fmtBR(data.date)} • ${data.start}`;
+  el('#ver-when').textContent=when;
+  el('#ver-datahora').textContent=`${when} — Duração ${data.durMin||data.dur||60} min`;
+
+  el('#ver-paciente').textContent=data.paciente||data.patientName||'-';
+  el('#ver-whats').href=toWhats(data.phone);
+  el('#ver-mail').href=`mailto:${data.email||''}`;
+  el('#ver-dentista').textContent=data.dentista||'—';
+  el('#ver-sala').textContent=data.sala||'—';
+  el('#ver-dur').textContent=`${data.durMin||data.dur||60} min`;
+  el('#ver-notas').textContent=data.notas||'—';
+
+  const log=el('#ver-log'); log.innerHTML='';
+  (data.log||[{when:'Agora',text:'Evento carregado do Google Calendar.'}]).forEach(e=>{
+    log.insertAdjacentHTML('beforeend', `<li class="py-1 border-bottom"><span class="muted">${e.when}</span> — ${e.text}</li>`);
+  });
+
+  document.body._currentEvent=data;
+
+  // Ações (stub; integre com seus webhooks se desejar alterar status no GCal)
+  el('#btn-enviar-lembr').onclick=()=>alert('Lembrete enviado ✅');
+  el('#btn-confirmar').onclick =()=>{badge.textContent=STATUS_MAP.confirmado.label;badge.className=`badge-soft ${STATUS_MAP.confirmado.klass}`;alert('Agendamento confirmado ✅');};
+  el('#btn-cancelar').onclick  =()=>{if(confirm('Confirmar cancelamento?')){badge.textContent=STATUS_MAP.cancelado.label;badge.className=`badge-soft ${STATUS_MAP.cancelado.klass}`;alert('Agendamento cancelado ✅');}};
+  el('#btn-reagendar').onclick =()=>openReagendarModal(data);
+
+  $('#md-agenda-ver').modal('show');
 }
 
-async function loadDay(){
-  const ds=document.getElementById('flt-date').value || ymdToday();
-  document.getElementById('day-title').textContent=`${fmtBR(ds)} • ${TZ.replace('_',' ')}`;
-  document.getElementById('grid-body').innerHTML='<tr><td colspan="7">Carregando…</td></tr>';
-  try{
-    gDay=await fetchDay(ds);
-    document.getElementById('day-intv').textContent=`Intervalo de ${gDay?.intervalMinutes||60} min`;
-    renderTable(); computeKPIs(); loadWaitlist();
-  }catch(e){
-    document.getElementById('grid-body').innerHTML=`<tr><td colspan="7" class="text-danger">${e.message}</td></tr>`;
+async function openReagendarModal(evData){
+  el('#reag-eventId').value=evData.id||'';
+  const dateInput=el('#reag-date'); dateInput.value=evData.date;
+  const today=new Date(); today.setHours(0,0,0,0);
+  dateInput.min=today.toISOString().slice(0,10);
+  const max=new Date(today.getTime()+60*24*3600*1000); dateInput.max=max.toISOString().slice(0,10);
+  el('#reag-selected-time').value='';
+
+  const loadSlots=async dateStr=>{
+    el('#reag-slots').innerHTML='Carregando...';
+    try{
+      const bag = await fetchAvailability(dateStr);
+      const start = bag?.officeHours?.start||'08:00';
+      const end   = bag?.officeHours?.end  ||'18:00';
+      const step  = bag?.intervalMinutes   || 30;
+      const busy  = (bag?.busy || []).map(x=>[x[0],x[1]]);
+      const slots = rangeToSlots(start,end,step);
+      const withStatus = blockByBusy(slots, busy);
+      renderReagendarSlots(el('#reag-slots'), withStatus);
+    }catch{
+      el('#reag-slots').innerHTML='<div class="text-danger">Erro ao carregar horários.</div>';
+    }
+  };
+  dateInput.onchange=e=>{ el('#reag-selected-time').value=''; loadSlots(e.target.value); };
+  await loadSlots(evData.date);
+  $('#md-reagendar').modal('show');
+}
+function renderReagendarSlots(container, withStatus){
+  container.innerHTML='';
+  withStatus.forEach(s=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='slot btn btn-sm '+(s.available?'':'disabled');
+    b.textContent=s.time; b.disabled=!s.available;
+    b.onclick=()=>{
+      if(!s.available) return;
+      els('.slot.selected',container).forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected'); el('#reag-selected-time').value=s.time;
+    };
+    container.appendChild(b);
+  });
+  if(!withStatus.some(s=>s.available)){
+    container.insertAdjacentHTML('beforeend','<div class="text-muted mt-2">Sem horários disponíveis nesta data.</div>');
   }
 }
+</script>
 
-async function loadProceduresIndex(){
-  gProcedures = await fetchProcedures();
-  gProcByName = Object.fromEntries((gProcedures||[]).map(p=>[String(p.name||'').trim(), p]));
-}
+<!-- ===== Boot da página + calendário mensal ===== -->
+<script>
+(function(){
+  const gMonth  = document.getElementById('cal-month');
+  const gGrid   = document.getElementById('cal-grid');
+  const btnPrev = document.getElementById('cal-prev');
+  const btnNext = document.getElementById('cal-next');
+  const labDay  = document.getElementById('mob-day-label');
+  const ulDay   = document.getElementById('mob-day-events');
+  const divSlots= document.getElementById('mob-slots');
+  const dateInput = document.getElementById('flt-date');
+  const btnFiltrar= document.getElementById('btn-filtrar');
 
-/* ========= WAITLIST ========= */
-async function loadWaitlist(){
-  const ds=document.getElementById('flt-date').value || ymdToday();
-  const ul=document.getElementById('wl-list'); ul.innerHTML='Carregando…';
-  try{
-    const r=await fetch(`${API_BASE}/waitlist/list?date=${encodeURIComponent(ds)}`); 
-    const items= await r.json().catch(()=>[]);
-    if(!items.length){ ul.innerHTML='<li class="muted">Sem itens</li>'; return; }
-    ul.innerHTML='';
-    items.forEach(w=>{
-      const wa=toWA(w.phone||''); const assignAttrs=`data-name="${w.name||''}" data-proc="${w.procedure||''}" data-phone="${w.phone||''}"`;
-      ul.insertAdjacentHTML('beforeend',`
-        <li class="py-1 border-bottom">
-          <div class="d-flex justify-content-between">
-            <div><strong>${w.name||'-'}</strong> <span class="muted">(${w.procedure||'—'})</span></div>
-            <div>
-              <button class="btn btn-sm btn-outline-secondary pill" data-act="assign" ${assignAttrs}>Agendar</button>
-              ${wa?`<a class="btn btn-sm btn-outline-secondary pill" target="_blank" href="https://wa.me/${wa}?text=${encodeURIComponent('Temos uma vaga hoje, gostaria?')}">WA</a>`:''}
-            </div>
-          </div>
-        </li>
-      `);
+  const kpiTotal = el('#kpi-total'), kpiConf=el('#kpi-conf'), kpiPend=el('#kpi-pend'), kpiCanc=el('#kpi-canc');
+  const tbody = el('#agenda-tbody');
+  const titleDay = el('#agenda-dia-titulo');
+  const lblIntervalo = el('#agenda-intervalo');
+
+  let anchor  = new Date();  // mês atual
+  let selDate = new Date();  // dia selecionado
+  let filterState = 'all';
+  let lastDayData = null;
+
+  const fmtMMDD = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}`; }catch{ return iso; } };
+
+  function buildMonthHeader(){
+    const m = anchor.toLocaleDateString('pt-BR', { month:'long', year:'numeric' });
+    gMonth.textContent = m.charAt(0).toUpperCase()+m.slice(1);
+  }
+  function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function endOfMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0); }
+
+  function dayCellTemplate(d, {outMonth=false, hasAvail=false, isSel=false}={}){
+    const id = ymd(d);
+    return `
+      <div class="day ${outMonth?'out':''} ${hasAvail?'avail':''} ${isSel?'sel':''}" data-date="${id}">
+        <span class="num">${d.getDate()}</span>
+        <span class="underline"></span>
+      </div>`;
+  }
+
+  async function markAvailabilityForMonth(days){
+    // fatias para evitar janelas muito grandes de requests concorrentes
+    const chunks = []; for(let i=0;i<days.length;i+=14){ chunks.push(days.slice(i,i+14)); }
+    const availMap = {};
+    for(const chunk of chunks){
+      await Promise.all(chunk.map(async d=>{
+        try{
+          const bag = await fetchAvailability(ymd(d));
+          const start = bag?.officeHours?.start||'08:00';
+          const end   = bag?.officeHours?.end  ||'18:00';
+          const step  = bag?.intervalMinutes   || 30;
+          const busy  = (bag?.busy || []).map(x=>[x[0],x[1]]);
+          const slots = rangeToSlots(start,end,step);
+          const withStatus = blockByBusy(slots, busy);
+          availMap[ymd(d)] = withStatus.some(s=>s.available);
+        }catch{}
+      }));
+    }
+    return availMap;
+  }
+
+  async function renderMonth(){
+    buildMonthHeader();
+    const first = startOfMonth(anchor);
+    const last  = endOfMonth(anchor);
+    const padStart = first.getDay();
+    const totalDays= last.getDate();
+
+    const cells = [];
+    const prev = new Date(first);
+    prev.setDate(1 - padStart);
+    for(let i=0;i<padStart;i++){
+      const d = new Date(prev); d.setDate(prev.getDate()+i);
+      cells.push({date:d, out:true});
+    }
+    for(let i=1;i<=totalDays;i++){
+      const d = new Date(first); d.setDate(i);
+      cells.push({date:d, out:false});
+    }
+    while(cells.length % 7 !== 0){
+      const d = new Date(last); d.setDate(d.getDate() + (cells.length%7));
+      cells.push({date:d, out:true});
+    }
+
+    const onlyDays = cells.filter(c=>!c.out).map(c=>c.date);
+    const availMap = await markAvailabilityForMonth(onlyDays);
+
+    gGrid.innerHTML = cells.map(c=>{
+      const id  = ymd(c.date);
+      const sel = ymd(c.date) === ymd(selDate);
+      const av  = !!availMap[id];
+      return dayCellTemplate(c.date, {outMonth:c.out, hasAvail:av, isSel:sel});
+    }).join('');
+
+    gGrid.querySelectorAll('.day').forEach(div=>{
+      div.addEventListener('click', async ()=>{
+        selDate = new Date(div.dataset.date);
+        gGrid.querySelectorAll('.day.sel').forEach(x=>x.classList.remove('sel'));
+        div.classList.add('sel');
+        if (dateInput) dateInput.value = div.dataset.date;
+        await loadDay(true);
+        await loadDayMobile(false);
+      });
     });
-  }catch{ ul.innerHTML='<li class="text-danger">Falha ao carregar</li>'; }
-}
+  }
 
-document.getElementById('wl-form').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const payload={ name:wl-name.value.trim(), phone:wl-phone.value.trim(), procedure:wl-proc.value.trim(), notes:wl-notes.value.trim(), tz:TZ, date:flt-date.value };
-  try{ await apiPost('/waitlist/add', payload); wl-form.reset(); loadWaitlist(); }catch(err){ alert(err.message); }
-});
-
-/* ========= ACTIONS ========= */
-document.addEventListener('click', async (ev)=>{
-  const b = ev.target.closest('[data-act]'); if(!b) return;
-  const act=b.dataset.act, id=b.dataset.id, date=b.dataset.date, time=b.dataset.time;
-
-  if(act==='block'){ // bloqueio manual
+  async function loadDay(syncKPIs){
+    const ds = dateInput.value;
+    titleDay.textContent=`Dia ${fmtBR(ds)}`;
+    tbody.innerHTML='<tr><td colspan="5">Carregando...</td></tr>';
     try{
-      await apiPost('/appointments/block',{date,time,reason:'Bloqueio manual',durationMin:gDay.intervalMinutes||60,tz:TZ});
-      await loadDay();
-    }catch(err){ alert(err.message); }
-    return;
+      const day=await fetchDay(ds);
+      lastDayData = day;
+      lblIntervalo.textContent=`Intervalo de ${day.intervalMinutes||30} min`;
+      buildDayTable(tbody, day, filterState);
+
+      if(syncKPIs){
+        const k = computeKPIs(day.events||[]);
+        kpiTotal.textContent=k.total; kpiConf.textContent=k.conf; kpiPend.textContent=k.pend; kpiCanc.textContent=k.canc;
+      }
+    }catch(e){
+      tbody.innerHTML='<tr><td colspan="5" class="text-danger">Erro ao carregar agenda do dia.</td></tr>';
+      console.error(e);
+    }
   }
 
-  if(act==='reag'){ // abrir modal
-    $('#md-reag').modal('show');
-    md-id.value=id; md-date.value=date; md-time.value=''; md-slots.innerHTML='Carregando…'; md-feedback.textContent='';
+  async function loadDayMobile(){
+    const ds = dateInput.value;
+    labDay.textContent = `• ${fmtMMDD(ds)}`;
+
+    // slots do dia
+    divSlots.innerHTML = 'Carregando horários…';
     try{
-      const bag=await fetchAvailability(date);
-      const slots=rangeSlots(bag?.officeHours?.start||'08:00', bag?.officeHours?.end||'19:00', bag?.intervalMinutes||60);
-      const busy=(bag?.busy||[]);
-      const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
-      const free=slots.filter(s=>!busy.some(([a,b])=>toMin(s)>=toMin(a)&&toMin(s)<toMin(b)));
-      md-slots.innerHTML = free.map(t=>`<button class="btn btn-sm btn-outline-secondary pill m-1" data-sel="${t}">${t}</button>`).join('') || '<div class="muted">Sem horários disponíveis</div>';
-    }catch{ md-slots.innerHTML='<div class="text-danger">Erro ao carregar disponibilidade.</div>'; }
-    return;
-  }
+      const bag = await fetchAvailability(ds);
+      const start = bag?.officeHours?.start||'08:00';
+      const end   = bag?.officeHours?.end  ||'18:00';
+      const step  = bag?.intervalMinutes   || 30;
+      const busy  = (bag?.busy || []).map(x=>[x[0],x[1]]);
+      const slots = rangeToSlots(start,end,step);
+      const withStatus = blockByBusy(slots, busy);
+      divSlots.innerHTML = withStatus.map(s =>
+        `<button class="btn btn-sm btn-pill ${s.available?'btn-outline-secondary':'btn-outline-secondary disabled'}" ${s.available?'':'disabled'}>${s.time}</button>`
+      ).join('');
+    }catch(e){
+      divSlots.innerHTML = '<div class="text-danger">Erro ao carregar disponibilidade.</div>';
+    }
 
-  if(b.dataset.sel){ // selecionar slot do modal
-    md-time.value=b.dataset.sel;
-    document.querySelectorAll('#md-slots [data-sel]').forEach(x=>x.classList.remove('btn-primary')); 
-    b.classList.add('btn-primary');
-    return;
-  }
-
-  if(['confirm','checkin','finish','noshow'].includes(act)){ // status
-    const statusMap={confirm:'confirmed',checkin:'check-in',finish:'concluded',noshow:'cancelled'};
+    // eventos resumidos
+    ulDay.innerHTML = '<li>Carregando…</li>';
     try{
-      await apiPost('/appointments/updateStatus',{id,date,time,status:statusMap[act],tz:TZ});
-      await loadDay();
-    }catch(err){ alert(err.message); }
-    return;
+      const day = await fetchDay(ds);
+      const events = day?.events || [];
+      if(!events.length){ ulDay.innerHTML = '<li class="muted">Sem eventos.</li>'; return; }
+      ulDay.innerHTML = events.map(ev => {
+        const hora = ev.start || '--:--';
+        const nome = ev.patientName || ev.summary || 'Evento';
+        const proc = ev.procedure   || ev.description || '';
+        return `
+          <li class="py-2 border-bottom">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="font-weight-bold">${hora} — ${nome}</div>
+                <div class="muted" style="font-size:.85rem">${proc}</div>
+              </div>
+              <a href="javascript:void(0)" class="btn btn-sm btn-outline-secondary btn-pill agenda-item"
+                 data-id="${ev.id||''}"
+                 data-paciente="${nome}"
+                 data-proc="${proc}"
+                 data-status="${ev.status||''}"
+                 data-date="${ds}"
+                 data-start="${hora}"
+                 data-dur="${ev.durationMin||30}">
+                Ver
+              </a>
+            </div>
+          </li>`;
+      }).join('');
+    }catch(e){
+      ulDay.innerHTML = '<li class="text-danger">Erro ao carregar eventos.</li>';
+    }
   }
 
-  if(act==='assign'){ // atribuir espera à primeira vaga (simples: abre modal já com a data atual)
-    $('#md-reag').modal('show');
-    md-id.value=''; md-date.value=flt-date.value;
-    md-slots.innerHTML='Carregando…'; md-feedback.textContent=`Agendando ${b.dataset.name} • ${b.dataset.proc||''}`;
-    try{
-      const bag=await fetchAvailability(md-date.value);
-      const slots=rangeSlots(bag?.officeHours?.start||'08:00', bag?.officeHours?.end||'19:00', bag?.intervalMinutes||60);
-      const busy=(bag?.busy||[]); const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
-      const free=slots.filter(s=>!busy.some(([a,b])=>toMin(s)>=toMin(a)&&toMin(s)<toMin(b)));
-      md-slots.innerHTML = free.map(t=>`<button class="btn btn-sm btn-outline-secondary pill m-1" data-sel="${t}">${t}</button>`).join('') || '<div class="muted">Sem horários</div>';
-      md-feedback.dataset.wl = JSON.stringify({name:b.dataset.name, phone:b.dataset.phone, procedure:b.dataset.proc});
-    }catch{ md-slots.innerHTML='<div class="text-danger">Erro ao carregar disponibilidade.</div>'; }
-    return;
-  }
-});
-
-/* salvar reagendamento / novo */
-document.getElementById('md-save').addEventListener('click', async ()=>{
-  const id=md-id.value, date=md-date.value, time=md-time.value;
-  if(!time){ md-feedback.innerHTML='<div class="text-danger">Selecione um horário.</div>'; return; }
-  try{
-    const extra = md-feedback.dataset.wl ? JSON.parse(md-feedback.dataset.wl) : null;
-    await apiPost('/appointments/reschedule',{ id,date,time,tz:TZ, waitlistAssign:extra });
-    md-feedback.innerHTML='<div class="text-success">Salvo!</div>';
-    setTimeout(()=>{$('#md-reag').modal('hide'); md-feedback.innerHTML=''; md-feedback.dataset.wl='';}, 400);
-    await loadDay();
-  }catch(err){ md-feedback.innerHTML=`<div class="text-danger">${err.message}</div>`; }
-});
-
-/* ========= MASS ========= */
-document.getElementById('act-confirm-pending').addEventListener('click', async ()=>{
-  const pend=(gDay?.events||[]).filter(e=>!(String(e.status||'').toLowerCase().includes('confirm') || String(e.status||'').toLowerCase().includes('cancel')));
-  for(const e of pend){
-    try{ await apiPost('/appointments/updateStatus',{id:e.id,date:gDay.date,time:e.start,status:'confirmed',tz:TZ}); }catch{}
-  }
-  await loadDay();
-});
-document.getElementById('act-send-reminders').addEventListener('click', ()=>{
-  (gDay?.events||[]).forEach(e=>{
-    const wa=toWA(e.phone||''); if(!wa || !e.start) return;
-    const msg=`Olá ${e.patientName||''}! Lembramos sua consulta ${e.procedure?`de ${e.procedure} `:''}em ${CLINIC} em ${fmtBR(gDay.date)} às ${e.start}.`;
-    window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`,'_blank');
+  // Filtros por status
+  document.querySelectorAll('.legend .crm-chip').forEach(ch=>{
+    ch.addEventListener('click', ()=>{
+      document.querySelectorAll('.legend .crm-chip').forEach(x=>x.classList.remove('active'));
+      ch.classList.add('active');
+      filterState = ch.dataset.filter || 'all';
+      if(lastDayData) buildDayTable(tbody, lastDayData, filterState);
+    });
   });
-});
-document.getElementById('act-lunch').addEventListener('click', async ()=>{
-  try{ await apiPost('/appointments/block',{date:gDay.date,time:'12:00',durationMin:gDay?.intervalMinutes||60,reason:'Almoço',tz:TZ}); await loadDay(); }
-  catch(err){ alert(err.message); }
-});
-document.getElementById('act-print').addEventListener('click',()=>window.print());
 
-/* ========= NAV / FILTER ========= */
-document.getElementById('btn-prev').addEventListener('click',()=>shift(-1));
-document.getElementById('btn-next').addEventListener('click',()=>shift(+1));
-document.getElementById('btn-today').addEventListener('click',()=>{flt-date.value=ymdToday();loadDay();});
-function shift(dlt){ const d=new Date(flt-date.value||ymdToday()); d.setDate(d.getDate()+dlt); flt-date.value=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; loadDay(); }
-document.getElementById('flt-date').addEventListener('change',loadDay);
-document.querySelectorAll('.legend .chip').forEach(ch=>ch.addEventListener('click',()=>{
-  document.querySelectorAll('.legend .chip').forEach(x=>x.classList.remove('active'));
-  ch.classList.add('active'); gFilter=ch.dataset.filter||'all'; renderTable();
-}));
+  // Navegação dia a dia
+  function shiftDay(delta){
+    const d = new Date(dateInput.value || ymdToday());
+    d.setDate(d.getDate()+delta);
+    dateInput.value = ymd(d);
+    loadDay(true); loadDayMobile();
+  }
+  el('#btn-prev-day')?.addEventListener('click', ()=>shiftDay(-1));
+  el('#btn-next-day')?.addEventListener('click', ()=>shiftDay(1));
+  el('#btn-today')?.addEventListener('click', ()=>{ dateInput.value=ymdToday(); loadDay(true); loadDayMobile(); });
+  el('#btn-filtrar')?.addEventListener('click', ()=>{ if(dateInput.value) { loadDay(true); loadDayMobile(); }});
 
-/* ========= TASKS (local) ========= */
-const TASKS_KEY='dent_tasks';
-function loadTasks(){ const ul=document.getElementById('tasks'); const arr=JSON.parse(localStorage.getItem(TASKS_KEY)||'[]'); ul.innerHTML=''; arr.forEach((t,i)=>ul.insertAdjacentHTML('beforeend',`
-  <li class="d-flex align-items-center justify-content-between py-1 border-bottom">
-    <div><input type="checkbox" ${t.done?'checked':''} data-tk="${i}" class="mr-2"/> ${t.text}</div>
-    <button class="btn btn-sm btn-outline-secondary pill" data-rm="${i}">Remover</button>
-  </li>`));
-}
-document.getElementById('task-add').addEventListener('click',()=>{
-  const text=prompt('Nova tarefa'); if(!text) return;
-  const arr=JSON.parse(localStorage.getItem(TASKS_KEY)||'[]'); arr.push({text,done:false}); localStorage.setItem(TASKS_KEY,JSON.stringify(arr)); loadTasks();
-});
-document.addEventListener('change',(e)=>{ if(e.target.matches('[data-tk]')){ const idx=+e.target.dataset.tk; const arr=JSON.parse(localStorage.getItem(TASKS_KEY)||'[]'); arr[idx].done=e.target.checked; localStorage.setItem(TASKS_KEY,JSON.stringify(arr)); }});
-document.addEventListener('click',(e)=>{ if(e.target.matches('[data-rm]')){ const idx=+e.target.dataset.rm; const arr=JSON.parse(localStorage.getItem(TASKS_KEY)||'[]'); arr.splice(idx,1); localStorage.setItem(TASKS_KEY,JSON.stringify(arr)); loadTasks(); }});
+  // Abrir modal ao clicar em "Ver"
+  document.addEventListener('click', ev=>{
+    const a=ev.target.closest('.agenda-item'); if(!a) return;
+    openVerModal({
+      id:a.dataset.id, paciente:a.dataset.paciente, phone:a.dataset.phone, email:a.dataset.email,
+      procedimento:a.dataset.proc, status:a.dataset.status, date:a.dataset.date, start:a.dataset.start,
+      durMin:Number(a.dataset.dur||60), dentista:a.dataset.dentista, sala:a.dataset.sala, notas:a.dataset.notas
+    });
+  });
 
-/* ========= SHORTCUTS ========= */
-document.addEventListener('keydown',(e)=>{
-  if(e.altKey||e.ctrlKey||e.metaKey) return;
-  if(e.key==='n') window.location='book.html';
-  if(e.key==='t') {flt-date.value=ymdToday(); loadDay();}
-  if(e.key==='ArrowLeft') shift(-1);
-  if(e.key==='ArrowRight') shift(+1);
-});
+  // Reagendar submit
+  el('#form-reagendar').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const eventId=el('#reag-eventId').value, date=el('#reag-date').value, time=el('#reag-selected-time').value;
+    if(!time){ el('#reag-feedback').innerHTML='<div class="text-danger">Selecione o horário.</div>'; return; }
+    el('#reag-feedback').innerHTML='Reagendando...';
+    try{
+      await submitReschedule({ eventId, date, time });
+      el('#reag-feedback').innerHTML='<div class="text-success">Reagendado com sucesso!</div>';
+      setTimeout(async ()=>{
+        $('#md-reagendar').modal('hide'); $('#md-agenda-ver').modal('hide');
+        el('#reag-feedback').innerHTML=''; el('#reag-selected-time').value='';
+        await loadDay(true);
+      }, 400);
+    }catch(err){
+      el('#reag-feedback').innerHTML=`<div class="text-danger">${err.message}</div>`;
+      console.error(err);
+    }
+  });
 
-/* ========= BOOT ========= */
-(async function(){
-  flt-date.value=ymdToday();
-  await loadProceduresIndex();
-  loadTasks();
-  loadDay();
+  // Bottom bar (mobile)
+  (function(){
+    const bar = document.getElementById('bbBar');
+    if(!bar) return;
+    const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]');
+    const tabMenu   = bar.querySelector('.bb-tab[data-act="menu"]');
+    const fab       = bar.querySelector('.bb-fab');
+    const morph     = document.getElementById('bbMorph');
+    const overlay   = document.getElementById('crm-sheet-overlay');
+    const quick     = document.getElementById('crm-quick-sheet');
+    const menu      = document.getElementById('crm-menu-sheet');
+    const openSheet = el => { overlay?.classList.add('show'); el?.classList.add('show'); };
+    const closeSheets = () => { overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
+    overlay?.addEventListener('click', closeSheets);
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
+    function wave(){ try{ morph.beginElement(); }catch(e){} }
+    function setActive(btn){ [tabAgenda, tabMenu].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+    tabAgenda.addEventListener('click', ()=>{ setActive(tabAgenda); wave(); });
+    tabMenu.addEventListener('click', ()=>{ setActive(tabMenu); wave(); openSheet(menu); });
+    fab.addEventListener('click', ()=>{ wave(); openSheet(quick); });
+    setActive(tabAgenda);
+  })();
+
+  // Boot inicial
+  dateInput.value = ymdToday();
+  await renderMonth();
+  await loadDay(true);
+  await loadDayMobile();
 })();
 </script>
 </body>

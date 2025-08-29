@@ -361,9 +361,12 @@ script src="../js/bootstrap.js"></script>
 
 <!-- Config da API (n8n) -->
 <script>
-  window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
-  const TIMEZONE = 'America/Sao_Paulo';
+  window.CRM_API_BASE       = 'https://primary-odonto.up.railway.app/webhook/odonto';
+  // se houver chamadas diretas de disponibilidade na agenda:
+  window.CRM_AVAILABILITY   = 'https://primary-odonto.up.railway.app/webhook/availability';
+  window.TIMEZONE           = 'America/Sao_Paulo';   // já usamos no front
 </script>
+
 
 <!-- Helpers comuns do projeto -->
 <script src="js/crm-api.js"></script>
@@ -395,9 +398,10 @@ function blockByBusy(slots, busy){
 const BASE = window.CRM_API_BASE;
 
 async function fetchAvailability(dateStr){
-  const url=`${BASE}/availability?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
-  const res=await fetch(url,{headers:{'Accept':'application/json'}});
-  if(!res.ok) throw new Error('Falha ao consultar disponibilidade');
+  const url = `${(window.CRM_AVAILABILITY||'https://primary-odonto.up.railway.app/webhook/availability')}`
+            + `?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
+  const res = await fetch(url, { headers:{ 'Accept':'application/json' }});
+  if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function fetchDay(dateStr){
@@ -1043,6 +1047,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
 </body>
 </html>
+
 
 
 

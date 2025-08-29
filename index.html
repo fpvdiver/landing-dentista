@@ -274,9 +274,17 @@
 
           <script>
             /* ===== CONFIG ===== */
-            const TZ = 'America/Sao_Paulo';
-            const AVAILABILITY_URL = 'https://allnsnts.app.n8n.cloud/webhook/availability/';
-            const BOOK_URL = 'https://allnsnts.app.n8n.cloud/webhook/odonto/book';
+      <script>
+ 
+  const TZ = 'America/Sao_Paulo';
+
+  // availability fora do /odonto
+  const AVAILABILITY_URL = 'https://primary-odonto.up.railway.app/webhook/availability';
+
+  // endpoint de criação de agendamento (o seu flow “book”)
+  const BOOK_URL        = 'https://primary-odonto.up.railway.app/webhook/odonto/book';
+</script>
+
 
             /* ===== HELPERS ===== */
             const el=(q,r=document)=>r.querySelector(q), els=(q,r=document)=>Array.from(r.querySelectorAll(q));
@@ -547,5 +555,6 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap" async defer></script>
 </body>
 </html>
+
 
 

@@ -482,43 +482,60 @@ const TZ       = window.TIMEZONE || 'America/Sao_Paulo';
 
 async function fetchAvailability(dateStr){
   const url = `${AVAIL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
+  console.debug('[AVAIL] GET', url);
   const res = await fetch(url, { headers:{ 'Accept':'application/json' }});
-  if(!res.ok) throw new Error(await res.text());
-  return res.json();
+  const txt = await res.text();
+  if(!res.ok){ console.error('[AVAIL] HTTP', res.status, txt); throw new Error('Falha na disponibilidade'); }
+  try { return JSON.parse(txt); } catch { console.error('[AVAIL] not JSON', txt); throw new Error('Resposta inválida da disponibilidade'); }
 }
+
 async function fetchDay(dateStr){
   const url = `${API_BASE}/appointments/day?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
-  const res = await fetch(url, { headers:{ 'Accept':'application/json' }});
-  if(!res.ok) throw new Error('Falha ao buscar agenda do dia');
-  return res.json();
-}
-async function submitReschedule({ eventId, date, time }){
-  const res=await fetch(`${API_BASE}/appointments/reschedule`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ eventId, date, time, tz: TZ })
-  });
-  const data=await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data?.message||'Falha ao reagendar');
-  return data;
-}
-async function createBlock({ date, time, dur=60, notes='' }){
-  // Reaproveita seu fluxo de criação (book)
-  const payload = {
-    paciente:'[BLOQUEIO]',
-    procedimento:'BLOQUEIO',
-    data:date, hora:time, duracaoMin:dur, confirmar:true, tz:TZ,
-    obs: notes
+  console.debug('[DAY] GET', url);
+  const res  = await fetch(url, { headers:{ 'Accept':'application/json' }});
+  const text = await res.text();
+
+  if(!res.ok){
+    console.error('[DAY] HTTP', res.status, text);
+    throw new Error('Falha ao buscar agenda do dia');
+  }
+
+  let data;
+  try { data = JSON.parse(text); }
+  catch(e){ console.error('[DAY] not JSON', text); throw new Error('Resposta inválida da API'); }
+
+  // --- Normalização de campos (aceita vários formatos) ---
+  const out = {
+    date: data.date || dateStr,
+    tz: data.tz || TZ,
+    officeHours: data.officeHours || data.hours || { start:'08:00', end:'18:00' },
+    intervalMinutes: data.intervalMinutes || data.interval || 30,
+    events: []
   };
-  const res=await fetch(`${API_BASE}/book`,{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  });
-  const data=await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data?.message||'Falha ao bloquear horário');
-  return data;
+
+  const items = Array.isArray(data.events) ? data.events
+              : Array.isArray(data.items)  ? data.items
+              : [];
+
+  out.events = items.map(ev => ({
+    id:          ev.id || ev.eventId || '',
+    start:       ev.start || ev.startTime || '',
+    status:      ev.status || 'confirmed',
+    patientName: ev.patientName || ev.title || ev.summary || '',
+    procedure:   ev.procedure || ev.description || '',
+    phone:       ev.phone || '',
+    email:       ev.email || '',
+    dentist:     ev.dentist || '',
+    durationMin: ev.durationMin || ev.duration || 60,
+    room:        ev.room || '',
+    notes:       ev.notes || ''
+  }));
+
+  console.debug('[DAY] normalized', out);
+  return out;
 }
 </script>
+
 
 <!-- ===== Render / lógica ===== -->
 <script>
@@ -1083,4 +1100,5 @@ function renderReagendarSlots(container, withStatus){
 </script>
 </body>
 </html>
+
 

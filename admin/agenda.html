@@ -1,970 +1,455 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dra. Elen Nogata – Agenda</title>
-
-  <!-- CSS base -->
+  <title>Dra. Elen Nogata – Agenda</title> <!-- CSS base -->
   <link rel="stylesheet" href="../css/bootstrap.css" />
   <link rel="stylesheet" href="css/crm.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
   <script src="js/sidebar.js"></script>
-
   <style>
-    :root{
-      --ring:#e5e7eb;
-      --muted:#64748b;
+    .modal-header.themed {
+      background: linear-gradient(180deg, #e0f2fe 0%, #f5f3ff 100%);
+      border-bottom: 1px solid var(--ring);
     }
 
-    /* ====== MODAIS ====== */
-    .modal-header.themed{
-      background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);
-      border-bottom:1px solid var(--ring);
-    }
-    .modal-header .modal-title{font-weight:800; letter-spacing:.2px;}
-    #reag-slots .slot{border:1px solid var(--ring); border-radius:999px; padding:.35rem .6rem; background:#fff;}
-    #reag-slots .slot.selected{background:#0ea5e9; color:#fff; border-color:#0ea5e9;}
-    #reag-slots .slot.disabled{opacity:.45; cursor:not-allowed;}
-
-    /* ======= CALENDÁRIO ======= */
-    .agenda-inline { margin-top:.75rem; }
-    .agenda-inline .cal-head{
-      display:flex; align-items:center; justify-content:space-between;
-      margin-bottom:.5rem;
-    }
-    .agenda-inline .cal-head .month{ font-weight:800; letter-spacing:.2px; }
-    .agenda-inline .cal{
-      background:#fff; border:1px solid var(--ring); border-radius:14px;
-      padding:.6rem; overflow:hidden;
-    }
-    .agenda-inline .dow{
-      display:grid; grid-template-columns:repeat(7,1fr);
-      font-size:.75rem; color:var(--muted); text-align:center;
-    }
-    .agenda-inline .grid{
-      display:grid; grid-template-columns:repeat(7,1fr); gap:6px;
-      padding-top:6px;
-    }
-    .agenda-inline .day{
-      position:relative; height:42px; border-radius:10px; display:flex;
-      align-items:center; justify-content:center; cursor:pointer; user-select:none;
-      font-weight:600;
-    }
-    .agenda-inline .day.out { opacity:.35; }
-    .agenda-inline .day .num{ position:relative; z-index:1; }
-    .agenda-inline .day.sel{ color:#111; }
-    .agenda-inline .day.sel::before{
-      content:""; position:absolute; inset:0; border-radius:10px;
-      background:linear-gradient(180deg,#eef6ff 0,#f3f0ff 100%);
-      box-shadow:0 1px 0 rgba(0,0,0,.05) inset;
-    }
-    .agenda-inline .day .underline{
-      position:absolute; left:22%; right:22%; bottom:6px; height:3px;
-      background:#10b981; border-radius:3px; opacity:0;
-    }
-    .agenda-inline .day.avail .underline{ opacity:1; }
-    .agenda-inline .slots{ display:flex; flex-wrap:wrap; gap:8px; margin:.8rem 0 0; }
-    .agenda-inline .slot{
-      border:1px solid var(--ring); padding:.45rem .7rem; border-radius:999px;
-      background:#eafff3; color:#047857; font-weight:600;
-    }
-    .agenda-inline .slot.disabled{ background:#f3f4f6; color:#9ca3af; cursor:not-allowed; }
-
-    .agenda-inline .card{
-      background:#fff; border:1px solid var(--ring); border-radius:14px; padding:.75rem;
-      box-shadow:0 4px 16px rgba(15,23,42,.06);
-    }
-    .agenda-inline .list li{ padding:.55rem 0; border-bottom:1px solid var(--ring); }
-    .agenda-inline .list li:last-child{ border-bottom:0; }
-
-    .btn-link-icon{
-      display:inline-flex; align-items:center; gap:.35rem; padding:.4rem .7rem;
-      border-radius:999px; border:1px solid var(--ring); background:#fff;
+    .modal-header .modal-title {
+      font-weight: 800;
+      letter-spacing: .2px;
     }
 
-    /* ===== KPIs do dia ===== */
-    .kpi-cards{display:grid; gap:10px; grid-template-columns:repeat(4,1fr);}
-    .kpi{border:1px solid var(--ring); border-radius:12px; background:#fff; padding:.75rem;}
-    .kpi .lab{color:var(--muted); font-size:.8rem}
-    .kpi .val{font-weight:800; font-size:1.25rem}
-
-    /* ===== Barra de dia + navegação ===== */
-    .day-toolbar{display:flex; gap:.5rem; align-items:center; justify-content:space-between; margin-bottom:.5rem}
-    .day-nav{display:flex; gap:.5rem; align-items:center}
-    .legend{display:flex; gap:.5rem; flex-wrap:wrap}
-    .legend .crm-chip{cursor:default}
-
-    /* ===== Tabela + linha “Agora” ===== */
-    .agenda-wrap{position:relative}
-    .now-line{
-      position:absolute; left:0; right:0; height:2px; background:#ef4444;
-      transform: translateY(-50%); display:none;
-    }
-    .now-line::after{
-      content:"Agora"; position:absolute; right:0; top:-10px; font-size:.7rem; background:#fee2e2; color:#991b1b;
-      padding:.1rem .35rem; border-radius:999px; border:1px solid #fecaca;
+    /* Slots reagendar */
+    #reag-slots .slot {
+      border: 1px solid var(--ring);
+      border-radius: 999px;
+      padding: .35rem .6rem;
+      background: #fff;
     }
 
-    /* ===== Bottom bar só no MOBILE ===== */
-    .bb-dribbble{display:none}
-    @media (max-width: 991.98px){
-      .bb-dribbble{display:flex}
+    #reag-slots .slot.selected {
+      background: #0ea5e9;
+      color: #fff;
+      border-color: #0ea5e9;
+    }
+
+    #reag-slots .slot.disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    /* ===== CALENDÁRIO – VISÍVEL EM TODAS AS TELAS (logo abaixo do crm-search) ===== */
+    .agenda-inline {
+      margin-top: .75rem;
+    }
+
+    .agenda-inline .cal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .5rem;
+    }
+
+    .agenda-inline .cal-head .month {
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .agenda-inline .cal {
+      background: #fff;
+      border: 1px solid var(--ring);
+      border-radius: 14px;
+      padding: .6rem;
+      overflow: hidden;
+    }
+
+    .agenda-inline .dow {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      font-size: .75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .agenda-inline .grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      padding-top: 6px;
+    }
+
+    .agenda-inline .day {
+      position: relative;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+    }
+
+    .agenda-inline .day.out {
+      opacity: .35;
+    }
+
+    .agenda-inline .day .num {
+      position: relative;
+      z-index: 1;
+    }
+
+    .agenda-inline .day.sel {
+      color: #111;
+    }
+
+    .agenda-inline .day.sel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #eef6ff 0, #f3f0ff 100%);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .05) inset;
+    }
+
+    .agenda-inline .day .underline {
+      position: absolute;
+      left: 22%;
+      right: 22%;
+      bottom: 6px;
+      height: 3px;
+      background: #10b981;
+      border-radius: 3px;
+      opacity: 0;
+    }
+
+    .agenda-inline .day.avail .underline {
+      opacity: 1;
+    }
+
+    /* Chips de horários */
+    .agenda-inline .slots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: .8rem 0 0;
+    }
+
+    .agenda-inline .slot {
+      border: 1px solid var(--ring);
+      padding: .45rem .7rem;
+      border-radius: 999px;
+      background: #eafff3;
+      color: #047857;
+      font-weight: 600;
+    }
+
+    .agenda-inline .slot.disabled {
+      background: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    /* Card de eventos do dia */
+    .agenda-inline .card {
+      background: #fff;
+      border: 1px solid var(--ring);
+      border-radius: 14px;
+      padding: .75rem;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, .06);
+    }
+
+    .agenda-inline .list li {
+      padding: .55rem 0;
+      border-bottom: 1px solid var(--ring);
+    }
+
+    .agenda-inline .list li:last-child {
+      border-bottom: 0;
+    }
+
+    /* Botão pequeno com ícone */
+    .btn-link-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .4rem .7rem;
+      border-radius: 999px;
+      border: 1px solid var(--ring);
+      background: #fff;
     }
   </style>
 </head>
+
 <body data-page="agenda">
-<div class="crm-app">
-  <!-- Sidebar -->
-  <aside class="crm-sidebar" id="crm-sidebar">
-    <div class="crm-brand">
-      <span class="logo"></span>
-      <div>
-        <div style="font-weight:800; font-size:18px;">Clínica</div>
-        <div style="color:var(--muted); font-size:12px;">Elen Nogata</div>
-      </div>
-    </div>
-
-    <nav class="crm-nav">
-      <a href="inicio.html"        data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a>
-      <a href="agenda.html"        data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
-      <a href="pacientes.html"     data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a>
-      <a href="orcamentos.html"    data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
-      <a href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
-      <a href="campanhas.html"     data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a>
-      <a href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a>
-    </nav>
-
-    <div class="crm-footer">
-      <div>Conectado como <strong>admin@clinica</strong></div>
-      <div>v0.1</div>
-    </div>
-  </aside>
-
-  <!-- overlay (mobile) -->
-  <div class="crm-overlay" id="crm-overlay"></div>
-
-  <!-- botão hambúrguer (mobile) -->
-  <button class="crm-burger" id="btn-sidebar" aria-label="Abrir menu">
-    <i class="fa-solid fa-bars"></i>
-  </button>
-
-  <main class="crm-main">
-    <!-- HERO -->
-    <section class="crm-hero">
-      <h1 class="text-center mb-1">Agenda</h1>
-      <div class="crm-search">
-        <i class="fa-regular fa-calendar" style="color:var(--muted)"></i>
-        <input type="date" id="flt-date" />
-        <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-filtrar">Filtrar</button>
-        <div class="ml-auto d-none d-md-flex" style="gap:.5rem">
-          <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-prev-day"><i class="fa-solid fa-chevron-left mr-1"></i> Dia anterior</button>
-          <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-today">Hoje</button>
-          <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-next-day">Próximo dia <i class="fa-solid fa-chevron-right ml-1"></i></button>
-        </div>
-        <a href="../book.html" class="btn btn-sm btn-primary btn-pill ml-2">
-          <i class="fa-regular fa-calendar-plus mr-1"></i> Novo agendamento
-        </a>
-      </div>
-
-      <!-- CALENDÁRIO unificado (todos os dispositivos) -->
-      <div class="agenda-inline">
-        <div class="crm-card">
-          <div class="cal-head">
-            <button class="btn-link-icon" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
-            <div class="month" id="cal-month">—</div>
-            <button class="btn-link-icon" id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
-          </div>
-
-          <div class="cal">
-            <div class="dow">
-              <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-            </div>
-            <div class="grid" id="cal-grid"></div>
-          </div>
-
-          <div class="slots" id="mob-slots"></div>
-        </div>
-
-        <div class="card mt-3">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="font-weight-bold">Eventos do dia <span id="mob-day-label" class="muted"></span></div>
-            <a href="../book.html" class="btn-link-icon"><i class="fa-regular fa-calendar-plus"></i> Novo</a>
-          </div>
-          <ul class="list list-unstyled mb-0" id="mob-day-events"></ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- CONTEÚDO -->
-    <section class="crm-content">
-      <!-- KPIs do dia -->
-      <div class="kpi-cards mb-3">
-        <div class="kpi">
-          <div class="lab">Agendamentos</div>
-          <div class="val" id="kpi-total">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">Confirmados</div>
-          <div class="val" id="kpi-conf">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">Pendentes</div>
-          <div class="val" id="kpi-pend">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">Cancelados</div>
-          <div class="val" id="kpi-canc">—</div>
-        </div>
-      </div>
-
-      <div class="day-toolbar">
-        <div class="day-nav">
-          <h5 class="mb-0" id="agenda-dia-titulo">Dia —</h5>
-          <div class="muted ml-2" id="agenda-intervalo">Intervalo de 30 min</div>
-        </div>
-        <div class="legend">
-          <div class="crm-chip" data-filter="all"><i class="fa-regular fa-eye"></i> Todos</div>
-          <div class="crm-chip" data-filter="confirmado"><i class="fa-regular fa-square-check"></i> Confirmados</div>
-          <div class="crm-chip" data-filter="pendente"><i class="fa-regular fa-bell"></i> Pendentes</div>
-          <div class="crm-chip" data-filter="cancelado"><i class="fa-regular fa-circle-xmark"></i> Cancelados</div>
-        </div>
-      </div>
-
-      <div class="row">
-        <!-- Agenda do dia (tabela detalhada) -->
-        <div class="col-lg-8 mb-3">
-          <div class="crm-card agenda-wrap">
-            <div class="now-line" id="now-line"></div>
-            <table class="table table-hover mb-0" id="agenda-table">
-              <thead>
-                <tr><th style="width:90px">Hora</th><th>Paciente</th><th>Procedimento</th><th style="width:130px">Status</th><th style="width:70px;"></th></tr>
-              </thead>
-              <tbody id="agenda-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Lateral -->
-        <div class="col-lg-4 mb-3">
-          <div class="crm-card">
-            <h6 class="mb-3">Notas do dia</h6>
-            <ul class="mb-0" id="notes-day">
-              <li>Bloquear 12:00–13:00 (almoço)</li>
-              <li>Reagendar retorno de Felipe</li>
-              <li>Materiais para implante às 16:45</li>
-            </ul>
-          </div>
-
-          <div class="crm-card mt-3">
-            <h6 class="mb-3">Ações rápidas</h6>
-            <div class="d-flex flex-wrap" style="gap:.5rem">
-              <a href="../book.html" class="btn btn-sm btn-outline-secondary btn-pill"><i class="fa-regular fa-calendar-plus mr-1"></i>Novo agendamento</a>
-              <a href="pacientes.html" class="btn btn-sm btn-outline-secondary btn-pill"><i class="fa-regular fa-user mr-1"></i>Novo paciente</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-</div>
-
-<!-- ================= MODAL: VER AGENDAMENTO ================ -->
-<div class="modal fade" id="md-agenda-ver" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header themed">
+  <div class="crm-app"> <!-- Sidebar -->
+    <aside class="crm-sidebar" id="crm-sidebar">
+      <div class="crm-brand"> <span class="logo"></span>
         <div>
-          <h5 class="modal-title mb-0">
-            <i class="fa-regular fa-calendar-check mr-2"></i>
-            <span id="ver-proc">Procedimento</span>
-          </h5>
-          <div class="muted" id="ver-datahora" style="font-size:12px;"></div>
-        </div>
-        <div class="d-flex align-items-center">
-          <span id="ver-status" class="badge-soft bg-soft-green mr-3">Confirmado</span>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
+          <div style="font-weight:800; font-size:18px;">Clínica</div>
+          <div style="color:var(--muted); font-size:12px;">Elen Nogata</div>
         </div>
       </div>
-
-      <div class="modal-body">
-        <div class="crm-card mb-3">
-          <div class="d-flex justify-content-between">
-            <div>
-              <div class="muted">Paciente</div>
-              <div class="h5 mb-0" id="ver-paciente">-</div>
+      <nav class="crm-nav"> <a href="inicio.html" data-nav="inicio"><i class="fa-solid fa-grid-2"></i> Início</a> <a
+          href="agenda.html" data-nav="agenda"><i class="fa-regular fa-calendar-days"></i> Agenda</a> <a
+          href="pacientes.html" data-nav="pacientes"><i class="fa-regular fa-user"></i> Pacientes</a> <a
+          href="orcamentos.html" data-nav="orcamentos"><i class="fa-regular fa-folder-open"></i> Orçamentos</a> <a
+          href="procedimentos.html" data-nav="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</a> <a
+          href="campanhas.html" data-nav="campanhas"><i class="fa-regular fa-paper-plane"></i> Campanhas</a> <a
+          href="configuracoes.html" data-nav="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</a> </nav>
+      <div class="crm-footer">
+        <div>Conectado como <strong>admin@clinica</strong></div>
+        <div>v0.1</div>
+      </div>
+    </aside> <!-- overlay (mobile) -->
+    <div class="crm-overlay" id="crm-overlay"></div> <!-- botão hambúrguer (mobile) --> <button class="crm-burger"
+      id="btn-sidebar" aria-label="Abrir menu"> <i class="fa-solid fa-bars"></i> </button>
+    <main class="crm-main"> <!-- HERO -->
+      <section class="crm-hero">
+        <h1 class="text-center mb-1">Agenda</h1>
+        <div class="crm-search"> <i class="fa-regular fa-calendar" style="color:var(--muted)"></i> <input type="date"
+            id="flt-date" /> <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-filtrar">Filtrar</button>
+          <a href="../book.html" class="btn btn-sm btn-primary btn-pill ml-auto"> <i
+              class="fa-regular fa-calendar-plus mr-1"></i> Novo agendamento </a>
+        </div>
+        <!-- CALENDÁRIO unificado (todos os dispositivos) -->
+        <div class="agenda-inline">
+          <div class="crm-card">
+            <div class="cal-head"> <button class="btn-link-icon" id="cal-prev"><i
+                  class="fa-solid fa-chevron-left"></i></button>
+              <div class="month" id="cal-month">—</div> <button class="btn-link-icon" id="cal-next"><i
+                  class="fa-solid fa-chevron-right"></i></button>
             </div>
-            <div class="text-right">
-              <div class="muted">Contato</div>
-              <div>
-                <a id="ver-whats" class="btn btn-sm btn-outline-secondary btn-pill" target="_blank" rel="noopener">
-                  <i class="fa-brands fa-whatsapp"></i> WhatsApp
-                </a>
-                <a id="ver-mail" class="btn btn-sm btn-outline-secondary btn-pill ml-2">
-                  <i class="fa-regular fa-envelope"></i> E-mail
-                </a>
+            <div class="cal">
+              <div class="dow">
+                <div>Dom</div>
+                <div>Seg</div>
+                <div>Ter</div>
+                <div>Qua</div>
+                <div>Qui</div>
+                <div>Sex</div>
+                <div>Sáb</div>
               </div>
+              <div class="grid" id="cal-grid"></div>
+            </div> <!-- chips de horários do dia selecionado -->
+            <div class="slots" id="mob-slots"></div>
+          </div> <!-- eventos do dia -->
+          <div class="card mt-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="font-weight-bold">Eventos do dia <span id="mob-day-label" class="muted"></span></div> <a
+                href="../book.html" class="btn-link-icon"><i class="fa-regular fa-calendar-plus"></i> Novo</a>
             </div>
+            <ul class="list list-unstyled mb-0" id="mob-day-events"></ul>
           </div>
         </div>
-
-        <div class="row">
-          <div class="col-md-6">
-            <div class="crm-card h-100">
-              <div class="muted mb-1">Atendimento</div>
-              <ul class="list-unstyled mb-0">
-                <li class="py-1"><i class="fa-regular fa-clock mr-2" style="color:#10b981"></i>
-                  <span id="ver-when">-</span> • <span id="ver-dur">-</span>
-                </li>
-                <li class="py-1"><i class="fa-solid fa-tooth mr-2" style="color:#6d28d9"></i>
-                  <span id="ver-proc2">-</span>
-                </li>
-                <li class="py-1"><i class="fa-regular fa-user mr-2" style="color:#0284c7"></i>
-                  <span id="ver-dentista">-</span>
-                </li>
-                <li class="py-1"><i class="fa-solid fa-location-dot mr-2" style="color:#f59e0b"></i>
-                  <span id="ver-sala">-</span>
-                </li>
+      </section> <!-- CONTEÚDO -->
+      <section class="crm-content">
+        <div class="row"> <!-- Agenda do dia (tabela detalhada) -->
+          <div class="col-lg-8 mb-3">
+            <div class="crm-card">
+              <div class="crm-head-row">
+                <h5 class="mb-0" id="agenda-dia-titulo">Dia —</h5>
+                <div class="muted" id="agenda-intervalo">Intervalo de 30 min</div>
+              </div>
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Hora</th>
+                    <th>Paciente</th>
+                    <th>Procedimento</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="agenda-tbody"></tbody>
+              </table>
+            </div>
+          </div> <!-- Lateral -->
+          <div class="col-lg-4 mb-3">
+            <div class="crm-card">
+              <h6 class="mb-3">Notas do dia</h6>
+              <ul class="mb-0">
+                <li>Bloquear 12:00–13:00 (almoço)</li>
+                <li>Reagendar retorno de Felipe</li>
+                <li>Materiais para implante às 16:45</li>
               </ul>
             </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="crm-card h-100">
-              <div class="muted mb-1">Notas</div>
-              <div id="ver-notas" style="white-space:pre-wrap;">—</div>
+            <div class="crm-card mt-3">
+              <h6 class="mb-3">Filtros rápidos</h6>
+              <div class="crm-chip mb-2"><i class="fa-regular fa-square-check"></i> Confirmados</div>
+              <div class="crm-chip mb-2"><i class="fa-regular fa-bell"></i> Lembrar pendentes</div>
+              <div class="crm-chip"><i class="fa-regular fa-circle-xmark"></i> Cancelados</div>
             </div>
           </div>
         </div>
-
-        <div class="crm-card mt-3">
-          <div class="muted mb-2">Histórico</div>
-          <ul id="ver-log" class="list-unstyled mb-0"></ul>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button id="btn-enviar-lembr" class="btn btn-outline-secondary btn-pill btn-pill-enviar">
-          <i class="fa-brands fa-whatsapp mr-1"></i> Enviar lembrete
-        </button>
-        <button id="btn-confirmar" class="btn btn-outline-secondary btn-pill">Confirmar</button>
-        <button id="btn-reagendar" class="btn btn-outline-secondary btn-pill">Reagendar</button>
-        <button id="btn-cancelar" class="btn btn-outline-secondary btn-pill text-danger">Cancelar</button>
-        <button class="btn btn-primary btn-pill" data-dismiss="modal">Fechar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ================= MODAL: REAGENDAR ====================== -->
-<div class="modal fade" id="md-reagendar" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header themed">
-        <h5 class="modal-title"><i class="fa-regular fa-calendar-days mr-2"></i>Reagendar</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
-      </div>
-      <form id="form-reagendar">
-        <div class="modal-body">
-          <input type="hidden" id="reag-eventId" />
-          <div class="form-row">
-            <div class="form-group col-md-5">
-              <label>Data</label>
-              <input type="date" class="form-control" id="reag-date" required />
-            </div>
-            <div class="form-group col-md-7">
-              <label>Horários</label>
-              <div id="reag-slots" class="d-flex flex-wrap" style="gap:8px;"></div>
-              <small class="text-muted d-block mt-1">Selecione um horário disponível.</small>
-              <input type="hidden" id="reag-selected-time" />
-            </div>
+      </section>
+    </main>
+  </div> <!-- ================= MODAL: VER AGENDAMENTO ================ -->
+  <div class="modal fade" id="md-agenda-ver" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header themed">
+          <div>
+            <h5 class="modal-title mb-0"> <i class="fa-regular fa-calendar-check mr-2"></i> <span
+                id="ver-proc">Procedimento</span> </h5>
+            <div class="muted" id="ver-datahora" style="font-size:12px;"></div>
           </div>
-          <div id="reag-feedback" class="mt-2"></div>
+          <div class="d-flex align-items-center"> <span id="ver-status"
+              class="badge-soft bg-soft-green mr-3">Confirmado</span> <button type="button" class="close"
+              data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button> </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-outline-secondary btn-pill" data-dismiss="modal">Cancelar</button>
-          <button class="btn btn-primary btn-pill" type="submit" id="reag-submit">Salvar alteração</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Overlay e Sheets (para mobile) -->
-<div id="crm-sheet-overlay" class="crm-sheet-overlay"></div>
-
-<div id="crm-quick-sheet" class="crm-action-sheet">
-  <div class="sheet-header">Ações rápidas</div>
-  <button class="sheet-item" data-quick="agendamento"><i class="fa-regular fa-calendar-plus"></i> Novo agendamento</button>
-  <button class="sheet-item" data-quick="paciente"><i class="fa-regular fa-user"></i> Novo paciente</button>
-  <button class="sheet-item" data-quick="orcamento"><i class="fa-regular fa-clipboard"></i> Novo orçamento</button>
-  <button class="sheet-item" data-quick="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</button>
-</div>
-
-<div id="crm-menu-sheet" class="crm-action-sheet">
-  <div class="sheet-header">Ir para</div>
-  <a class="sheet-item" href="inicio.html"><i class="fa-solid fa-house"></i> Início</a>
-  <a class="sheet-item" href="agenda.html"><i class="fa-regular fa-calendar-days"></i> Agenda</a>
-  <a class="sheet-item" href="pacientes.html"><i class="fa-regular fa-user"></i> Pacientes</a>
-  <a class="sheet-item" href="orcamentos.html"><i class="fa-regular fa-folder-open"></i> Orçamentos</a>
-  <a class="sheet-item" href="procedimentos.html"><i class="fa-solid fa-tooth"></i> Procedimentos</a>
-  <a class="sheet-item" href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
-</div>
-
-<!-- Bottom bar (só mobile, via CSS) -->
-<nav class="bb-dribbble" id="bbBar" aria-label="Navegação rápida">
-  <svg class="bb-bg" viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <filter id="bbShadow" x="-20%" y="-50%" width="140%" height="200%">
-        <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="rgba(15,23,42,.10)"/>
-        <feDropShadow dx="0" dy="4"  stdDeviation="6"  flood-color="rgba(15,23,42,.08)"/>
-      </filter>
-    </defs>
-    <path id="bbPath" class="bb-path" filter="url(#bbShadow)"
-      d="M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
-    <animate id="bbMorph" xlink:href="#bbPath" attributeName="d" dur="420ms" fill="freeze"
-      values="
-        M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
-        M18,26 H330 C400,26 440,-18 500,-18 C560,-18 600,26 670,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z;
-        M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z
-      " />
-  </svg>
-
-  <button class="bb-tab" data-act="agenda" aria-label="Agenda">
-    <i class="fa-regular fa-calendar-days"></i>
-    <span>Agenda</span>
-  </button>
-
-  <button class="bb-fab" data-act="quick" aria-label="Ações rápidas">
-    <i class="fa-solid fa-plus"></i>
-  </button>
-
-  <button class="bb-tab" data-act="menu" aria-label="Menu">
-    <i class="fa-solid fa-list-ul"></i>
-    <span>Menu</span>
-  </button>
-</nav>
-
-<!-- ======== JS libs ======== -->
-<script src="../js/jquery-3.4.1.min.js"></script>
-<script src="../js/bootstrap.js"></script>
-
-<!-- Config da API (n8n) -->
-<script>
-  window.CRM_API_BASE       = 'https://primary-odonto.up.railway.app/webhook/odonto';
-  window.CRM_AVAILABILITY   = 'https://primary-odonto.up.railway.app/webhook/availability';
-  window.TIMEZONE           = 'America/Sao_Paulo';
-</script>
-
-<!-- Helpers comuns -->
-<script src="js/crm-api.js"></script>
-
-<!-- Sidebar mobile -->
-<script>
-(function () {
-  const app = document.querySelector('.crm-app');
-  const btn = document.getElementById('btn-sidebar');
-  const overlay = document.getElementById('crm-overlay');
-  function close(){ app.classList.remove('sidebar-open'); }
-  function toggle(){ app.classList.toggle('sidebar-open'); }
-  btn?.addEventListener('click', toggle);
-  overlay?.addEventListener('click', close);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
-  document.querySelectorAll('.crm-nav a').forEach(a => a.addEventListener('click', close));
-})();
-</script>
-
-<!-- ===== Funções utilitárias ===== -->
-<script>
-function el(q, root=document){ return root.querySelector(q); }
-function els(q, root=document){ return Array.from(root.querySelectorAll(q)); }
-const pad2 = n => String(n).padStart(2,'0');
-const ymdToday = () => { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
-const fmtBR = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }catch{ return iso; } };
-
-function rangeToSlots(start, end, stepMin){
-  const out=[], [sh,sm]=start.split(':').map(Number), [eh,em]=end.split(':').map(Number);
-  let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
-  while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+stepMin*60000); }
-  return out;
-}
-function blockByBusy(slots, busy){
-  const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m;};
-  return slots.map(t=>{
-    const tm=toMin(t);
-    const busyNow=(busy||[]).some(([bStart,bEnd])=>tm>=toMin(bStart)&&tm<toMin(bEnd));
-    return { time:t, available:!busyNow };
-  });
-}
-</script>
-
-<!-- ===== API (n8n) ===== -->
-<script>
-const BASE = window.CRM_API_BASE;
-
-async function fetchAvailability(dateStr){
-  const url = `${(window.CRM_AVAILABILITY||'https://primary-odonto.up.railway.app/webhook/availability')}`
-            + `?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
-  const res = await fetch(url, { headers:{ 'Accept':'application/json' }});
-  if(!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-async function fetchDay(dateStr){
-  const url=`${BASE}/appointments/day?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TIMEZONE)}`;
-  const res=await fetch(url,{headers:{'Accept':'application/json'}});
-  if(!res.ok) throw new Error('Falha ao buscar agenda do dia');
-  return res.json();
-}
-async function submitReschedule(payload){
-  const res=await fetch(`${BASE}/appointments/reschedule`,{
-    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
-  });
-  const data=await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data?.message||'Falha ao reagendar');
-  return data;
-}
-</script>
-
-<!-- ===== Renderização: tabela / KPIs / filtros / linha "Agora" ===== -->
-<script>
-function statusBadge(status){
-  const s=(status||'').toLowerCase();
-  if(s.includes('confirm')) return '<span class="badge-soft bg-soft-green">Confirmado</span>';
-  if(s.includes('pend')||s.includes('pré')) return '<span class="badge-soft bg-soft-amber">Pendente</span>';
-  if(s.includes('cancel')) return '<span class="badge-soft bg-soft-red">Cancelado</span>';
-  return '<span class="badge-soft">Livre</span>';
-}
-
-function computeKPIs(events=[]){
-  const k = { total:0, conf:0, pend:0, canc:0 };
-  events.forEach(e=>{
-    k.total++;
-    const s=(e.status||'').toLowerCase();
-    if(s.includes('confirm')) k.conf++;
-    else if(s.includes('cancel')) k.canc++;
-    else k.pend++;
-  });
-  return k;
-}
-
-function applyNowLine(tbody, start, end, step){
-  try{
-    const line = el('#now-line');
-    const now = new Date();
-    const nowHM = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
-    const slots = rangeToSlots(start,end,step);
-    const idx = slots.findIndex(t => t>=nowHM);
-    if(idx<0){ line.style.display='none'; return; }
-    const rows = els('tr', tbody);
-    const target = rows[idx];
-    if(!target){ line.style.display='none'; return; }
-    line.style.display='block';
-    const wrap = target.closest('.agenda-wrap');
-    const top = target.offsetTop;
-    line.style.top = (top+2) + 'px';
-  }catch{ /* ignore */ }
-}
-
-function buildDayTable(tbody, dayData, filter='all'){
-  tbody.innerHTML='';
-  const start=dayData.officeHours?.start||'08:00';
-  const end=dayData.officeHours?.end||'18:00';
-  const step=dayData.intervalMinutes||30;
-  const slots=rangeToSlots(start,end,step);
-  const evByStart={}; (dayData.events||[]).forEach(ev=>{evByStart[ev.start]=ev;});
-
-  slots.forEach(hhmm=>{
-    const ev=evByStart[hhmm];
-    if(!ev){
-      if(filter==='all'){
-        tbody.insertAdjacentHTML('beforeend', `<tr data-row="livre"><td>${hhmm}</td><td>-</td><td>-</td><td>${statusBadge('livre')}</td><td></td></tr>`);
-      }
-      return;
-    }
-    const s = (ev.status||'').toLowerCase();
-    const sKey = s.includes('confirm')?'confirmado':(s.includes('cancel')?'cancelado':'pendente');
-    if(filter!=='all' && filter!==sKey) return;
-
-    tbody.insertAdjacentHTML('beforeend', `
-      <tr data-row="${sKey}">
-        <td>${ev.start}</td>
-        <td>${ev.patientName||'-'}</td>
-        <td>${ev.procedure||'-'}</td>
-        <td>${statusBadge(ev.status)}</td>
-        <td>
-          <a href="javascript:void(0)" class="btn btn-sm btn-outline-secondary btn-pill agenda-item"
-             data-id="${ev.id||''}"
-             data-paciente="${ev.patientName||''}"
-             data-phone="${ev.phone||''}"
-             data-email="${ev.email||''}"
-             data-proc="${ev.procedure||''}"
-             data-status="${ev.status||''}"
-             data-date="${el('#flt-date').value}"
-             data-start="${ev.start||''}"
-             data-dur="${ev.durationMin||step}"
-             data-dentista="${ev.dentist||''}"
-             data-sala="${ev.room||''}"
-             data-notas="${(ev.notes||'').replace(/"/g,'&quot;')}">Ver</a>
-        </td>
-      </tr>`);
-  });
-
-  applyNowLine(tbody, start, end, step);
-}
-</script>
-
-<!-- ===== Modais: abrir/ver e reagendar ===== -->
-<script>
-const STATUS_MAP={
-  confirmado: {label:'Confirmado',klass:'bg-soft-green'},
-  'pré-agendamento': {label:'Pré-agendamento',klass:'bg-soft-amber'},
-  pendente: {label:'Pendente',klass:'bg-soft-amber'},
-  aguardando: {label:'Aguardando',klass:'bg-soft-blue'},
-  cancelado: {label:'Cancelado',klass:'bg-soft-red'},
-  compareceu: {label:'Compareceu',klass:'bg-soft-purple'},
-  faltou: {label:'Faltou',klass:'bg-soft-gray'},
-};
-const toWhats=raw=>{const d=(raw||'').replace(/\D/g,''); if(!d) return 'javascript:void(0)'; return `https://wa.me/${d.length===11?`55${d}`:d}`;};
-
-function openVerModal(data){
-  el('#ver-proc').textContent=data.procedimento||'-';
-  el('#ver-proc2').textContent=data.procedimento||'-';
-
-  const map=STATUS_MAP[(data.status||'confirmado').toLowerCase()]||STATUS_MAP.confirmado;
-  const badge=el('#ver-status'); badge.textContent=map.label; badge.className=`badge-soft ${map.klass}`;
-
-  const when=`${fmtBR(data.date)} • ${data.start}`;
-  el('#ver-when').textContent=when;
-  el('#ver-datahora').textContent=`${when} — Duração ${data.durMin||60} min`;
-
-  el('#ver-paciente').textContent=data.paciente||'-';
-  el('#ver-whats').href=toWhats(data.phone);
-  el('#ver-mail').href=`mailto:${data.email||''}`;
-  el('#ver-dentista').textContent=data.dentista||'—';
-  el('#ver-sala').textContent=data.sala||'—';
-  el('#ver-dur').textContent=`${data.durMin||60} min`;
-  el('#ver-notas').textContent=data.notas||'—';
-
-  const log=el('#ver-log'); log.innerHTML='';
-  (data.log||[{when:'Hoje 09:12',text:'Agendamento sincronizado com Google Calendar.'}]).forEach(e=>{
-    log.insertAdjacentHTML('beforeend', `<li class="py-1 border-bottom"><span class="muted">${e.when}</span> — ${e.text}</li>`);
-  });
-
-  document.body._currentEvent=data;
-  el('#btn-enviar-lembr').onclick=()=>alert('Lembrete enviado ✅');
-  el('#btn-confirmar').onclick =()=>{badge.textContent=STATUS_MAP.confirmado.label;badge.className=`badge-soft ${STATUS_MAP.confirmado.klass}`;alert('Agendamento confirmado ✅');};
-  el('#btn-cancelar').onclick  =()=>{if(confirm('Confirmar cancelamento?')){badge.textContent=STATUS_MAP.cancelado.label;badge.className=`badge-soft ${STATUS_MAP.cancelado.klass}`;alert('Agendamento cancelado ✅');}};  
-  el('#btn-reagendar').onclick =()=>openReagendarModal(data);
-
-  $('#md-agenda-ver').modal('show');
-}
-
-async function openReagendarModal(evData){
-  el('#reag-eventId').value=evData.id||'';
-  const dateInput=el('#reag-date'); dateInput.value=evData.date;
-  const today=new Date(); today.setHours(0,0,0,0);
-  dateInput.min=today.toISOString().slice(0,10);
-  const max=new Date(today.getTime()+60*24*3600*1000); dateInput.max=max.toISOString().slice(0,10);
-  el('#reag-selected-time').value='';
-
-  const loadSlots=async dateStr=>{
-    el('#reag-slots').innerHTML='Carregando...';
-    try{ renderReagendarSlots(el('#reag-slots'), await fetchAvailability(dateStr)); }
-    catch{ el('#reag-slots').innerHTML='<div class="text-danger">Erro ao carregar horários.</div>'; }
-  };
-  dateInput.onchange=e=>{ el('#reag-selected-time').value=''; loadSlots(e.target.value); };
-  await loadSlots(evData.date);
-  $('#md-reagendar').modal('show');
-}
-
-function renderReagendarSlots(container, availability){
-  container.innerHTML='';
-  const { officeHours, busy, intervalMinutes } = availability;
-  const slots=rangeToSlots(officeHours.start, officeHours.end, intervalMinutes||30);
-  const withStatus=blockByBusy(slots, busy||[]);
-  withStatus.forEach(s=>{
-    const b=document.createElement('button');
-    b.type='button';
-    b.className='slot btn btn-sm '+(s.available?'':'disabled');
-    b.textContent=s.time; b.disabled=!s.available;
-    b.onclick=()=>{
-      if(!s.available) return;
-      els('.slot.selected',container).forEach(x=>x.classList.remove('selected'));
-      b.classList.add('selected'); el('#reag-selected-time').value=s.time;
-    };
-    container.appendChild(b);
-  });
-  if(!withStatus.some(s=>s.available)){
-    container.insertAdjacentHTML('beforeend','<div class="text-muted mt-2">Sem horários disponíveis nesta data.</div>');
-  }
-}
-</script>
-
-<!-- ===== Boot da página + calendário mensal unificado ===== -->
-<script>
-(function(){
-  const gMonth  = document.getElementById('cal-month');
-  const gGrid   = document.getElementById('cal-grid');
-  const btnPrev = document.getElementById('cal-prev');
-  const btnNext = document.getElementById('cal-next');
-  const labDay  = document.getElementById('mob-day-label');
-  const ulDay   = document.getElementById('mob-day-events');
-  const divSlots= document.getElementById('mob-slots');
-  const dateInput = document.getElementById('flt-date');
-  const btnFiltrar = document.getElementById('btn-filtrar');
-
-  const kpiTotal = el('#kpi-total'), kpiConf=el('#kpi-conf'), kpiPend=el('#kpi-pend'), kpiCanc=el('#kpi-canc');
-  const tbody = el('#agenda-tbody');
-  const titleDay = el('#agenda-dia-titulo');
-  const lblIntervalo = el('#agenda-intervalo');
-
-  let anchor  = new Date();  // mês atual
-  let selDate = new Date();  // dia selecionado
-  let filterState = 'all';
-  let lastDayData = null;
-
-  const ymd = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-  const fmtMMDD = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}`; }catch{ return iso; } };
-
-  function buildMonthHeader(){
-    const m = anchor.toLocaleDateString('pt-BR', { month:'long', year:'numeric' });
-    gMonth.textContent = m.charAt(0).toUpperCase()+m.slice(1);
-  }
-  function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
-  function endOfMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0); }
-
-  function dayCellTemplate(d, {outMonth=false, hasAvail=false, isSel=false}={}){
-    const id = ymd(d);
-    return `
-      <div class="day ${outMonth?'out':''} ${hasAvail?'avail':''} ${isSel?'sel':''}" data-date="${id}">
-        <span class="num">${d.getDate()}</span>
-        <span class="underline"></span>
-      </div>`;
-  }
-
-  async function markAvailabilityForMonth(days){
-    const chunks = [];
-    for(let i=0; i<days.length; i+=14){ chunks.push(days.slice(i,i+14)); }
-    const availMap = {};
-    for(const chunk of chunks){
-      await Promise.all(chunk.map(async d=>{
-        try{
-          const bag = await fetchAvailability(ymd(d));
-          const busy = (bag?.busy || []).map(b=>[b[0], b[1]]);
-          const interval = bag?.intervalMinutes || 30;
-          const slots = rangeToSlots(bag?.officeHours?.start||'08:00', bag?.officeHours?.end||'18:00', interval);
-          const withStatus = blockByBusy(slots, busy);
-          availMap[ymd(d)] = withStatus.some(s=>s.available);
-        }catch{}
-      }));
-    }
-    return availMap;
-  }
-
-  async function renderMonth(){
-    buildMonthHeader();
-    const first = startOfMonth(anchor);
-    const last  = endOfMonth(anchor);
-    const padStart = first.getDay();
-    const totalDays= last.getDate();
-
-    const cells = [];
-    const prev = new Date(first);
-    prev.setDate(1 - padStart);
-    for(let i=0;i<padStart;i++){
-      const d = new Date(prev); d.setDate(prev.getDate()+i);
-      cells.push({date:d, out:true});
-    }
-    for(let i=1;i<=totalDays;i++){
-      const d = new Date(first); d.setDate(i);
-      cells.push({date:d, out:false});
-    }
-    while(cells.length % 7 !== 0){
-      const d = new Date(last); d.setDate(d.getDate() + (cells.length%7));
-      cells.push({date:d, out:true});
-    }
-
-    const onlyDays = cells.filter(c=>!c.out).map(c=>c.date);
-    const availMap = await markAvailabilityForMonth(onlyDays);
-
-    gGrid.innerHTML = cells.map(c=>{
-      const id  = ymd(c.date);
-      const sel = ymd(c.date) === ymd(selDate);
-      const av  = !!availMap[id];
-      return dayCellTemplate(c.date, {outMonth:c.out, hasAvail:av, isSel:sel});
-    }).join('');
-
-    gGrid.querySelectorAll('.day').forEach(div=>{
-      div.addEventListener('click', async ()=>{
-        selDate = new Date(div.dataset.date);
-        gGrid.querySelectorAll('.day.sel').forEach(x=>x.classList.remove('sel'));
-        div.classList.add('sel');
-        if (dateInput) dateInput.value = div.dataset.date;
-        await loadDay(true);
-        await loadDayMobile(false);
-      });
-    });
-  }
-
-  async function loadDay(syncKPIs){
-    titleDay.textContent=`Dia ${fmtBR(dateInput.value)}`;
-    tbody.innerHTML='<tr><td colspan="5">Carregando...</td></tr>';
-    try{
-      const day=await fetchDay(dateInput.value);
-      lastDayData = day;
-      lblIntervalo.textContent=`Intervalo de ${day.intervalMinutes||30} min`;
-      buildDayTable(tbody, day, filterState);
-
-      if(syncKPIs){
-        const k = computeKPIs(day.events||[]);
-        kpiTotal.textContent=k.total; kpiConf.textContent=k.conf; kpiPend.textContent=k.pend; kpiCanc.textContent=k.canc;
-      }
-    }catch(e){
-      tbody.innerHTML='<tr><td colspan="5" class="text-danger">Erro ao carregar agenda do dia.</td></tr>';
-      console.error(e);
-    }
-  }
-
-  async function loadDayMobile(){
-    const ds = dateInput.value;
-    labDay.textContent = `• ${fmtMMDD(ds)}`;
-
-    divSlots.innerHTML = 'Carregando horários…';
-    try{
-      const bag = await fetchAvailability(ds);
-      const start = bag?.officeHours?.start||'08:00';
-      const end   = bag?.officeHours?.end  ||'18:00';
-      const step  = bag?.intervalMinutes   || 30;
-      const busy  = (bag?.busy || []).map(x=>[x[0],x[1]]);
-      const slots = rangeToSlots(start,end,step);
-      const withStatus = blockByBusy(slots, busy);
-      divSlots.innerHTML = withStatus.map(s =>
-        `<button class="slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'}>${s.time}</button>`
-      ).join('');
-    }catch(e){
-      divSlots.innerHTML = '<div class="text-danger">Erro ao carregar disponibilidade.</div>';
-    }
-
-    ulDay.innerHTML = '<li>Carregando…</li>';
-    try{
-      const day = await fetchDay(ds);
-      const events = day?.events || [];
-      if(!events.length){ ulDay.innerHTML = '<li class="muted">Sem eventos.</li>'; return; }
-      ulDay.innerHTML = events.map(ev => {
-        const hora = ev.start || '--:--';
-        const nome = ev.patientName || ev.summary || 'Evento';
-        const proc = ev.procedure   || ev.description || '';
-        return `
-          <li>
+        <div class="modal-body"> <!-- Paciente / Contatos -->
+          <div class="crm-card mb-3">
             <div class="d-flex justify-content-between">
               <div>
-                <div class="font-weight-bold">${hora} — ${nome}</div>
-                <div class="muted" style="font-size:.85rem">${proc}</div>
+                <div class="muted">Paciente</div>
+                <div class="h5 mb-0" id="ver-paciente">-</div>
               </div>
-              <a href="javascript:void(0)" class="btn-link-icon agenda-item"
-                 data-id="${ev.id||''}"
-                 data-paciente="${nome}"
-                 data-proc="${proc}"
-                 data-status="${ev.status||''}"
-                 data-date="${ds}"
-                 data-start="${hora}"
-                 data-dur="${ev.durationMin||30}">
-                <i class="fa-regular fa-eye"></i> Ver
-              </a>
+              <div class="text-right">
+                <div class="muted">Contato</div>
+                <div> <a id="ver-whats" class="btn btn-sm btn-outline-secondary btn-pill" target="_blank"
+                    rel="noopener"> <i class="fa-brands fa-whatsapp"></i> WhatsApp </a> <a id="ver-mail"
+                    class="btn btn-sm btn-outline-secondary btn-pill ml-2"> <i class="fa-regular fa-envelope"></i>
+                    E-mail </a> </div>
+              </div>
             </div>
-          </li>`;
-      }).join('');
-    }catch(e){
-      ulDay.innerHTML = '<li class="text-danger">Erro ao carregar eventos.</li>';
-    }
-  }
-
-  // Filtros por status
-  document.querySelectorAll('.legend .crm-chip').forEach(ch=>{
-    ch.addEventListener('click', ()=>{
-      document.querySelectorAll('.legend .crm-chip').forEach(x=>x.classList.remove('active'));
-      ch.classList.add('active');
-      filterState = ch.dataset.filter || 'all';
-      if(lastDayData) buildDayTable(tbody, lastDayData, filterState);
-    });
-  });
-
-  // Navegação dia a dia
-  function shiftDay(delta){
-    const d = new Date(dateInput.value || ymdToday());
-    d.setDate(d.getDate()+delta);
-    dateInput.value = ymd(d);
-    loadDay(true); loadDayMobile();
-  }
-  el('#btn-prev-day')?.addEventListener('click', ()=>shiftDay(-1));
-  el('#btn-next-day')?.addEventListener('click', ()=>shiftDay(1));
-  el('#btn-today')?.addEventListener('click', ()=>{ dateInput.value=ymdToday(); loadDay(true); loadDayMobile(); });
-
-  // Abrir modal ao clicar em "Ver"
-  document.addEventListener('click', ev=>{
-    const a=ev.target.closest('.agenda-item'); if(!a) return;
-    openVerModal({
-      id:a.dataset.id, paciente:a.dataset.paciente, phone:a.dataset.phone, email:a.dataset.email,
-      procedimento:a.dataset.proc, status:a.dataset.status, date:a.dataset.date, start:a.dataset.start,
-      durMin:Number(a.dataset.dur||60), dentista:a.dataset.dentista, sala:a.dataset.sala, notas:a.dataset.notas
-    });
-  });
-
-  // Reagendar submit
-  el('#form-reagendar').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const eventId=el('#reag-eventId').value, date=el('#reag-date').value, time=el('#reag-selected-time').value;
-    if(!time){ el('#reag-feedback').innerHTML='<div class="text-danger">Selecione o horário.</div>'; return; }
-    el('#reag-feedback').innerHTML='Reagendando...';
-    try{
-      await submitReschedule({ eventId, date, time, tz: TIMEZONE });
-      el('#reag-feedback').innerHTML='<div class="text-success">Reagendado com sucesso!</div>';
-      setTimeout(async ()=>{
-        $('#md-reagendar').modal('hide'); $('#md-agenda-ver').modal('hide');
-        el('#reag-feedback').innerHTML=''; el('#reag-selected-time').value='';
-        await loadDay(true);
-      }, 400);
-    }catch(err){
-      el('#reag-feedback').innerHTML=`<div class="text-danger">${err.message}</div>`;
-      console.error(err);
-    }
-  });
-
-  // Calendário mensal
-  btnPrev?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()-1, 1); renderMonth(); });
-  btnNext?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()+1, 1); renderMonth(); });
-
-  // Bottom bar (mobile)
-  (function(){
-    const bar = document.getElementById('bbBar');
-    if(!bar) return;
-    const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]');
-    const tabMenu   = bar.querySelector('.bb-tab[data-act="menu"]');
-    const fab       = bar.querySelector('.bb-fab');
-    const morph     = document.getElementById('bbMorph');
-    const overlay   = document.getElementById('crm-sheet-overlay');
-    const quick     = document.getElementById('crm-quick-sheet');
-    const menu      = document.getElementById('crm-menu-sheet');
-    const openSheet = el => { overlay?.classList.add('show'); el?.classList.add('show'); };
-    const closeSheets = () => { overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); };
-    overlay?.addEventListener('click', closeSheets);
-    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); });
-    function wave(){ try{ morph.beginElement(); }catch(e){} }
-    function setActive(btn){ [tabAgenda, tabMenu].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
-    tabAgenda.addEventListener('click', ()=>{ setActive(tabAgenda); wave(); });
-    tabMenu.addEventListener('click', ()=>{ setActive(tabMenu); wave(); openSheet(menu); });
-    fab.addEventListener('click', ()=>{ wave(); openSheet(quick); });
-    setActive(tabAgenda);
-  })();
-
-  // Boot inicial
-  dateInput.value = ymdToday();
-  await renderMonth();
-  await loadDay(true);
-  await loadDayMobile();
-})();
-</script>
-
+          </div> <!-- Detalhes do atendimento -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="crm-card h-100">
+                <div class="muted mb-1">Atendimento</div>
+                <ul class="list-unstyled mb-0">
+                  <li class="py-1"><i class="fa-regular fa-clock mr-2" style="color:#10b981"></i> <span
+                      id="ver-when">-</span> • <span id="ver-dur">-</span> </li>
+                  <li class="py-1"><i class="fa-solid fa-tooth mr-2" style="color:#6d28d9"></i> <span
+                      id="ver-proc2">-</span> </li>
+                  <li class="py-1"><i class="fa-regular fa-user mr-2" style="color:#0284c7"></i> <span
+                      id="ver-dentista">-</span> </li>
+                  <li class="py-1"><i class="fa-solid fa-location-dot mr-2" style="color:#f59e0b"></i> <span
+                      id="ver-sala">-</span> </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="crm-card h-100">
+                <div class="muted mb-1">Notas</div>
+                <div id="ver-notas" style="white-space:pre-wrap;">—</div>
+              </div>
+            </div>
+          </div> <!-- Histórico -->
+          <div class="crm-card mt-3">
+            <div class="muted mb-2">Histórico</div>
+            <ul id="ver-log" class="list-unstyled mb-0"></ul>
+          </div>
+        </div>
+        <div class="modal-footer"> <button id="btn-enviar-lembr"
+            class="btn btn-outline-secondary btn-pill btn-pill-enviar"> <i class="fa-brands fa-whatsapp mr-1"></i>
+            Enviar lembrete </button> <button id="btn-confirmar"
+            class="btn btn-outline-secondary btn-pill">Confirmar</button> <button id="btn-reagendar"
+            class="btn btn-outline-secondary btn-pill">Reagendar</button> <button id="btn-cancelar"
+            class="btn btn-outline-secondary btn-pill text-danger">Cancelar</button> <button
+            class="btn btn-primary btn-pill" data-dismiss="modal">Fechar</button> </div>
+      </div>
+    </div>
+  </div> <!-- ================= MODAL: REAGENDAR ====================== -->
+  <div class="modal fade" id="md-reagendar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header themed">
+          <h5 class="modal-title"><i class="fa-regular fa-calendar-days mr-2"></i>Reagendar</h5> <button type="button"
+            class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
+        </div>
+        <form id="form-reagendar">
+          <div class="modal-body"> <input type="hidden" id="reag-eventId" />
+            <div class="form-row">
+              <div class="form-group col-md-5"> <label>Data</label> <input type="date" class="form-control"
+                  id="reag-date" required /> </div>
+              <div class="form-group col-md-7"> <label>Horários</label>
+                <div id="reag-slots" class="d-flex flex-wrap" style="gap:8px;"></div> <small
+                  class="text-muted d-block mt-1">Selecione um horário disponível.</small> <input type="hidden"
+                  id="reag-selected-time" />
+              </div>
+            </div>
+            <div id="reag-feedback" class="mt-2"></div>
+          </div>
+          <div class="modal-footer"> <button class="btn btn-outline-secondary btn-pill"
+              data-dismiss="modal">Cancelar</button> <button class="btn btn-primary btn-pill" type="submit"
+              id="reag-submit">Salvar alteração</button> </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="crm-sheet-overlay" class="crm-sheet-overlay"></div> <!-- Sheet: Ações rápidas do "+" -->
+  <div id="crm-quick-sheet" class="crm-action-sheet">
+    <div class="sheet-header">Ações rápidas</div> <button class="sheet-item" data-quick="agendamento"><i
+        class="fa-regular fa-calendar-plus"></i> Novo agendamento</button> <button class="sheet-item"
+      data-quick="paciente"><i class="fa-regular fa-user"></i> Novo paciente</button> <button class="sheet-item"
+      data-quick="orcamento"><i class="fa-regular fa-clipboard"></i> Novo orçamento</button> <button class="sheet-item"
+      data-quick="procedimentos"><i class="fa-solid fa-tooth"></i> Procedimentos</button>
+  </div> <!-- Sheet: Menu -->
+  <div id="crm-menu-sheet" class="crm-action-sheet">
+    <div class="sheet-header">Ir para</div> <a class="sheet-item" href="inicio.html"><i class="fa-solid fa-house"></i>
+      Início</a> <a class="sheet-item" href="agenda.html"><i class="fa-regular fa-calendar-days"></i> Agenda</a> <a
+      class="sheet-item" href="pacientes.html"><i class="fa-regular fa-user"></i> Pacientes</a> <a class="sheet-item"
+      href="orcamentos.html"><i class="fa-regular fa-folder-open"></i> Orçamentos</a> <a class="sheet-item"
+      href="procedimentos.html"><i class="fa-solid fa-tooth"></i> Procedimentos</a> <a class="sheet-item"
+      href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
+  </div> <!-- ========================================================= --> <!-- JS libs -->
+  <script src="../js/jquery-3.4.1.min.js"></script> script src="../js/bootstrap.js"></script>
+  <!-- Config da API (n8n) -->
+  <script> window.CRM_API_BASE = 'https://primary-odonto.up.railway.app/webhook/odonto'; // se houver chamadas diretas de disponibilidade na agenda: window.CRM_AVAILABILITY = 'https://primary-odonto.up.railway.app/webhook/availability'; window.TIMEZONE = 'America/Sao_Paulo'; // já usamos no front </script>
+  <!-- Helpers comuns do projeto -->
+  <script src="js/crm-api.js"></script> <!-- ===== LÓGICA: Agenda (tabela + modais) ===== -->
+  <script> function el(q, root = document) { return root.querySelector(q); } function els(q, root = document) { return Array.from(root.querySelectorAll(q)); } const pad2 = n => String(n).padStart(2, '0'); const ymdToday = () => { const d = new Date(); return ${ d.getFullYear() } -${ pad2(d.getMonth() + 1) } -${ pad2(d.getDate()) }; }; const fmtBR = iso => { try { const [y, m, d] = iso.split('-'); return ${ d } /${m}/${ y }; } catch { return iso; } }; function rangeToSlots(start, end, stepMin) { const out = [], [sh, sm] = start.split(':').map(Number), [eh, em] = end.split(':').map(Number); let d = new Date(); d.setHours(sh, sm, 0, 0); const z = new Date(); z.setHours(eh, em, 0, 0); while (d < z) { out.push(${ pad2(d.getHours()) }:${ pad2(d.getMinutes()) }); d = new Date(d.getTime() + stepMin * 60000); } return out; } function blockByBusy(slots, busy) { const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; }; return slots.map(t => { const tm = toMin(t); const busyNow = (busy || []).some(([bStart, bEnd]) => tm >= toMin(bStart) && tm < toMin(bEnd)); return { time: t, available: !busyNow }; }); } /* ===== chamadas ao n8n ===== */ const BASE = window.CRM_API_BASE; async function fetchAvailability(dateStr) { const url = ${(window.CRM_AVAILABILITY || 'https://primary-odonto.up.railway.app/webhook/availability') } + ? date = ${ encodeURIComponent(dateStr) }& tz=${ encodeURIComponent(TIMEZONE) }; const res = await fetch(url, { headers: { 'Accept': 'application/json' } }); if (!res.ok) throw new Error(await res.text()); return res.json(); } async function fetchDay(dateStr) { const url = ${ BASE }/appointments/day ? date = ${ encodeURIComponent(dateStr) }& tz=${ encodeURIComponent(TIMEZONE) }; const res = await fetch(url, { headers: { 'Accept': 'application/json' } }); if (!res.ok) throw new Error('Falha ao buscar agenda do dia'); return res.json(); } async function submitReschedule(payload) { const res = await fetch(${ BASE } / appointments / reschedule, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); const data = await res.json().catch(() => ({})); if (!res.ok) throw new Error(data?.message || 'Falha ao reagendar'); return data; } /* ===== UI ===== */ function renderReagendarSlots(container, availability) { container.innerHTML = ''; const { officeHours, busy, intervalMinutes } = availability; const slots = rangeToSlots(officeHours.start, officeHours.end, intervalMinutes || 30); const withStatus = blockByBusy(slots, busy || []); withStatus.forEach(s => { const b = document.createElement('button'); b.type = 'button'; b.className = 'slot btn btn-sm ' + (s.available ? '' : 'disabled'); b.textContent = s.time; b.disabled = !s.available; b.onclick = () => { if (!s.available) return; els('.slot.selected', container).forEach(x => x.classList.remove('selected')); b.classList.add('selected'); el('#reag-selected-time').value = s.time; }; container.appendChild(b); }); if (!withStatus.some(s => s.available)) { container.insertAdjacentHTML('beforeend', '<div class="text-muted mt-2">Sem horários disponíveis nesta data.</div>'); } } function statusBadge(status) { const s = (status || '').toLowerCase(); if (s.includes('confirm')) return '<span class="badge-soft bg-soft-green">Confirmado</span>'; if (s.includes('pend') || s.includes('pré')) return '<span class="badge-soft bg-soft-amber">Pendente</span>'; if (s.includes('cancel')) return '<span class="badge-soft bg-soft-red">Cancelado</span>'; return '<span class="badge-soft">Livre</span>'; } function buildDayTable(tbody, dayData) { tbody.innerHTML = ''; const start = dayData.officeHours?.start || '08:00'; const end = dayData.officeHours?.end || '18:00'; const step = dayData.intervalMinutes || 30; const slots = rangeToSlots(start, end, step); const evByStart = {}; (dayData.events || []).forEach(ev => { evByStart[ev.start] = ev; }); slots.forEach(hhmm => { const ev = evByStart[hhmm]; if (!ev) { tbody.insertAdjacentHTML('beforeend', <tr><td>${hhmm}</td><td>-</td><td>-</td><td>${statusBadge('livre')}</td><td></td></tr>); } else { tbody.insertAdjacentHTML('beforeend', <tr> <td>${ev.start}</td> <td>${ev.patientName || '-'}</td> <td>${ev.procedure || '-'}</td> <td>${statusBadge(ev.status)}</td> <td> <a href="javascript:void(0)" class="btn btn-sm btn-outline-secondary btn-pill agenda-item" data-id="${ev.id||''}" data-paciente="${ev.patientName||''}" data-phone="${ev.phone||''}" data-email="${ev.email||''}" data-proc="${ev.procedure||''}" data-status="${ev.status||''}" data-date="${el('#flt-date').value}" data-start="${ev.start||''}" data-dur="${ev.durationMin||step}" data-dentista="${ev.dentist||''}" data-sala="${ev.room||''}" data-notas="${(ev.notes||'').replace(/" /g,'&quot;')}">Ver</a> </td> </tr >); } }); } /* ===== modal “ver” & reagendar ===== */ const STATUS_MAP = { confirmado: { label: 'Confirmado', klass: 'bg-soft-green' }, 'pré-agendamento': { label: 'Pré-agendamento', klass: 'bg-soft-amber' }, pendente: { label: 'Pendente', klass: 'bg-soft-amber' }, aguardando: { label: 'Aguardando', klass: 'bg-soft-blue' }, cancelado: { label: 'Cancelado', klass: 'bg-soft-red' }, compareceu: { label: 'Compareceu', klass: 'bg-soft-purple' }, faltou: { label: 'Faltou', klass: 'bg-soft-gray' }, }; const toWhats = raw => {
+      const d = (raw || '').replace(/\D/g, ''); if (!d) return 'javascript:void(0)'; return https://wa.me/${d.length===11?55${d}:d};}; function openVerModal(data){ el('#ver-proc').textContent=data.procedimento||'-'; el('#ver-proc2').textContent=data.procedimento||'-'; const map=STATUS_MAP[(data.status||'confirmado').toLowerCase()]||STATUS_MAP.confirmado; const badge=el('#ver-status'); badge.textContent=map.label; badge.className=badge-soft ${map.klass}; const when=${fmtBR(data.date)} • ${data.start}; el('#ver-when').textContent=when; el('#ver-datahora').textContent=${when} — Duração ${data.durMin||60} min; el('#ver-paciente').textContent=data.paciente||'-'; el('#ver-whats').href=toWhats(data.phone); el('#ver-mail').href=mailto:${data.email||''}; el('#ver-dentista').textContent=data.dentista||'—'; el('#ver-sala').textContent=data.sala||'—'; el('#ver-dur').textContent=${data.durMin||60} min; el('#ver-notas').textContent=data.notas||'—'; const log=el('#ver-log'); log.innerHTML=''; (data.log||[{when:'Hoje 09:12',text:'Agendamento sincronizado com Google Calendar.'}]).forEach(e=>{ log.insertAdjacentHTML('beforeend', <li class="py-1 border-bottom"><span class="muted">${e.when}</span> — ${e.text}</li>); }); document.body._currentEvent=data; el('#btn-enviar-lembr').onclick=()=>alert('Lembrete enviado ✅'); el('#btn-confirmar').onclick =()=>{badge.textContent=STATUS_MAP.confirmado.label;badge.className=badge-soft ${STATUS_MAP.confirmado.klass};alert('Agendamento confirmado ✅');}; el('#btn-cancelar').onclick =()=>{if(confirm('Confirmar cancelamento?')){badge.textContent=STATUS_MAP.cancelado.label;badge.className=badge-soft ${STATUS_MAP.cancelado.klass};alert('Agendamento cancelado ✅');}}; el('#btn-reagendar').onclick =()=>openReagendarModal(data); $('#md-agenda-ver').modal('show'); } async function openReagendarModal(evData){ el('#reag-eventId').value=evData.id||''; const dateInput=el('#reag-date'); dateInput.value=evData.date; const today=new Date(); today.setHours(0,0,0,0); dateInput.min=today.toISOString().slice(0,10); const max=new Date(today.getTime()+60*24*3600*1000); dateInput.max=max.toISOString().slice(0,10); el('#reag-selected-time').value=''; const loadSlots=async dateStr=>{ el('#reag-slots').innerHTML='Carregando...'; try{ renderReagendarSlots(el('#reag-slots'), await fetchAvailability(dateStr)); } catch{ el('#reag-slots').innerHTML='<div class="text-danger">Erro ao carregar horários.</div>'; } }; dateInput.onchange=e=>{ el('#reag-selected-time').value=''; loadSlots(e.target.value); }; await loadSlots(evData.date); $('#md-reagendar').modal('show'); } /* ===== boot ===== */ document.addEventListener('DOMContentLoaded', async ()=>{ const dateIn=el('#flt-date'); dateIn.value=ymdToday(); el('#agenda-dia-titulo').textContent=Dia ${fmtBR(dateIn.value)}; async function loadDay(){ el('#agenda-dia-titulo').textContent=Dia ${fmtBR(dateIn.value)}; const tbody=el('#agenda-tbody'); tbody.innerHTML='<tr><td colspan="5">Carregando...</td></tr>'; try{ const day=await fetchDay(dateIn.value); el('#agenda-intervalo').textContent=Intervalo de ${day.intervalMinutes||30} min; buildDayTable(tbody, day); }catch(e){ tbody.innerHTML='<tr><td colspan="5" class="text-danger">Erro ao carregar agenda do dia.</td></tr>'; console.error(e); } } el('#btn-filtrar').addEventListener('click', loadDay); await loadDay(); document.addEventListener('click', ev=>{ const a=ev.target.closest('.agenda-item'); if(!a) return; openVerModal({ id:a.dataset.id, paciente:a.dataset.paciente, phone:a.dataset.phone, email:a.dataset.email, procedimento:a.dataset.proc, status:a.dataset.status, date:a.dataset.date, start:a.dataset.start, durMin:Number(a.dataset.dur||60), dentista:a.dataset.dentista, sala:a.dataset.sala, notas:a.dataset.notas }); }); el('#form-reagendar').addEventListener('submit', async e=>{ e.preventDefault(); const eventId=el('#reag-eventId').value, date=el('#reag-date').value, time=el('#reag-selected-time').value; if(!time){ el('#reag-feedback').innerHTML='<div class="text-danger">Selecione o horário.</div>'; return; } el('#reag-feedback').innerHTML='Reagendando...'; try{ await submitReschedule({ eventId, date, time, tz: TIMEZONE }); el('#reag-feedback').innerHTML='<div class="text-success">Reagendado com sucesso!</div>'; setTimeout(async ()=>{ $('#md-reagendar').modal('hide'); $('#md-agenda-ver').modal('hide'); el('#reag-feedback').innerHTML=''; el('#reag-selected-time').value=''; await loadDay(); }, 400); }catch(err){ el('#reag-feedback').innerHTML=<div class="text-danger">${err.message}</div>; console.error(err); } }); }); </script>
+  <!-- Sidebar mobile -->
+  <script> (function () { const app = document.querySelector('.crm-app'); const btn = document.getElementById('btn-sidebar'); const overlay = document.getElementById('crm-overlay'); function close() { app.classList.remove('sidebar-open'); } function toggle() { app.classList.toggle('sidebar-open'); } btn?.addEventListener('click', toggle); overlay?.addEventListener('click', close); document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); }); document.querySelectorAll('.crm-nav a').forEach(a => a.addEventListener('click', close)); })(); </script>
+  <!-- ===== LÓGICA: Calendário mensal unificado ===== -->
+  <script> (function () {
+               const pad2 = n => String(n).padStart(2, '0'); const fmtMMDD = iso => {
+                 try {
+                   const [y, m, d] = iso.split('-'); return ${ d } /${m}; }catch{ return iso; } }; / / elementos const gMonth = document.getElementById('cal-month'); const gGrid = document.getElementById('cal-grid'); const btnPrev = document.getElementById('cal-prev'); const btnNext = document.getElementById('cal-next'); const labDay = document.getElementById('mob-day-label'); const ulDay = document.getElementById('mob-day-events'); const divSlots = document.getElementById('mob-slots'); const dateInput = document.getElementById('flt-date'); const btnFiltrar = document.getElementById('btn-filtrar'); let anchor = new Date(); // mês atual let selDate = new Date(); // dia selecionado const ymd = (d) => ${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}; function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); } function endOfMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0); } function buildMonthHeader(){ const m = anchor.toLocaleDateString('pt-BR', { month:'long', year:'numeric' }); gMonth.textContent = m.charAt(0).toUpperCase()+m.slice(1); } function dayCellTemplate(d, {outMonth=false, hasAvail=false, isSel=false}={}){ const id = ymd(d); return <div class="day ${outMonth?'out':''} ${hasAvail?'avail':''} ${isSel?'sel':''}" data-date="${id}"> <span class="num">${d.getDate()}</span> <span class="underline"></span> </div>; } async function markAvailabilityForMonth(days){ const chunks = []; for(let i=0; i<days.length; i+=14){ chunks.push(days.slice(i,i+14)); } const availMap = {}; for(const chunk of chunks){ await Promise.all(chunk.map(async d=>{ try{ const bag = await fetchAvailability(ymd(d)); const busy = (bag?.busy || []).map(b=>[b[0], b[1]]); const interval = bag?.intervalMinutes || 30; const slots = rangeToSlots(bag?.officeHours?.start||'08:00', bag?.officeHours?.end||'18:00', interval); const withStatus = blockByBusy(slots, busy); availMap[ymd(d)] = withStatus.some(s=>s.available); }catch{} })); } return availMap; } async function renderMonth(){ buildMonthHeader(); const first = startOfMonth(anchor); const last = endOfMonth(anchor); const padStart = first.getDay(); const totalDays= last.getDate(); const cells = []; const prev = new Date(first); prev.setDate(1 - padStart); for(let i=0;i<padStart;i++){ const d = new Date(prev); d.setDate(prev.getDate()+i); cells.push({date:d, out:true}); } for(let i=1;i<=totalDays;i++){ const d = new Date(first); d.setDate(i); cells.push({date:d, out:false}); } while(cells.length % 7 !== 0){ const d = new Date(last); d.setDate(d.getDate() + (cells.length%7)); cells.push({date:d, out:true}); } const onlyDays = cells.filter(c=>!c.out).map(c=>c.date); const availMap = await markAvailabilityForMonth(onlyDays); gGrid.innerHTML = cells.map(c=>{ const id = ymd(c.date); const sel = ymd(c.date) === ymd(selDate); const av = !!availMap[id]; return dayCellTemplate(c.date, {outMonth:c.out, hasAvail:av, isSel:sel}); }).join(''); gGrid.querySelectorAll('.day').forEach(div=>{ div.addEventListener('click', async ()=>{ selDate = new Date(div.dataset.date); gGrid.querySelectorAll('.day.sel').forEach(x=>x.classList.remove('sel')); div.classList.add('sel'); await loadDayMobile(true); }); }); } async function loadDayMobile(syncMainTable){ const ds = ymd(selDate); labDay.textContent = • ${fmtMMDD(ds)}; // sincroniza o input + botão da tabela principal if (syncMainTable) { if (dateInput) dateInput.value = ds; btnFiltrar?.click(); } // horários disponíveis divSlots.innerHTML = 'Carregando horários…'; try{ const bag = await fetchAvailability(ds); const start = bag?.officeHours?.start||'08:00'; const end = bag?.officeHours?.end ||'18:00'; const step = bag?.intervalMinutes || 30; const busy = (bag?.busy || []).map(x=>[x[0],x[1]]); const slots = rangeToSlots(start,end,step); const withStatus = blockByBusy(slots, busy); divSlots.innerHTML = withStatus.map(s => <button class="slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'}>${s.time}</button> ).join(''); }catch(e){ divSlots.innerHTML = '<div class="text-danger">Erro ao carregar disponibilidade.</div>'; } // eventos do dia ulDay.innerHTML = '<li>Carregando…</li>'; try{ const day = await fetchDay(ds); const events = day?.events || []; if(!events.length){ ulDay.innerHTML = '<li class="muted">Sem eventos.</li>'; return; } ulDay.innerHTML = events.map(ev => { const hora = ev.start?.slice(11,16) || ev.start || '--:--'; const nome = ev.patientName || ev.summary || 'Evento'; const proc = ev.procedure || ev.description || ''; return <li> <div class="d-flex justify-content-between"> <div> <div class="font-weight-bold">${hora} — ${nome}</div> <div class="muted" style="font-size:.85rem">${proc}</div> </div> <a href="javascript:void(0)" class="btn-link-icon agenda-item" data-id="${ev.id||''}" data-paciente="${nome}" data-proc="${proc}" data-status="${ev.status||''}" data-date="${ds}" data-start="${hora}" data-dur="${ev.durationMin||30}"> <i class="fa-regular fa-eye"></i> Ver </a> </div> </li>; }).join(''); }catch(e){ ulDay.innerHTML = '<li class="text-danger">Erro ao carregar eventos.</li>'; } } btnPrev?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()-1, 1); renderMonth(); }); btnNext?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()+1, 1); renderMonth(); }); (async function init(){ await renderMonth(); await loadDayMobile(false); // primeira carga sem sincronizar a tabela (já carregada pelo boot principal) })(); })(); </script>
+  <!-- Overlay para sheets -->
+  <div id="crm-sheet-overlay" class="crm-sheet-overlay"></div> <!-- Action Sheet: Atalhos do botão "+" -->
+  <div id="crm-quick-sheet" class="crm-action-sheet">
+    <div class="sheet-header">Ações rápidas</div> <button class="sheet-item" data-quick="agendamento"> <i
+        class="fa-regular fa-calendar-plus"></i> Novo agendamento </button> <button class="sheet-item"
+      data-quick="paciente"> <i class="fa-regular fa-user"></i> Novo paciente </button> <button class="sheet-item"
+      data-quick="orcamento"> <i class="fa-regular fa-clipboard"></i> Novo orçamento </button> <button
+      class="sheet-item" data-quick="procedimentos"> <i class="fa-solid fa-tooth"></i> Procedimentos </button>
+  </div> <!-- Action Sheet: Atalhos do botão "Lista" -->
+  <div id="crm-menu-sheet" class="crm-action-sheet">
+    <div class="sheet-header">Ir para</div> <a class="sheet-item" href="inicio.html"><i class="fa-solid fa-house"></i>
+      Início</a> <a class="sheet-item" href="agenda.html"><i class="fa-regular fa-calendar-days"></i> Agenda</a> <a
+      class="sheet-item" href="pacientes.html"><i class="fa-regular fa-user"></i> Pacientes</a> <a class="sheet-item"
+      href="orcamentos.html"><i class="fa-regular fa-folder-open"></i> Orçamentos</a> <a class="sheet-item"
+      href="procedimentos.html"><i class="fa-solid fa-tooth"></i> Procedimentos</a> <a class="sheet-item"
+      href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
+  </div> <!-- BOTTOM BAR • DRIBBBLE-LIKE -->
+  <nav class="bb-dribbble" id="bbBar" aria-label="Navegação rápida"> <!-- fundo com onda + notch --> <svg class="bb-bg"
+      viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="bbShadow" x="-20%" y="-50%" width="140%" height="200%">
+          <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="rgba(15,23,42,.10)" />
+          <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(15,23,42,.08)" />
+        </filter>
+      </defs> <!-- Path com notch (estado “em repouso”) -->
+      <path id="bbPath" class="bb-path" filter="url(#bbShadow)"
+        d="M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z" />
+      <!-- Morph da onda ao tocar -->
+      <animate id="bbMorph" xlink:href="#bbPath" attributeName="d" dur="420ms" fill="freeze"
+        values=" M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z; M18,26 H330 C400,26 440,-18 500,-18 C560,-18 600,26 670,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z; M18,26 H360 C420,26 440,6 500,6 C560,6 580,26 640,26 H982 Q994,26 994,38 V140 Q994,152 982,152 H18 Q6,152 6,140 V38 Q6,26 18,26 Z " />
+    </svg> <!-- Slots (mesma “placa”, sem borda) --> <button class="bb-tab" data-act="agenda" aria-label="Agenda"> <i
+        class="fa-regular fa-calendar-days"></i> <span>Agenda</span> </button> <button class="bb-fab" data-act="quick"
+      aria-label="Ações rápidas"> <i class="fa-solid fa-plus"></i> </button> <button class="bb-tab" data-act="menu"
+      aria-label="Menu"> <i class="fa-solid fa-list-ul"></i> <span>Menu</span> </button> </nav>
+  <script> (function () {
+                     const bar = document.getElementById('crm-bottombar'); const overlay = document.getElementById('crm-sheet-overlay'); const quick = document.getElementById('crm-quick-sheet'); const menu = document.getElementById('crm-menu-sheet'); if (!bar) return; const openSheet = sheet => { closeSheets(); overlay.classList.add('show'); sheet.classList.add('show'); }; const closeSheets = () => { overlay.classList.remove('show'); quick.classList.remove('show'); menu.classList.remove('show'); }; // Navegação dos botões principais bar.addEventListener('click', (e) => { const act = e.target.closest('button')?.dataset?.act; if (!act) return; if (act === 'agenda') { window.location.href = 'agenda.html'; } else if (act === 'menu') { openSheet(menu); } else if (act === 'quick') { openSheet(quick); } }); // Fecha overlay overlay.addEventListener('click', closeSheets); document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheets(); }); // Ações rápidas (+) quick.addEventListener('click', (e)=>{ const btn = e.target.closest('[data-quick]'); if(!btn) return; const what = btn.dataset.quick; const openModal = (id, fallbackUrl) => { if (window.$ && $(id).length) { $(id).modal('show'); } else window.location.href = fallbackUrl; }; if (what === 'agendamento') { openModal('#md-agendamento','inicio.html'); // ou agenda.html, se preferir } if (what === 'paciente') { openModal('#md-paciente','inicio.html'); } if (what === 'orcamento') { openModal('#md-orcamento','orcamentos.html'); } if (what === 'procedimentos') { window.location.href = 'procedimentos.html'; } closeSheets(); }); })(); </script>
+  <script> (function () {
+               const API_BASE = (window.CRM_API_BASE || '').replace(/\/+$/, ''); const UL = document.getElementById('upcoming-list'); const qs = o => { const p = new URLSearchParams(); Object.entries(o || {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') p.append(k, String(v)); }); return p.toString() ? '?' + p.toString() : ''; }; function labelData(startISO, allDay) {
+                 const d = new Date(startISO); const n = new Date(); const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const n0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()); const diffDays = Math.round((d0 - n0) / 86400000); const hhmm = allDay ? '' : ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); if (diffDays === 0) return 'Hoje' + hhmm; if (diffDays === 1) return 'Amanhã' + hhmm; return d.toLocaleDateString('pt-BR', { weekday: 'short' }) + hhmm; // ex: seg., ter., qua... } function render(items){ UL.innerHTML = ''; if(!items || !items.length){ UL.innerHTML = '<li class="py-2 text-muted">Sem próximos agendamentos</li>'; return; } items.forEach(ev=>{ const when = labelData(ev.start, ev.allDay); const li = document.createElement('li'); li.className = 'py-2 border-bottom'; li.innerHTML = <i class="fa-regular fa-clock mr-2" style="color:#10b981"></i> <strong>${when}</strong> – ${ev.title || '(sem título)'} ; UL.appendChild(li); }); } async function loadUpcoming(){ try{ const tz = Intl.DateTimeFormat().resolvedOptions().timeZone; const url = API_BASE + '/calendar/upcoming' + qs({ days: 7, limit: 3, tz }); const data = await CRMApi.getCalendarUpcoming({days:7, limit:3}); const data = await res.json(); const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []); render(items); }catch(err){ console.error(err); UL.innerHTML = '<li class="py-2 text-danger">Erro ao carregar agenda</li>'; } } loadUpcoming(); })(); </script>
+  <script> (function () { const bar = document.getElementById('bbBar'); if (!bar) return; const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]'); const tabMenu = bar.querySelector('.bb-tab[data-act="menu"]'); const fab = bar.querySelector('.bb-fab'); const morph = document.getElementById('bbMorph'); // seus sheets existentes const overlay = document.getElementById('crm-sheet-overlay'); const quick = document.getElementById('crm-quick-sheet'); const menu = document.getElementById('crm-menu-sheet'); const openSheet = el => { overlay?.classList.add('show'); el?.classList.add('show'); }; const closeSheets = () => { overlay?.classList.remove('show'); quick?.classList.remove('show'); menu?.classList.remove('show'); }; overlay?.addEventListener('click', closeSheets); document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheets(); }); function wave(){ try{ morph.beginElement(); }catch(e){} } function bounce(el){ const i = el.querySelector('i'), s=el.querySelector('span'); i?.classList.remove('bb-bounce'); s?.classList.remove('bb-bounce'); void i?.offsetWidth; void s?.offsetWidth; // reflow i?.classList.add('bb-bounce'); s?.classList.add('bb-bounce'); } function setActive(btn){ [tabAgenda, tabMenu].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); } tabAgenda.addEventListener('click', ()=>{ setActive(tabAgenda); wave(); bounce(tabAgenda); setTimeout(()=> location.href='agenda.html', 120); }); tabMenu.addEventListener('click', ()=>{ setActive(tabMenu); wave(); bounce(tabMenu); openSheet(menu); }); fab.addEventListener('click', ()=>{ wave(); fab.classList.remove('bb-fab-pop'); void fab.offsetWidth; fab.classList.add('bb-fab-pop'); openSheet(quick); }); // estado inicial setActive(tabAgenda); })(); </script>
 </body>
+
 </html>

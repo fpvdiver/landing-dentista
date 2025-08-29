@@ -351,286 +351,255 @@
 
 
 
-          <script>
-            /* ===== CONFIG ===== */
-            const TZ = 'America/Sao_Paulo';
-            const AVAILABILITY_URL = 'https://primary-odonto.up.railway.app/webhook/availability/';
-            const BOOK_URL = 'https://primary-odonto.up.railway.app/webhook/availability/book';
+        <script>
+/* ===== CONFIG ===== */
+const TZ = 'America/Sao_Paulo';
+const AVAILABILITY_URL = 'https://primary-odonto.up.railway.app/webhook/availability/';
+const BOOK_URL = 'https://primary-odonto.up.railway.app/webhook/availability/book';
 
-            /* ===== HELPERS ===== */
-            const el=(q,r=document)=>r.querySelector(q), els=(q,r=document)=>Array.from(r.querySelectorAll(q));
-            const pad2=n=>String(n).padStart(2,'0');
-            const ymd=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-            const fmtBR=iso=>{try{const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;}catch{return iso;}};
-            // Cria Date LOCAL para 'YYYY-MM-DD' (evita bug de fuso voltando um dia)
-            const parseLocalYMD = s => { const [y,m,d]=s.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setHours(0,0,0,0); return dt; };
+/* ===== HELPERS ===== */
+const el=(q,r=document)=>r.querySelector(q), els=(q,r=document)=>Array.from(r.querySelectorAll(q));
+const pad2=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const fmtBR=iso=>{try{const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;}catch{return iso;}};
+const parseLocalYMD = s => { const [y,m,d]=s.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setHours(0,0,0,0); return dt; };
 
-            function rangeToSlots(start,end,step){
-              const out=[],[sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number);
-              let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
-              while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+step*60000); }
-              return out;
-            }
-            function blockByBusy(slots,busy){
-              const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};
-              return slots.map(t=>{
-                const tm=toMin(t);
-                const kk=(busy||[]).some(([a,b])=>tm>=toMin(a)&&tm<toMin(b));
-                return {time:t,available:!kk};
-              });
-            }
+// start/end locais (sem UTC), somando addMin minutos (default 60)
+function buildStartEnd(dateStr, timeStr, addMin=60){
+  const [h,m] = String(timeStr).split(':').map(Number);
+  const start = new Date(`${dateStr}T${pad2(h)}:${pad2(m)}:00`);
+  const end   = new Date(start.getTime() + addMin*60000);
+  const sd = `${start.getFullYear()}-${pad2(start.getMonth()+1)}-${pad2(start.getDate())}`;
+  const ed = `${end.getFullYear()}-${pad2(end.getMonth()+1)}-${pad2(end.getDate())}`;
+  const startDateTime = `${sd}T${pad2(start.getHours())}:${pad2(start.getMinutes())}:00`;
+  const endDateTime   = `${ed}T${pad2(end.getHours())}:${pad2(end.getMinutes())}:00`;
+  return { startDateTime, endDateTime };
+}
 
-            // Busca disponibilidade do dia no seu webhook
-            async function fetchAvailability(dateStr){
-              const url = `${AVAILABILITY_URL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
-              const res = await fetch(url, { headers:{ Accept:'application/json' } });
-              if (!res.ok) throw new Error(await res.text());
-              const data = await res.json();
+function rangeToSlots(start,end,step){
+  const out=[],[sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number);
+  let d=new Date(); d.setHours(sh,sm,0,0); const z=new Date(); z.setHours(eh,em,0,0);
+  while(d<z){ out.push(`${pad2(d.getHours())}:${pad2(d.getMinutes())}`); d=new Date(d.getTime()+step*60000); }
+  return out;
+}
+function blockByBusy(slots,busy){
+  const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};
+  return slots.map(t=>{
+    const tm=toMin(t);
+    const kk=(busy||[]).some(([a,b])=>tm>=toMin(a)&&tm<toMin(b));
+    return {time:t,available:!kk};
+  });
+}
 
-              // Normaliza busy quando vier em ISO
-              const toHM = (iso) => new Intl.DateTimeFormat('pt-BR',{
-                hour:'2-digit', minute:'2-digit', hour12:false, timeZone: TZ
-              }).format(new Date(iso));
+// Busca disponibilidade do dia no seu webhook
+async function fetchAvailability(dateStr){
+  const url = `${AVAILABILITY_URL}?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
+  const res = await fetch(url, { headers:{ Accept:'application/json' } });
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
 
-              if (Array.isArray(data?.busy) && data.busy.length) {
-                if (typeof data.busy[0] === 'object') {
-                  data.busy = data.busy.map(x => [toHM(x.start), toHM(x.end)]);
-                }
-              } else {
-                data.busy = [];
-              }
-              return data;
-            }
+  // Normaliza busy quando vier em ISO
+  const toHM = (iso) => new Intl.DateTimeFormat('pt-BR',{
+    hour:'2-digit', minute:'2-digit', hour12:false, timeZone: TZ
+  }).format(new Date(iso));
 
-            /* ===== STATE/ELS ===== */
-            const gMonth=el('#bk-month'), gGrid=el('#bk-grid'), btnPrev=el('#bk-prev'), btnNext=el('#bk-next');
-            const labDay=el('#bk-day-label'), slotsEl=el('#bk-slots'), linkGo=el('#bk-submit'), chatA=el('#bk-chat'), fb=el('#bk-feedback');
-            const leadForm=el('#lead-form'), inName=el('#lead-name'), inPhone=el('#lead-phone'), inEmail=el('#lead-email'), leadWhen=el('#lead-when');
+  if (Array.isArray(data?.busy) && data.busy.length) {
+    if (typeof data.busy[0] === 'object') {
+      data.busy = data.busy.map(x => [toHM(x.start), toHM(x.end)]);
+    }
+  } else {
+    data.busy = [];
+  }
+  return data;
+}
 
-            let anchor=new Date();   // mês corrente
-            let selDate=new Date();  // dia selecionado
-            let selTime='';          // horário selecionado
+/* ===== STATE/ELS ===== */
+const gMonth=el('#bk-month'), gGrid=el('#bk-grid'), btnPrev=el('#bk-prev'), btnNext=el('#bk-next');
+const labDay=el('#bk-day-label'), slotsEl=el('#bk-slots'), linkGo=el('#bk-submit'), chatA=el('#bk-chat'), fb=el('#bk-feedback');
+const leadForm=el('#lead-form'), inName=el('#lead-name'), inPhone=el('#lead-phone'), inEmail=el('#lead-email'), leadWhen=el('#lead-when'), inNotes=el('#lead-notes');
 
-            const dayHTML=(d,{out=false,avail=false,sel=false}={}) =>
-              `<div class="bk-day ${out?'out':''} ${avail?'avail':''} ${sel?'sel':''}" data-date="${ymd(d)}" ${out?'data-out="1"':''}>
-                 <span class="num">${d.getDate()}</span><span class="dot"></span>
-               </div>`;
+let anchor=new Date();   // mês corrente
+let selDate=new Date();  // dia selecionado
+let selTime='';          // horário selecionado
 
-            const startOfMonth=d=>new Date(d.getFullYear(),d.getMonth(),1);
-            const endOfMonth=d=>new Date(d.getFullYear(),d.getMonth()+1,0);
-            function headerMonth(){
-              const m=anchor.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-              gMonth.textContent=m.charAt(0).toUpperCase()+m.slice(1);
-            }
+const dayHTML=(d,{out=false,avail=false,sel=false}={}) =>
+  `<div class="bk-day ${out?'out':''} ${avail?'avail':''} ${sel?'sel':''}" data-date="${ymd(d)}" ${out?'data-out="1"':''}>
+     <span class="num">${d.getDate()}</span><span class="dot"></span>
+   </div>`;
 
-            async function availabilityMapForMonth(days){
-              const map={}, chunks=[]; for(let i=0;i<days.length;i+=14) chunks.push(days.slice(i,i+14));
-              for(const ch of chunks){
-                await Promise.all(ch.map(async d=>{
-                  try{
-                    const a=await fetchAvailability(ymd(d));
-                    const base = (Array.isArray(a.slots) && a.slots.length)
-                      ? a.slots
-                      : rangeToSlots(a?.officeHours?.start||'08:00', a?.officeHours?.end||'18:00', a?.intervalMinutes||30);
-                    map[ymd(d)] = (Array.isArray(a.slots) && a.slots.length)
-                      ? base.length>0
-                      : blockByBusy(base,a?.busy||[]).some(s=>s.available);
-                  }catch{}
-                }));
-              }
-              return map;
-            }
+const startOfMonth=d=>new Date(d.getFullYear(),d.getMonth(),1);
+const endOfMonth=d=>new Date(d.getFullYear(),d.getMonth()+1,0);
+function headerMonth(){
+  const m=anchor.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  gMonth.textContent=m.charAt(0).toUpperCase()+m.slice(1);
+}
 
-            async function renderMonth(){
-              headerMonth();
-              const first=startOfMonth(anchor), last=endOfMonth(anchor), pad=first.getDay(), total=last.getDate();
-              const cells=[]; const prev=new Date(first); prev.setDate(1-pad);
-              for(let i=0;i<pad;i++){const d=new Date(prev);d.setDate(prev.getDate()+i);cells.push({date:d,out:true});}
-              for(let i=1;i<=total;i++) cells.push({date:new Date(first.getFullYear(),first.getMonth(),i),out:false});
-              while(cells.length%7!==0){const d=new Date(last);d.setDate(last.getDate()+(cells.length%7));cells.push({date:d,out:true});}
-              const avMap=await availabilityMapForMonth(cells.filter(c=>!c.out).map(c=>c.date));
-              gGrid.innerHTML=cells.map(c=>{
-                const id=ymd(c.date),sel=id===ymd(selDate);
-                return dayHTML(c.date,{out:c.out,avail:!!avMap[id],sel});
-              }).join('');
-              gGrid.querySelectorAll('.bk-day').forEach(div=>{
-                if(div.dataset.out==='1') return;
-                div.addEventListener('click',()=>{
-                  selDate = parseLocalYMD(div.dataset.date); // <<<<<< evita voltar um dia
-                  els('.bk-day.sel',gGrid).forEach(x=>x.classList.remove('sel'));
-                  div.classList.add('sel');
-                  loadSlotsForDay();
-                });
-              });
-            }
+async function availabilityMapForMonth(days){
+  const map={}, chunks=[]; for(let i=0;i<days.length;i+=14) chunks.push(days.slice(i,i+14));
+  for(const ch of chunks){
+    await Promise.all(ch.map(async d=>{
+      try{
+        const a=await fetchAvailability(ymd(d));
+        const base = (Array.isArray(a.slots) && a.slots.length)
+          ? a.slots
+          : rangeToSlots(a?.officeHours?.start||'08:00', a?.officeHours?.end||'18:00', a?.intervalMinutes||30);
+        map[ymd(d)] = (Array.isArray(a.slots) && a.slots.length)
+          ? base.length>0
+          : blockByBusy(base,a?.busy||[]).some(s=>s.available);
+      }catch{}
+    }));
+  }
+  return map;
+}
 
-            async function loadSlotsForDay(){
-              const ds=ymd(selDate);
-              labDay.textContent='• '+fmtBR(ds);
-              selTime=''; linkGo.classList.add('disabled'); fb.textContent='';
-              slotsEl.innerHTML='Carregando horários…';
+async function renderMonth(){
+  headerMonth();
+  const first=startOfMonth(anchor), last=endOfMonth(anchor), pad=first.getDay(), total=last.getDate();
+  const cells=[]; const prev=new Date(first); prev.setDate(1-pad);
+  for(let i=0;i<pad;i++){const d=new Date(prev);d.setDate(prev.getDate()+i);cells.push({date:d,out:true});}
+  for(let i=1;i<=total;i++) cells.push({date:new Date(first.getFullYear(),first.getMonth(),i),out:false});
+  while(cells.length%7!==0){const d=new Date(last);d.setDate(last.getDate()+(cells.length%7));cells.push({date:d,out:true});}
+  const avMap=await availabilityMapForMonth(cells.filter(c=>!c.out).map(c=>c.date));
+  gGrid.innerHTML=cells.map(c=>{
+    const id=ymd(c.date),sel=id===ymd(selDate);
+    return dayHTML(c.date,{out:c.out,avail:!!avMap[id],sel});
+  }).join('');
+  gGrid.querySelectorAll('.bk-day').forEach(div=>{
+    if(div.dataset.out==='1') return;
+    div.addEventListener('click',()=>{
+      selDate = parseLocalYMD(div.dataset.date);
+      els('.bk-day.sel',gGrid).forEach(x=>x.classList.remove('sel'));
+      div.classList.add('sel');
+      loadSlotsForDay();
+    });
+  });
+}
 
-              try{
-                const bag = await fetchAvailability(ds);
-                const step = bag?.intervalMinutes || 60;                 // fallback
-                const start= bag?.officeHours?.start || '08:00';
-                const end  = bag?.officeHours?.end   || '18:00';
+async function loadSlotsForDay(){
+  const ds=ymd(selDate);
+  labDay.textContent='• '+fmtBR(ds);
+  selTime=''; linkGo.classList.add('disabled'); fb.textContent='';
+  slotsEl.innerHTML='Carregando horários…';
 
-                const base = (Array.isArray(bag.slots) && bag.slots.length)
-                  ? bag.slots
-                  : rangeToSlots(start,end,step);
+  try{
+    const bag = await fetchAvailability(ds);
+    const step = bag?.intervalMinutes || 60;
+    const start= bag?.officeHours?.start || '08:00';
+    const end  = bag?.officeHours?.end   || '18:00';
 
-                const withStatus = (Array.isArray(bag.slots) && bag.slots.length)
-                  ? base.map(t => ({ time:t, available:true }))
-                  : blockByBusy(base, bag.busy);
+    const base = (Array.isArray(bag.slots) && bag.slots.length)
+      ? bag.slots
+      : rangeToSlots(start,end,step);
 
-                if(!withStatus.some(s=>s.available)){
-                  slotsEl.innerHTML = '<div class="text-muted">Sem horários disponíveis neste dia.</div>';
-                  return;
-                }
+    const withStatus = (Array.isArray(bag.slots) && bag.slots.length)
+      ? base.map(t => ({ time:t, available:true }))
+      : blockByBusy(base, bag.busy);
 
-                slotsEl.innerHTML = withStatus.map(s =>
-                  `<button class="bk-slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'} data-time="${s.time}">${s.time}</button>`
-                ).join('');
+    if(!withStatus.some(s=>s.available)){
+      slotsEl.innerHTML = '<div class="text-muted">Sem horários disponíveis neste dia.</div>';
+      return;
+    }
 
-                // seleção
-                slotsEl.querySelectorAll('.bk-slot:not(.disabled)').forEach(b=>{
-                  b.addEventListener('click', ()=>{
-                    els('.bk-slot.active',slotsEl).forEach(x=>x.classList.remove('active'));
-                    b.classList.add('active');
-                    selTime=b.dataset.time;
-                    linkGo.classList.remove('disabled');
-                    const msg=encodeURIComponent(`Olá! Quero agendar ${fmtBR(ds)} às ${selTime}.`);
-                    chatA.href=`https://wa.me/5511987562810?text=${msg}`;
-                  });
-                });
+    slotsEl.innerHTML = withStatus.map(s =>
+      `<button class="bk-slot ${s.available?'':'disabled'}" ${s.available?'':'disabled'} data-time="${s.time}">${s.time}</button>`
+    ).join('');
 
-              }catch(e){
-                console.error(e);
-                slotsEl.innerHTML='<div class="text-danger">Erro ao carregar horários.</div>';
-              }
-            }
+    // seleção
+    slotsEl.querySelectorAll('.bk-slot:not(.disabled)').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        els('.bk-slot.active',slotsEl).forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        selTime=b.dataset.time;
+        linkGo.classList.remove('disabled');
+        const msg=encodeURIComponent(`Olá! Quero agendar ${fmtBR(ds)} às ${selTime}.`);
+        chatA.href=`https://wa.me/5511987562810?text=${msg}`;
+      });
+    });
 
-            // Abrir modal quando clicar em "Agendar Agora"
-            linkGo.addEventListener('click', ()=>{
-              if (linkGo.classList.contains('disabled')) return;
-              leadWhen.textContent = `Você está marcando para ${fmtBR(ymd(selDate))} às ${selTime}.`;
-              $('#md-lead').modal('show');
-            });
+  }catch(e){
+    console.error(e);
+    slotsEl.innerHTML='<div class="text-danger">Erro ao carregar horários.</div>';
+  }
+}
 
-            // Enviar agendamento ao webhook
-            leadForm.addEventListener('submit', async (e)=>{
-              e.preventDefault();
-              const name=inName.value.trim(), phone=inPhone.value.trim(), email=inEmail.value.trim();
-              if(!name || !phone){ return alert('Informe nome e WhatsApp.'); }
-              el('#lead-send').disabled=true; el('#lead-send').textContent='Enviando…';
-              try{
-                const payload = {
-                  paciente:name, phone, email,
-                  data: ymd(selDate), hora: selTime, duracaoMin:60,
-                  procedimento:'Consulta', canalPreferido:'WhatsApp',
-                  confirmar:true, tz:TZ
-                };
-                const resp = await fetch(BOOK_URL, {
-                  method:'POST', headers:{'Content-Type':'application/json'},
-                  body: JSON.stringify(payload)
-                });
-                if(!resp.ok) throw new Error('Falha ao agendar');
-                $('#md-lead').modal('hide');
-                fb.innerHTML = '<div class="text-success">Agendado com sucesso! Você receberá a confirmação.</div>';
-                leadForm.reset();
-              }catch(err){
-                fb.innerHTML = `<div class="text-danger">${err.message||'Erro ao agendar.'}</div>`;
-              }finally{
-                el('#lead-send').disabled=false; el('#lead-send').textContent='Confirmar';
-              }
-            });
+// Abrir modal quando clicar em "Agendar Agora"
+linkGo.addEventListener('click', ()=>{
+  if (linkGo.classList.contains('disabled')) return;
+  leadWhen.textContent = `Você está marcando para ${fmtBR(ymd(selDate))} às ${selTime}.`;
+  $('#md-lead').modal('show');
+});
 
-            // navegação do mês
-            btnPrev.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anchor.getMonth()-1,1); renderMonth(); });
-            btnNext.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anchor.getMonth()+1,1); renderMonth(); });
+/* ====== Máscara leve para WhatsApp ===== */
+const phoneMask = v => v.replace(/\D/g,'').replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d{4}).*/, '$1-$2');
+const phoneInput = document.getElementById('lead-phone');
+phoneInput.addEventListener('input', (e)=> e.target.value = phoneMask(e.target.value));
 
-            // boot
-            (async function init(){ await renderMonth(); await loadSlotsForDay(); })();
-          </script>
+/* ====== SUBMIT do modal (único listener) ===== */
+leadForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  leadForm.classList.add('was-validated');
 
-          <script>
-  // Máscara leve para WhatsApp (sem plugins)
-  const phoneMask = (v) => {
-    return v
-      .replace(/\D/g,'')
-      .replace(/^(\d{2})(\d)/, '($1) $2')
-      .replace(/(\d{5})(\d{4}).*/, '$1-$2')
-  };
-  const phoneInput = document.getElementById('lead-phone');
-  phoneInput.addEventListener('input', (e)=> e.target.value = phoneMask(e.target.value));
+  const name  = inName.value.trim();
+  const phone = inPhone.value.replace(/\D/g,'');
+  const email = inEmail.value.trim();
+  const notes = inNotes.value.trim();
 
-  // Validação e feedback visual
-  const form = document.getElementById('lead-form');
+  if (!name || phone.length < 10 || !selTime) return;
+
+  const dateStr = ymd(selDate);
+  const { startDateTime, endDateTime } = buildStartEnd(dateStr, selTime, 60); // +1h
+
   const btnSend = document.getElementById('lead-send');
   const spin = btnSend.querySelector('.bk-spinner');
-  const cta = btnSend.querySelector('.bk-cta-text');
+  const cta  = btnSend.querySelector('.bk-cta-text');
 
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    form.classList.add('was-validated');
+  btnSend.disabled = true; spin?.classList?.remove('d-none'); cta && (cta.textContent='Enviando…');
 
-    const name = document.getElementById('lead-name').value.trim();
-    const phone= document.getElementById('lead-phone').value.replace(/\D/g,'');
-    const email= document.getElementById('lead-email').value.trim();
-    const notes= document.getElementById('lead-notes').value.trim();
+  try{
+    const payload = {
+      // compat com backend atual
+      paciente: name,
+      phone: `+55${phone}`,
+      email,
+      notas: notes,
+      data: dateStr,
+      hora: selTime,
+      duracaoMin: 60,
+      procedimento: 'Consulta',
+      canalPreferido: 'WhatsApp',
+      confirmar: true,
+      tz: TZ,
 
-    // regras simples
-    if (!name || phone.length < 10) return;
+      // NOVOS CAMPOS:
+      startDateTime,                 // ex.: 2025-08-29T10:30:00
+      endDateTime,                   // ex.: 2025-08-29T11:30:00  (ou dia seguinte se virar)
+      timeZone: TZ
+    };
 
-    // loading state
-    btnSend.disabled = true;
-    spin.classList.remove('d-none');
-    cta.textContent = 'Enviando…';
+    const r = await fetch(BOOK_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('Falha ao agendar');
 
-    try{
-      // Envia para o mesmo BOOK_URL já usado no widget
-      const payload = {
-        paciente: name,
-        phone: `+55${phone}`,
-        email,
-        notas: notes,
-        data: ymd(selDate),
-        hora: selTime,
-        duracaoMin: 60,
-        procedimento: 'Consulta',
-        canalPreferido: 'WhatsApp',
-        confirmar: true,
-        tz: TZ
-      };
+    $('#md-lead').modal('hide');
+    fb.innerHTML = '<div class="text-success">Agendado com sucesso! Você receberá a confirmação no WhatsApp.</div>';
+    leadForm.reset();
+    leadForm.classList.remove('was-validated');
 
-      const r = await fetch(BOOK_URL, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
-      });
+  }catch(err){
+    fb.innerHTML = `<div class="text-danger">${err.message || 'Erro ao agendar.'}</div>`;
+  }finally{
+    btnSend.disabled = false; spin?.classList?.add('d-none'); cta && (cta.textContent='Confirmar');
+  }
+});
 
-      if (!r.ok) throw new Error('Falha ao agendar');
+/* ===== navegação do mês & boot ===== */
+btnPrev.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anchor.getMonth()-1,1); renderMonth(); });
+btnNext.addEventListener('click', ()=>{ anchor=new Date(anchor.getFullYear(),anchor.getMonth()+1,1); renderMonth(); });
 
-      $('#md-lead').modal('hide');
-      document.getElementById('bk-feedback').innerHTML =
-        '<div class="text-success">Agendado com sucesso! Você receberá a confirmação no WhatsApp.</div>';
-      form.reset();
-      form.classList.remove('was-validated');
-
-    }catch(err){
-      document.getElementById('bk-feedback').innerHTML =
-        `<div class="text-danger">${err.message || 'Erro ao agendar.'}</div>`;
-    }finally{
-      btnSend.disabled = false;
-      spin.classList.add('d-none');
-      cta.textContent = 'Confirmar';
-    }
-  });
-
-  // Preenche o resumo quando abrir o modal
-  // (você já atualiza `leadWhen` na ação do botão Agendar)
-  // Ex.: leadWhen.textContent = `Você está marcando para ${fmtBR(ymd(selDate))} às ${selTime}.`;
+(async function init(){ await renderMonth(); await loadSlotsForDay(); })();
 </script>
 
 
@@ -704,6 +673,7 @@
 
 </body>
 </html>
+
 
 
 

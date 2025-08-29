@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Agenda — Clínica</title>
 
-  <!-- Bootstrap (CDN) para grid/tabela básica -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"/>
 
   <style>
@@ -13,19 +12,23 @@
       --ring:#e5e7eb;
       --muted:#64748b;
       --soft:#f8fafc;
+      --brand:#0ea5e9;
+      --green:#10b981;
+      --red:#ef4444;
+      --amber:#f59e0b;
     }
     body{ background:#f6f7fb; }
-    .crm-wrap{ max-width: 1100px; margin: 24px auto 48px; }
+    .crm-wrap{ max-width: 1160px; margin: 24px auto 48px; }
     .crm-card{ background:#fff; border:1px solid var(--ring); border-radius:12px; box-shadow:0 4px 16px rgba(15,23,42,.06); }
     .crm-card .card-body{ padding: 14px 16px; }
     h1{ font-weight:800; font-size: 1.6rem; }
     .muted{ color:var(--muted); }
-    .toolbar{ display:flex; align-items:center; gap:.5rem; }
+    .toolbar{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
     .toolbar .btn{ border-radius: 999px; }
-    .kpis{ display:grid; grid-template-columns: repeat(4,1fr); gap:10px; }
+    .kpis{ display:grid; grid-template-columns: repeat(5,1fr); gap:10px; }
     .kpi{ background:#fff; border:1px solid var(--ring); border-radius:12px; padding:.75rem; }
     .kpi .lab{ color:var(--muted); font-size:.8rem }
-    .kpi .val{ font-weight:800; font-size:1.25rem }
+    .kpi .val{ font-weight:800; font-size:1.2rem }
     .table thead th{ border-top:0; background:var(--soft); }
     .badge-soft{ border:1px solid var(--ring); padding:.25rem .45rem; border-radius:999px; font-weight:600; background:#fff; }
     .bg-soft-green{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
@@ -34,8 +37,24 @@
     .bg-soft-gray{ background:#f3f4f6; border-color:#e5e7eb; color:#374151; }
     .legend{ display:flex; gap:.5rem; flex-wrap:wrap; }
     .legend .chip{ padding:.25rem .6rem; border:1px solid var(--ring); border-radius:999px; cursor:pointer; user-select:none; }
-    .legend .chip.active{ background:#0ea5e9; color:#fff; border-color:#0ea5e9; }
+    .legend .chip.active{ background:var(--brand); color:#fff; border-color:var(--brand); }
     .status-cell{ width: 150px; }
+    .actions-cell{ width: 240px; }
+    .btn-icon{
+      border:1px solid var(--ring); background:#fff; border-radius:8px;
+      padding: .25rem .45rem; margin-right: .25rem; margin-bottom:.25rem;
+      line-height: 1; display:inline-flex; align-items:center; gap:.25rem;
+    }
+    .btn-icon:hover{ border-color:#cbd5e1; }
+    .btn-icon[disabled]{ opacity:.45; cursor:not-allowed; }
+    .btn-success-soft{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+    .btn-danger-soft{ background:#fef2f2; border-color:#fecaca; color:#991b1b; }
+    .btn-wapp{ color:#128C7E; border-color:#a7f3d0; }
+    .pill{ border-radius:999px; }
+    @media (max-width: 991px){
+      .kpis{ grid-template-columns: repeat(2,1fr); }
+      .actions-cell{ width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -43,15 +62,17 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="mb-0">Agenda</h1>
       <div class="toolbar">
+        <a href="book.html" class="btn btn-sm btn-primary pill">Novo agendamento</a>
         <input type="date" id="flt-date" class="form-control form-control-sm"/>
-        <button class="btn btn-sm btn-outline-secondary" id="btn-prev-day">Dia anterior</button>
-        <button class="btn btn-sm btn-outline-secondary" id="btn-today">Hoje</button>
-        <button class="btn btn-sm btn-outline-secondary" id="btn-next-day">Próximo dia</button>
+        <button class="btn btn-sm btn-outline-secondary pill" id="btn-prev-day">Dia anterior</button>
+        <button class="btn btn-sm btn-outline-secondary pill" id="btn-today">Hoje</button>
+        <button class="btn btn-sm btn-outline-secondary pill" id="btn-next-day">Próximo dia</button>
       </div>
     </div>
 
+    <!-- Ações em massa -->
     <div class="crm-card mb-3">
-      <div class="card-body d-flex justify-content-between align-items-center">
+      <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
         <div>
           <div class="muted">Dia</div>
           <div class="h5 mb-0" id="agenda-title">—</div>
@@ -63,9 +84,16 @@
           <div class="chip" data-filter="pendente">Pendentes</div>
           <div class="chip" data-filter="cancelado">Cancelados</div>
         </div>
+        <div class="mt-2 mt-md-0">
+          <button class="btn btn-sm btn-outline-secondary pill" id="act-confirm-all">Confirmar pendentes</button>
+          <button class="btn btn-sm btn-outline-secondary pill" id="act-send-reminders">Enviar lembretes (WhatsApp)</button>
+          <button class="btn btn-sm btn-outline-secondary pill" id="act-block-lunch">Bloquear almoço (12:00–13:00)</button>
+          <button class="btn btn-sm btn-outline-secondary pill" id="act-print">Imprimir dia</button>
+        </div>
       </div>
     </div>
 
+    <!-- KPIs -->
     <div class="kpis mb-3">
       <div class="kpi">
         <div class="lab">Agendamentos</div>
@@ -83,8 +111,13 @@
         <div class="lab">Cancelados</div>
         <div class="val" id="kpi-canc">—</div>
       </div>
+      <div class="kpi">
+        <div class="lab">Ocupação</div>
+        <div class="val"><span id="kpi-occup">—</span>% <span class="muted" style="font-size:.8rem">(<span id="kpi-hours">—</span>)</span></div>
+      </div>
     </div>
 
+    <!-- Tabela -->
     <div class="crm-card">
       <div class="card-body">
         <div class="table-responsive">
@@ -97,10 +130,11 @@
                 <th class="status-cell">Status</th>
                 <th style="width:120px">Dentista</th>
                 <th style="width:100px">Sala</th>
+                <th class="actions-cell">Ações</th>
               </tr>
             </thead>
             <tbody id="agenda-tbody">
-              <tr><td colspan="6">Carregando…</td></tr>
+              <tr><td colspan="7">Carregando…</td></tr>
             </tbody>
           </table>
         </div>
@@ -113,6 +147,7 @@
     // ===== CONFIG =====
     const CRM_API_BASE = 'https://primary-odonto.up.railway.app/webhook/odonto';
     const TIMEZONE     = 'America/Sao_Paulo';
+    const CLINIC_NAME  = 'Clínica Elen Nogata';
 
     // ===== Helpers =====
     const pad2 = n => String(n).padStart(2, '0');
@@ -123,7 +158,6 @@
       s = (s||'').toLowerCase();
       if (s.includes('confirm')) return '<span class="badge-soft bg-soft-green">Confirmado</span>';
       if (s.includes('cancel'))  return '<span class="badge-soft bg-soft-red">Cancelado</span>';
-      // qualquer outro -> pendente
       return '<span class="badge-soft bg-soft-amber">Pendente</span>';
     }
 
@@ -134,17 +168,31 @@
       return out;
     }
 
-    function computeKPIs(events=[]){
-      const k = { total:0, conf:0, pend:0, canc:0 };
-      (events||[]).forEach(ev=>{
+    function computeKPIs(day){
+      const events = day?.events || [];
+      const k = { total:0, conf:0, pend:0, canc:0, minutesBooked:0, minutesOpen:0 };
+      const start = day?.officeHours?.start || '08:00';
+      const end   = day?.officeHours?.end   || '19:00';
+      const step  = day?.intervalMinutes ?? 60;
+      const [sh,sm] = start.split(':').map(Number);
+      const [eh,em] = end.split(':').map(Number);
+      k.minutesOpen = (eh*60+em) - (sh*60+sm);
+
+      events.forEach(ev=>{
         k.total++;
         const s = (ev.status||'').toLowerCase();
         if (s.includes('confirm')) k.conf++;
         else if (s.includes('cancel')) k.canc++;
         else k.pend++;
+
+        const dur = Number(ev.durationMin||step);
+        if (!s.includes('cancel')) k.minutesBooked += dur;
       });
+      k.occup = Math.round(100 * (k.minutesBooked / Math.max(1,k.minutesOpen)));
       return k;
     }
+
+    function toWA(num){ if(!num) return ''; const d=num.replace(/\D/g,''); return (d.length===11?`55${d}`:d); }
 
     // ===== API =====
     async function fetchDay(dateStr){
@@ -157,7 +205,34 @@
       return res.json();
     }
 
+    // ===== Mensagens WhatsApp =====
+    function messageReminder(dayStr, timeStr, nome, proc){
+      return `Olá ${nome||''}! Lembramos sua consulta ${proc?`de ${proc} `:''}em ${CLINIC_NAME} no dia ${fmtBR(dayStr)} às ${timeStr}. `+
+             `Qualquer imprevisto nos avise por aqui. Até breve!`;
+    }
+    function messageConfirm(dayStr, timeStr, nome, proc){
+      return `Olá ${nome||''}! Poderia confirmar sua consulta ${proc?`de ${proc} `:''}em ${CLINIC_NAME} `+
+             `para ${fmtBR(dayStr)} às ${timeStr}? Responda OK.`;
+    }
+
     // ===== Render =====
+    function renderRowActions(ev, ds){
+      // Data attributes para handlers
+      const baseAttrs = `data-id="${ev.id||''}" data-start="${ev.start||''}" data-date="${ds}"`;
+      const wa = toWA(ev.phone||'');
+      const waHref = wa ? `https://wa.me/${wa}?text=${encodeURIComponent(messageReminder(ds, ev.start, ev.patientName, ev.procedure))}` : '';
+      return `
+        <div class="d-flex flex-wrap">
+          <a class="btn-icon btn-wapp" ${wa?`href="${waHref}" target="_blank"`:'disabled'} title="WhatsApp"><span>🟢</span><small>WA</small></a>
+          <button class="btn-icon btn-success-soft" data-action="confirm" ${baseAttrs} title="Confirmar">✅</button>
+          <button class="btn-icon" data-action="checkin" ${baseAttrs} title="Check-in">⏱</button>
+          <button class="btn-icon" data-action="finish" ${baseAttrs} title="Concluir">✔</button>
+          <button class="btn-icon btn-danger-soft" data-action="noshow" ${baseAttrs} title="Falta">🚫</button>
+          <button class="btn-icon" data-action="reschedule" ${baseAttrs} title="Reagendar">↔</button>
+        </div>
+      `;
+    }
+
     function renderDay(tbody, dayData, filter='all'){
       const start = dayData.officeHours?.start || '08:00';
       const end   = dayData.officeHours?.end   || '19:00';
@@ -181,6 +256,12 @@
                 <td class="status-cell">${statusBadge('livre')}</td>
                 <td>—</td>
                 <td>—</td>
+                <td class="actions-cell">
+                  <div class="d-flex flex-wrap">
+                    <a href="book.html" class="btn-icon" title="Agendar">➕ Agendar</a>
+                    <button class="btn-icon" data-action="block" data-date="${dayData.date}" data-start="${hhmm}" title="Bloquear">🚧 Bloquear</button>
+                  </div>
+                </td>
               </tr>
             `);
           }
@@ -199,12 +280,13 @@
             <td class="status-cell">${statusBadge(ev.status)}</td>
             <td>${ev.dentist||'—'}</td>
             <td>${ev.room||'—'}</td>
+            <td class="actions-cell">${renderRowActions(ev, dayData.date)}</td>
           </tr>
         `);
       });
     }
 
-    // ===== Boot =====
+    // ===== Estado / Boot =====
     (function(){
       const dateInput   = document.getElementById('flt-date');
       const tbody       = document.getElementById('agenda-tbody');
@@ -214,6 +296,8 @@
       const kConf       = document.getElementById('kpi-conf');
       const kPend       = document.getElementById('kpi-pend');
       const kCanc       = document.getElementById('kpi-canc');
+      const kOccup      = document.getElementById('kpi-occup');
+      const kHours      = document.getElementById('kpi-hours');
 
       let filterState = 'all';
       let lastDay = null;
@@ -221,7 +305,7 @@
       async function loadDay(){
         const ds = dateInput.value || ymdToday();
         titleEl.textContent = `${fmtBR(ds)} • ${TIMEZONE.replace('_',' ')}`;
-        tbody.innerHTML = '<tr><td colspan="6">Carregando…</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7">Carregando…</td></tr>';
 
         try{
           const day = await fetchDay(ds);
@@ -229,12 +313,16 @@
           lblInt.textContent = `Intervalo de ${day?.intervalMinutes ?? 60} min`;
           renderDay(tbody, day, filterState);
 
-          const k = computeKPIs(day?.events || []);
+          const k = computeKPIs(day);
           kTotal.textContent = k.total; kConf.textContent = k.conf; kPend.textContent = k.pend; kCanc.textContent = k.canc;
+          kOccup.textContent = isFinite(k.occup)? k.occup : '—';
+          const hrsBooked = (k.minutesBooked/60).toFixed(1);
+          const hrsOpen   = (k.minutesOpen/60).toFixed(1);
+          kHours.textContent = `${hrsBooked}h / ${hrsOpen}h`;
         }catch(e){
           console.error(e);
-          tbody.innerHTML = `<tr><td colspan="6" class="text-danger">${e.message||'Erro ao carregar agenda'}</td></tr>`;
-          kTotal.textContent = kConf.textContent = kPend.textContent = kCanc.textContent = '—';
+          tbody.innerHTML = `<tr><td colspan="7" class="text-danger">${e.message||'Erro ao carregar agenda'}</td></tr>`;
+          [kTotal,kConf,kPend,kCanc,kOccup,kHours].forEach(x=>x.textContent='—');
         }
       }
 
@@ -258,6 +346,102 @@
           if (lastDay) renderDay(tbody, lastDay, filterState);
         });
       });
+
+      // Ações de linha / massa
+      document.addEventListener('click', (e)=>{
+        const btn = e.target.closest('[data-action]');
+        if(!btn) return;
+        const action = btn.dataset.action;
+
+        // linha
+        if(['confirm','checkin','finish','noshow','reschedule','block'].includes(action)){
+          e.preventDefault();
+          if(!lastDay) return;
+          const id    = btn.dataset.id;
+          const time  = btn.dataset.start;
+          const date  = btn.dataset.date || (lastDay?.date);
+
+          if(action==='block'){
+            // cria um "evento visual" de bloqueio
+            const already = (lastDay.events||[]).some(ev => ev.start===time);
+            if(!already){
+              (lastDay.events ||= []).push({
+                id: `block-${date}-${time}`,
+                start: time,
+                end: time,
+                durationMin: lastDay.intervalMinutes||60,
+                patientName: 'Bloqueado',
+                procedure: 'Indisponível',
+                status: 'cancelled',
+                dentist: '',
+                room: '',
+                notes: 'Bloqueio manual'
+              });
+              renderDay(tbody, lastDay, filterState);
+            }
+            // TODO: POST para criar bloqueio real (n8n/Google Calendar)
+            return;
+          }
+
+          const ev = (lastDay.events||[]).find(x => (id && x.id===id) || (!id && x.start===time));
+          if(!ev) return;
+
+          if(action==='confirm'){ ev.status='confirmed'; }
+          if(action==='checkin'){ ev.status='check-in'; }       // rótulo interno
+          if(action==='finish'){  ev.status='concluded'; }
+          if(action==='noshow'){  ev.status='cancelled'; }      // tratar como cancelado
+          if(action==='reschedule'){ alert('Abriria modal de reagendamento aqui.'); /* TODO: abrir seu modal/endpoint */ }
+
+          renderDay(tbody, lastDay, filterState);
+          // TODO: POST status para n8n -> Google Calendar / base de dados
+          return;
+        }
+      });
+
+      // Massa: confirmar pendentes
+      document.getElementById('act-confirm-all').addEventListener('click', ()=>{
+        if(!lastDay?.events) return;
+        lastDay.events.forEach(ev=>{
+          const s = (ev.status||'').toLowerCase();
+          if(!s.includes('confirm') && !s.includes('cancel')) ev.status='confirmed';
+        });
+        renderDay(tbody, lastDay, filterState);
+        // TODO: POST em lote
+      });
+
+      // Massa: lembretes WA
+      document.getElementById('act-send-reminders').addEventListener('click', ()=>{
+        if(!lastDay?.events) return;
+        const ds = lastDay.date;
+        lastDay.events.forEach(ev=>{
+          if(!ev.start) return;
+          const wa = toWA(ev.phone||'');
+          if(!wa) return;
+          const msg = messageReminder(ds, ev.start, ev.patientName, ev.procedure);
+          window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
+        });
+      });
+
+      // Bloquear almoço
+      document.getElementById('act-block-lunch').addEventListener('click', ()=>{
+        if(!lastDay) return;
+        const lunchStart = '12:00';
+        const dur = lastDay.intervalMinutes||60;
+        const exists = (lastDay.events||[]).some(x=>x.start===lunchStart);
+        if(!exists){
+          (lastDay.events ||= []).push({
+            id: `lunch-${lastDay.date}`,
+            start:lunchStart, end:lunchStart,
+            durationMin: dur,
+            patientName:'Almoço', procedure:'Bloqueio',
+            status:'cancelled', notes:'Almoço'
+          });
+          renderDay(tbody, lastDay, filterState);
+          // TODO: POST bloqueio almoço
+        }
+      });
+
+      document.getElementById('act-print').addEventListener('click', ()=>window.print());
 
       // Boot
       dateInput.value = ymdToday();

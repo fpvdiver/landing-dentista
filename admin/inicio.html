@@ -862,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadUpcoming(){
     try{
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const url = API_BASE + '/calendar/upcoming' + qs({ days: 7, limit: 3, tz });
+      const url = API_BASE + 'odonto/appointments/day' + qs({ days: 7, limit: 3, tz });
       const data = await CRMApi.getCalendarUpcoming({days:7, limit:3});
       const data = await res.json();
       const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
@@ -930,6 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 

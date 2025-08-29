@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CRM Odonto – Agenda</title>
 
-  <!-- CSS base -->
   <link rel="stylesheet" href="../css/bootstrap.css" />
   <link rel="stylesheet" href="css/crm.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
   <script src="js/sidebar.js" defer></script>
 
   <style>
-    :root{ --ring:#e5e7eb; --muted:#64748b; }
+    :root{ --ring:#e5e7eb; --muted:#64748b; --drop:#60a5fa; }
     .btn-pill{border-radius:999px}
     .muted{color:var(--muted)}
-    /* Cards e grade */
+    .crm-chip.small{font-size:.85rem;padding:.3rem .55rem}
+
+    /* KPIs */
     .kpi-cards{display:grid; gap:10px; grid-template-columns:repeat(4,1fr)}
     .kpi{border:1px solid var(--ring);border-radius:12px;background:#fff;padding:.75rem}
     .kpi .lab{font-size:.8rem;color:var(--muted)}
@@ -48,14 +48,31 @@
     .bg-soft-purple{background:#f5f3ff;border-color:#ddd6fe}
     .bg-soft-gray{background:#f3f4f6;border-color:#e5e7eb}
 
-    /* Modal estilos */
+    /* Modal */
     .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
     .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
     #reag-slots .slot{border:1px solid var(--ring);border-radius:999px;padding:.35rem .6rem;background:#fff}
     #reag-slots .slot.selected{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
     #reag-slots .slot.disabled{opacity:.45;cursor:not-allowed}
 
-    /* Bottom bar só mobile está no CSS do projeto */
+    /* Dentist filter chips */
+    .dentist-chips{display:flex;gap:.4rem;flex-wrap:wrap}
+    .dentist-chip{display:inline-flex;align-items:center;gap:.4rem;padding:.28rem .6rem;border:1px solid var(--ring);border-radius:999px;background:#fff;cursor:pointer}
+    .dentist-dot{width:10px;height:10px;border-radius:50%}
+    .dentist-chip.active{box-shadow:0 0 0 2px rgba(59,130,246,.25)}
+
+    /* Dentist color marker on rows */
+    tr[data-dentist] td:first-child{position:relative}
+    tr[data-dentist] td:first-child::before{
+      content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-top-left-radius:6px;border-bottom-left-radius:6px;background:var(--dentist-color, #94a3b8);
+      transform:translateX(-6px);
+    }
+
+    /* Drag-to-reschedule */
+    .drag-handle{cursor:grab;opacity:.6;margin-right:.35rem}
+    .dragging{opacity:.75}
+    .drop-target{outline:2px dashed var(--drop);outline-offset:-6px;background:rgba(96,165,250,.06)}
+    @media (max-width: 991.98px){ .drag-handle{display:none} } /* evita DnD no mobile */
   </style>
 </head>
 
@@ -111,6 +128,12 @@
           </button>
         </div>
 
+        <div class="ml-2 d-none d-md-flex" style="gap:.4rem">
+          <button class="btn btn-sm btn-outline-secondary btn-pill" id="btn-bloquear">
+            <i class="fa-solid fa-ban mr-1"></i> Bloquear horário
+          </button>
+        </div>
+
         <a href="../book.html" class="btn btn-sm btn-primary btn-pill ml-2">
           <i class="fa-regular fa-calendar-plus mr-1"></i> Novo agendamento
         </a>
@@ -162,13 +185,18 @@
           <h5 class="mb-0" id="agenda-dia-titulo">Dia —</h5>
           <div class="muted ml-2" id="agenda-intervalo">Intervalo —</div>
         </div>
-        <div class="legend">
-          <div class="crm-chip" data-filter="all"><i class="fa-regular fa-eye"></i> Todos</div>
-          <div class="crm-chip" data-filter="confirmado"><i class="fa-regular fa-square-check"></i> Confirmados</div>
-          <div class="crm-chip" data-filter="pendente"><i class="fa-regular fa-bell"></i> Pendentes</div>
-          <div class="crm-chip" data-filter="cancelado"><i class="fa-regular fa-circle-xmark"></i> Cancelados</div>
+        <div class="d-flex align-items-center" style="gap:1rem">
+          <div class="legend">
+            <div class="crm-chip small active" data-filter="all"><i class="fa-regular fa-eye"></i> Todos</div>
+            <div class="crm-chip small" data-filter="confirmado"><i class="fa-regular fa-square-check"></i> Confirmados</div>
+            <div class="crm-chip small" data-filter="pendente"><i class="fa-regular fa-bell"></i> Pendentes</div>
+            <div class="crm-chip small" data-filter="cancelado"><i class="fa-regular fa-circle-xmark"></i> Cancelados</div>
+          </div>
         </div>
       </div>
+
+      <!-- Chips de dentistas -->
+      <div class="dentist-chips mb-2" id="dentist-chips"></div>
 
       <div class="row">
         <!-- Tabela do dia -->
@@ -182,7 +210,7 @@
                   <th>Paciente</th>
                   <th>Procedimento</th>
                   <th style="width:130px">Status</th>
-                  <th style="width:70px"></th>
+                  <th style="width:90px" class="text-right">Ações</th>
                 </tr>
               </thead>
               <tbody id="agenda-tbody"></tbody>
@@ -211,6 +239,7 @@
                 <i class="fa-regular fa-user mr-1"></i>Novo paciente
               </a>
             </div>
+            <small class="muted d-block mt-2">Atalhos: ←/→ dia, T = hoje, N = novo agendamento</small>
           </div>
         </div>
       </div>
@@ -336,7 +365,7 @@
   </div>
 </div>
 
-<!-- Overlay e Action Sheets (mobile) já no CSS do projeto -->
+<!-- Sheets -->
 <div id="crm-sheet-overlay" class="crm-sheet-overlay"></div>
 <div id="crm-quick-sheet" class="crm-action-sheet">
   <div class="sheet-header">Ações rápidas</div>
@@ -387,17 +416,13 @@
 
 <!-- Config da API -->
 <script>
-  // Mesmo base do seu início.html:
   window.CRM_API_BASE = 'https://allnsnts.app.n8n.cloud/webhook/odonto';
   window.TIMEZONE     = 'America/Sao_Paulo';
-
-  // Se não houver CRM_AVAILABILITY definido, derivamos de CRM_API_BASE (…/webhook/availability)
   if (!window.CRM_AVAILABILITY && window.CRM_API_BASE) {
     window.CRM_AVAILABILITY = window.CRM_API_BASE.replace(/\/odonto$/, '') + '/availability';
   }
 </script>
 
-<!-- Helpers comuns (seu wrapper opcional) -->
 <script src="js/crm-api.js"></script>
 
 <!-- Sidebar mobile -->
@@ -453,7 +478,6 @@ async function fetchAvailability(dateStr){
   return res.json();
 }
 async function fetchDay(dateStr){
-  // Seu webhook do n8n: /webhook/odonto/appointments/day
   const url = `${API_BASE}/appointments/day?date=${encodeURIComponent(dateStr)}&tz=${encodeURIComponent(TZ)}`;
   const res = await fetch(url, { headers:{ 'Accept':'application/json' }});
   if(!res.ok) throw new Error('Falha ao buscar agenda do dia');
@@ -469,9 +493,25 @@ async function submitReschedule({ eventId, date, time }){
   if(!res.ok) throw new Error(data?.message||'Falha ao reagendar');
   return data;
 }
+async function createBlock({ date, time, dur=60, notes='' }){
+  // Reaproveita seu fluxo de criação (book)
+  const payload = {
+    paciente:'[BLOQUEIO]',
+    procedimento:'BLOQUEIO',
+    data:date, hora:time, duracaoMin:dur, confirmar:true, tz:TZ,
+    obs: notes
+  };
+  const res=await fetch(`${API_BASE}/book`,{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data?.message||'Falha ao bloquear horário');
+  return data;
+}
 </script>
 
-<!-- ===== Render / lógica de página ===== -->
+<!-- ===== Render / lógica ===== -->
 <script>
 function statusBadge(status){
   const s=(status||'').toLowerCase();
@@ -508,7 +548,39 @@ function applyNowLine(tbody, start, end, step){
     line.style.top = (top+2) + 'px';
   }catch{}
 }
-function buildDayTable(tbody, dayData, filter='all'){
+
+/* Dentist colors palette */
+const DENTIST_COLORS = ['#0ea5e9','#10b981','#f59e0b','#8b5cf6','#ef4444','#14b8a6','#84cc16','#eab308','#6366f1','#f97316'];
+function dentistColorMap(events){
+  const map={}; let i=0;
+  events.forEach(ev=>{
+    const d=(ev.dentist||'').trim(); if(!d) return;
+    if(!map[d]){ map[d]=DENTIST_COLORS[i % DENTIST_COLORS.length]; i++; }
+  });
+  return map;
+}
+function renderDentistChips(container, map, onChange){
+  container.innerHTML='';
+  const all = document.createElement('div');
+  all.className='dentist-chip active'; all.dataset.dentist='__all';
+  all.innerHTML = `<span class="dentist-dot" style="background:linear-gradient(90deg,#cbd5e1,#94a3b8)"></span> Todos`;
+  container.appendChild(all);
+
+  Object.entries(map).forEach(([name,color])=>{
+    const chip=document.createElement('div');
+    chip.className='dentist-chip'; chip.dataset.dentist=name;
+    chip.innerHTML=`<span class="dentist-dot" style="background:${color}"></span> ${name}`;
+    container.appendChild(chip);
+  });
+  container.addEventListener('click', (e)=>{
+    const c=e.target.closest('.dentist-chip'); if(!c) return;
+    container.querySelectorAll('.dentist-chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    onChange(c.dataset.dentist);
+  }, { once:false });
+}
+
+function buildDayTable(tbody, dayData, filter='all', dentistFilter='__all', dColorMap={}){
   tbody.innerHTML='';
   const start=dayData.officeHours?.start||'08:00';
   const end  =dayData.officeHours?.end  ||'18:00';
@@ -519,22 +591,34 @@ function buildDayTable(tbody, dayData, filter='all'){
   slots.forEach(hhmm=>{
     const ev=evByStart[hhmm];
     if(!ev){
-      if(filter==='all'){
-        tbody.insertAdjacentHTML('beforeend', `<tr data-row="livre"><td>${hhmm}</td><td>-</td><td>-</td><td>${statusBadge('livre')}</td><td></td></tr>`);
+      if(filter==='all' && (dentistFilter==='__all')){
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr data-row="livre"><td>${hhmm}</td><td>-</td><td>-</td><td>${statusBadge('livre')}</td>
+            <td class="text-right"><span class="drag-handle" title="Arraste um evento aqui">≡</span></td></tr>`);
+      }else if(filter!=='all' || dentistFilter!=='__all'){
+        // vazio e filtrado some
       }
       return;
     }
     const s=(ev.status||'').toLowerCase();
     const sKey = s.includes('confirm')?'confirmado':(s.includes('cancel')?'cancelado':'pendente');
+    const dentistName = (ev.dentist||'').trim() || '—';
     if(filter!=='all' && filter!==sKey) return;
+    if(dentistFilter!=='__all' && dentistName!==dentistFilter) return;
+
+    const rowColor = dColorMap[dentistName] || '#94a3b8';
+    const phoneWA = (ev.phone||'').replace(/\D/g,'');
+    const waLink = phoneWA ? `https://wa.me/${phoneWA.length===11?`55${phoneWA}`:phoneWA}?text=${encodeURIComponent(`Olá ${ev.patientName||''}! Confirmando sua consulta ${fmtBR(dayData.date)} às ${ev.start}.`)}` : 'javascript:void(0)';
 
     tbody.insertAdjacentHTML('beforeend', `
-      <tr data-row="${sKey}">
+      <tr data-row="${sKey}" data-dentist="${dentistName}" style="--dentist-color:${rowColor}">
         <td>${ev.start}</td>
         <td>${ev.patientName||ev.summary||'-'}</td>
         <td>${ev.procedure||ev.description||'-'}</td>
         <td>${statusBadge(ev.status)}</td>
-        <td>
+        <td class="text-right">
+          <span class="drag-handle" data-id="${ev.id||''}" title="Arrastar para reagendar">≡</span>
+          <a href="${waLink}" target="_blank" class="btn btn-sm btn-outline-secondary btn-pill" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
           <a href="javascript:void(0)" class="btn btn-sm btn-outline-secondary btn-pill agenda-item"
              data-id="${ev.id||''}"
              data-paciente="${ev.patientName||ev.summary||''}"
@@ -556,7 +640,7 @@ function buildDayTable(tbody, dayData, filter='all'){
 }
 </script>
 
-<!-- ===== Ações de modal ===== -->
+<!-- ===== Ações de modal & lembrete WhatsApp ===== -->
 <script>
 const STATUS_MAP={
   confirmado: {label:'Confirmado',klass:'bg-soft-green'},
@@ -568,7 +652,7 @@ const STATUS_MAP={
   concluído: {label:'Concluído',klass:'bg-soft-purple'},
   faltou: {label:'Faltou',klass:'bg-soft-gray'},
 };
-const toWhats=raw=>{const d=(raw||'').replace(/\D/g,''); if(!d) return 'javascript:void(0)'; return `https://wa.me/${d.length===11?`55${d}`:d}`;};
+const toWhats=raw=>{const d=(raw||'').replace(/\D/g,''); if(!d) return null; return d.length===11?`55${d}`:d;};
 
 function openVerModal(data){
   el('#ver-proc').textContent=data.procedimento||data.proc||'-';
@@ -583,7 +667,9 @@ function openVerModal(data){
   el('#ver-datahora').textContent=`${when} — Duração ${data.durMin||data.dur||60} min`;
 
   el('#ver-paciente').textContent=data.paciente||data.patientName||'-';
-  el('#ver-whats').href=toWhats(data.phone);
+  const waNumber = toWhats(data.phone);
+  const msg = `Olá${data.paciente?` ${data.paciente}`:''}! Lembrete da sua consulta em ${fmtBR(data.date)} às ${data.start}. Qualquer dúvida, estamos à disposição.`;
+  if (waNumber){ el('#ver-whats').href=`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`; }
   el('#ver-mail').href=`mailto:${data.email||''}`;
   el('#ver-dentista').textContent=data.dentista||'—';
   el('#ver-sala').textContent=data.sala||'—';
@@ -597,8 +683,7 @@ function openVerModal(data){
 
   document.body._currentEvent=data;
 
-  // Ações (stub; integre com seus webhooks se desejar alterar status no GCal)
-  el('#btn-enviar-lembr').onclick=()=>alert('Lembrete enviado ✅');
+  el('#btn-enviar-lembr').onclick=()=>{ if(waNumber) window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`,'_blank'); else alert('Sem WhatsApp cadastrado'); };
   el('#btn-confirmar').onclick =()=>{badge.textContent=STATUS_MAP.confirmado.label;badge.className=`badge-soft ${STATUS_MAP.confirmado.klass}`;alert('Agendamento confirmado ✅');};
   el('#btn-cancelar').onclick  =()=>{if(confirm('Confirmar cancelamento?')){badge.textContent=STATUS_MAP.cancelado.label;badge.className=`badge-soft ${STATUS_MAP.cancelado.klass}`;alert('Agendamento cancelado ✅');}};
   el('#btn-reagendar').onclick =()=>openReagendarModal(data);
@@ -653,7 +738,7 @@ function renderReagendarSlots(container, withStatus){
 }
 </script>
 
-<!-- ===== Boot da página + calendário mensal ===== -->
+<!-- ===== Boot + mês + filtros + DnD + bloqueio ===== -->
 <script>
 (function(){
   const gMonth  = document.getElementById('cal-month');
@@ -665,6 +750,9 @@ function renderReagendarSlots(container, withStatus){
   const divSlots= document.getElementById('mob-slots');
   const dateInput = document.getElementById('flt-date');
   const btnFiltrar= document.getElementById('btn-filtrar');
+  const btnBloq  = document.getElementById('btn-bloquear');
+
+  const chipsDent = document.getElementById('dentist-chips');
 
   const kpiTotal = el('#kpi-total'), kpiConf=el('#kpi-conf'), kpiPend=el('#kpi-pend'), kpiCanc=el('#kpi-canc');
   const tbody = el('#agenda-tbody');
@@ -674,7 +762,9 @@ function renderReagendarSlots(container, withStatus){
   let anchor  = new Date();  // mês atual
   let selDate = new Date();  // dia selecionado
   let filterState = 'all';
+  let dentistFilter = '__all';
   let lastDayData = null;
+  let lastDentMap = {};
 
   const fmtMMDD = iso => { try{ const [y,m,d]=iso.split('-'); return `${d}/${m}`; }catch{ return iso; } };
 
@@ -695,7 +785,6 @@ function renderReagendarSlots(container, withStatus){
   }
 
   async function markAvailabilityForMonth(days){
-    // fatias para evitar janelas muito grandes de requests concorrentes
     const chunks = []; for(let i=0;i<days.length;i+=14){ chunks.push(days.slice(i,i+14)); }
     const availMap = {};
     for(const chunk of chunks){
@@ -764,16 +853,28 @@ function renderReagendarSlots(container, withStatus){
     const ds = dateInput.value;
     titleDay.textContent=`Dia ${fmtBR(ds)}`;
     tbody.innerHTML='<tr><td colspan="5">Carregando...</td></tr>';
+    dentistFilter='__all'; // reset ao trocar dia
     try{
       const day=await fetchDay(ds);
       lastDayData = day;
       lblIntervalo.textContent=`Intervalo de ${day.intervalMinutes||30} min`;
-      buildDayTable(tbody, day, filterState);
+
+      // Dentist map/chips
+      lastDentMap = dentistColorMap(day.events||[]);
+      renderDentistChips(chipsDent, lastDentMap, (who)=>{
+        dentistFilter = who;
+        if(lastDayData) buildDayTable(tbody, lastDayData, filterState, dentistFilter, lastDentMap);
+        wireDnD(); // rebind
+      });
+
+      buildDayTable(tbody, day, filterState, dentistFilter, lastDentMap);
 
       if(syncKPIs){
         const k = computeKPIs(day.events||[]);
         kpiTotal.textContent=k.total; kpiConf.textContent=k.conf; kpiPend.textContent=k.pend; kpiCanc.textContent=k.canc;
       }
+
+      wireDnD();
     }catch(e){
       tbody.innerHTML='<tr><td colspan="5" class="text-danger">Erro ao carregar agenda do dia.</td></tr>';
       console.error(e);
@@ -784,7 +885,6 @@ function renderReagendarSlots(container, withStatus){
     const ds = dateInput.value;
     labDay.textContent = `• ${fmtMMDD(ds)}`;
 
-    // slots do dia
     divSlots.innerHTML = 'Carregando horários…';
     try{
       const bag = await fetchAvailability(ds);
@@ -801,7 +901,6 @@ function renderReagendarSlots(container, withStatus){
       divSlots.innerHTML = '<div class="text-danger">Erro ao carregar disponibilidade.</div>';
     }
 
-    // eventos resumidos
     ulDay.innerHTML = '<li>Carregando…</li>';
     try{
       const day = await fetchDay(ds);
@@ -842,11 +941,14 @@ function renderReagendarSlots(container, withStatus){
       document.querySelectorAll('.legend .crm-chip').forEach(x=>x.classList.remove('active'));
       ch.classList.add('active');
       filterState = ch.dataset.filter || 'all';
-      if(lastDayData) buildDayTable(tbody, lastDayData, filterState);
+      if(lastDayData) {
+        buildDayTable(tbody, lastDayData, filterState, dentistFilter, lastDentMap);
+        wireDnD();
+      }
     });
   });
 
-  // Navegação dia a dia
+  // Navegação dia a dia + teclas
   function shiftDay(delta){
     const d = new Date(dateInput.value || ymdToday());
     d.setDate(d.getDate()+delta);
@@ -857,6 +959,13 @@ function renderReagendarSlots(container, withStatus){
   el('#btn-next-day')?.addEventListener('click', ()=>shiftDay(1));
   el('#btn-today')?.addEventListener('click', ()=>{ dateInput.value=ymdToday(); loadDay(true); loadDayMobile(); });
   el('#btn-filtrar')?.addEventListener('click', ()=>{ if(dateInput.value) { loadDay(true); loadDayMobile(); }});
+  document.addEventListener('keydown', (e)=>{
+    if(e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA') return;
+    if(e.key==='ArrowLeft') shiftDay(-1);
+    if(e.key==='ArrowRight') shiftDay(1);
+    if(e.key.toLowerCase()==='t') { dateInput.value=ymdToday(); loadDay(true); loadDayMobile(); }
+    if(e.key.toLowerCase()==='n') { window.location.href='../book.html'; }
+  });
 
   // Abrir modal ao clicar em "Ver"
   document.addEventListener('click', ev=>{
@@ -868,30 +977,75 @@ function renderReagendarSlots(container, withStatus){
     });
   });
 
-  // Reagendar submit
-  el('#form-reagendar').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const eventId=el('#reag-eventId').value, date=el('#reag-date').value, time=el('#reag-selected-time').value;
-    if(!time){ el('#reag-feedback').innerHTML='<div class="text-danger">Selecione o horário.</div>'; return; }
-    el('#reag-feedback').innerHTML='Reagendando...';
+  // Drag to reschedule (desktop)
+  function wireDnD(){
+    let dragging = null; // {id, date, start}
+    tbody.querySelectorAll('.drag-handle[data-id]').forEach(h=>{
+      h.addEventListener('mousedown', (e)=>{
+        const row = e.target.closest('tr');
+        dragging = {
+          id: e.target.dataset.id,
+          date: dateInput.value,
+          start: row?.querySelector('td')?.textContent?.trim()
+        };
+        row?.classList.add('dragging');
+        tbody.classList.add('drag-active');
+        document.body.style.userSelect='none';
+      });
+    });
+    document.addEventListener('mouseup', async (e)=>{
+      if(!dragging) return;
+      document.body.style.userSelect='';
+      tbody.querySelectorAll('tr').forEach(r=>r.classList.remove('dragging','drop-target'));
+      const targetRow = e.target.closest('#agenda-tbody tr');
+      dragging = (function(d){ const tmp=d; return tmp; })(dragging);
+      const from = dragging.start;
+      const id = dragging.id;
+      dragging=null;
+
+      if(!targetRow) { return; }
+      const targetTime = (targetRow.children[0]?.textContent||'').trim();
+      const isSame = targetTime===from;
+      if(!targetTime || isSame) return;
+
+      if(!confirm(`Mover ${from} → ${targetTime}?`)) return;
+      try{
+        await submitReschedule({ eventId:id, date: dateInput.value, time: targetTime });
+        await loadDay(true); await loadDayMobile();
+      }catch(err){
+        alert(err.message||'Falha ao reagendar');
+      }
+    });
+    tbody.querySelectorAll('tr').forEach(r=>{
+      r.addEventListener('mouseenter', ()=>{
+        if(!document.body.style.userSelect) return; // só quando dragging ativo
+        r.classList.add('drop-target');
+      });
+      r.addEventListener('mouseleave', ()=> r.classList.remove('drop-target'));
+    });
+  }
+
+  // Bloquear horário
+  btnBloq?.addEventListener('click', async ()=>{
+    const time = prompt('Bloquear a partir de qual horário? (HH:MM)', '12:00');
+    if(!time) return;
+    const dur = parseInt(prompt('Duração em minutos', '60')||'60', 10);
     try{
-      await submitReschedule({ eventId, date, time });
-      el('#reag-feedback').innerHTML='<div class="text-success">Reagendado com sucesso!</div>';
-      setTimeout(async ()=>{
-        $('#md-reagendar').modal('hide'); $('#md-agenda-ver').modal('hide');
-        el('#reag-feedback').innerHTML=''; el('#reag-selected-time').value='';
-        await loadDay(true);
-      }, 400);
+      await createBlock({ date: dateInput.value, time, dur, notes:'Bloqueio pela agenda' });
+      await loadDay(true); await loadDayMobile();
+      alert('Horário bloqueado ✅');
     }catch(err){
-      el('#reag-feedback').innerHTML=`<div class="text-danger">${err.message}</div>`;
-      console.error(err);
+      alert(err.message||'Falha ao bloquear');
     }
   });
 
+  // Mês
+  btnPrev?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()-1, 1); renderMonth(); });
+  btnNext?.addEventListener('click', ()=>{ anchor = new Date(anchor.getFullYear(), anchor.getMonth()+1, 1); renderMonth(); });
+
   // Bottom bar (mobile)
   (function(){
-    const bar = document.getElementById('bbBar');
-    if(!bar) return;
+    const bar = document.getElementById('bbBar'); if(!bar) return;
     const tabAgenda = bar.querySelector('.bb-tab[data-act="agenda"]');
     const tabMenu   = bar.querySelector('.bb-tab[data-act="menu"]');
     const fab       = bar.querySelector('.bb-fab');
@@ -911,7 +1065,7 @@ function renderReagendarSlots(container, withStatus){
     setActive(tabAgenda);
   })();
 
-  // Boot inicial
+  // Boot
   dateInput.value = ymdToday();
   await renderMonth();
   await loadDay(true);

@@ -11,104 +11,115 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="js/sidebar.js" defer></script>
 
-  <style>
-    :root{ --ring:#e5e7eb; --muted:#64748b; --drop:#60a5fa; }
-    .btn-pill{border-radius:999px}
-    .muted{color:var(--muted)}
-    .crm-chip.small{font-size:.85rem;padding:.3rem .55rem}
-
-    /* KPIs */
-     .kpi-cards{
-    display:grid;
-    gap:10px;
-    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+ <style>
+  /* ---------- tokens ---------- */
+  :root{
+    --bg: #f7f8fb;
+    --card: #fff;
+    --ring: #e7eaf0;
+    --shadow: 0 6px 18px rgba(15,23,42,.06);
+    --muted: #667085;
+    --brand: #0ea5e9;
+    --radius: 14px;
+    --pad: clamp(14px, 2.2vw, 22px);
+    --container: min(1200px, 92vw);
   }
-    .kpi{border:1px solid var(--ring);border-radius:12px;background:#fff;padding:.75rem}
-    .kpi .lab{font-size:.8rem;color:var(--muted)}
-    .kpi .val{font-weight:800;font-size:1.25rem}
 
-    /* Calendário inline */
-    .agenda-inline .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
-    .agenda-inline .cal-head .month{font-weight:800;letter-spacing:.2px}
-    .agenda-inline .cal{background:#fff;border:1px solid var(--ring);border-radius:14px;padding:.6rem}
-    .agenda-inline .dow{display:grid;grid-template-columns:repeat(7,1fr);font-size:.75rem;color:var(--muted);text-align:center}
-    .agenda-inline .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding-top:6px}
-    .agenda-inline .day{position:relative;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:600}
-    .agenda-inline .day.out{opacity:.35}
-    .agenda-inline .day.sel{color:#111}
-    .agenda-inline .day.sel::before{content:"";position:absolute;inset:0;border-radius:10px;background:linear-gradient(180deg,#eef6ff 0,#f3f0ff 100%);box-shadow:0 1px 0 rgba(0,0,0,.05) inset}
-    .agenda-inline .day .underline{position:absolute;left:22%;right:22%;bottom:6px;height:3px;background:#10b981;border-radius:3px;opacity:0}
-    .agenda-inline .day.avail .underline{opacity:1}
+  /* fundo + container */
+  body{background: var(--bg);}
+  .crm-main{max-width: var(--container); margin: 0 auto; padding: var(--pad);}
 
-    /* Tabela do dia */
-    .agenda-wrap{position:relative}
-    .now-line{position:absolute;left:0;right:0;height:2px;background:#ef4444;transform:translateY(-50%);display:none}
-    .now-line::after{content:"Agora";position:absolute;right:0;top:-10px;font-size:.7rem;background:#fee2e2;color:#991b1b;padding:.1rem .35rem;border-radius:999px;border:1px solid #fecaca}
+  /* ---------- hero & toolbar ---------- */
+  .crm-hero{padding: 18px 0 10px}
+  .crm-hero h1{font-weight: 800; letter-spacing:.2px; margin-bottom: .6rem}
 
-    .badge-soft{display:inline-block;padding:.25rem .55rem;border-radius:999px;border:1px solid var(--ring);font-weight:600}
-    .bg-soft-green{background:#ecfdf5;border-color:#a7f3d0}
-    .bg-soft-amber{background:#fffbeb;border-color:#fde68a}
-    .bg-soft-red{background:#fef2f2;border-color:#fecaca}
-    .bg-soft-blue{background:#eff6ff;border-color:#bfdbfe}
-    .bg-soft-purple{background:#f5f3ff;border-color:#ddd6fe}
-    .bg-soft-gray{background:#f3f4f6;border-color:#e5e7eb}
-
-    /* Dentist filter chips */
-    .dentist-chips{display:flex;gap:.4rem;flex-wrap:wrap}
-    .dentist-chip{display:inline-flex;align-items:center;gap:.4rem;padding:.28rem .6rem;border:1px solid var(--ring);border-radius:999px;background:#fff;cursor:pointer}
-    .dentist-dot{width:10px;height:10px;border-radius:50%}
-    .dentist-chip.active{box-shadow:0 0 0 2px rgba(59,130,246,.25)}
-
-    /* Dentist color marker on rows */
-    tr[data-dentist] td:first-child{position:relative}
-    tr[data-dentist] td:first-child::before{
-      content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-top-left-radius:6px;border-bottom-left-radius:6px;background:var(--dentist-color, #94a3b8);
-      transform:translateX(-6px);
-    }
-
-    /* Drag-to-reschedule (desktop) */
-    .drag-handle{cursor:grab;opacity:.6;margin-right:.35rem}
-    .dragging{opacity:.75}
-    .drop-target{outline:2px dashed var(--drop);outline-offset:-6px;background:rgba(96,165,250,.06)}
-    @media (max-width: 991.98px){ .drag-handle{display:none} } /* evita DnD no mobile */
- .agenda-inline .grid{
-    display:grid;
-    grid-template-columns:repeat(7, minmax(36px,1fr));
-    gap:6px;
+  .crm-search{
+    display: grid; align-items: center; gap:.6rem;
+    grid-template-columns: 1fr repeat(4, max-content);
+    background: var(--card); border:1px solid var(--ring); border-radius: 999px;
+    padding: 10px 12px; box-shadow: var(--shadow);
   }
-  .agenda-inline .day{ height:clamp(36px, 5.5vw, 56px); }
+  .crm-search input[type="date"]{min-width: 170px}
+  .crm-search .btn{white-space: nowrap}
 
-  /* Ações/chips quebram bonitinho */
-  .legend, .dentist-chips, .crm-search{ flex-wrap:wrap; gap:.5rem; }
-
-  /* Tabela: esconde no mobile e simplifica em md */
+  /* quebra suave no mobile */
   @media (max-width: 991.98px){
-    #agenda-table{ display:none; }
-    .agenda-wrap .now-line{ display:none; }
+    .crm-search{ grid-template-columns: 1fr 1fr; border-radius: 16px }
+    .crm-search > *:nth-child(n+3){ grid-column: span 2 }
+    .crm-hero h1{ font-size: 1.55rem }
   }
-  /* Em telas médias, esconde a coluna Ações pra ganhar espaço */
+
+  /* ---------- calendário mensal ---------- */
+  .agenda-inline .crm-card{border-radius: var(--radius)}
+  .agenda-inline .cal{padding: 12px}
+  .agenda-inline .cal-head{padding: 0 4px 8px}
+  .agenda-inline .month{font-weight: 800}
+  .agenda-inline .dow{
+    display:grid; grid-template-columns:repeat(7,1fr);
+    color:var(--muted); font-size:.8rem; text-align:center;
+  }
+  .agenda-inline .grid{
+    display:grid; gap:8px; grid-template-columns:repeat(7, minmax(36px,1fr));
+    padding-top:8px;
+  }
+  .agenda-inline .day{
+    height: clamp(42px, 7.2vw, 60px);
+    border-radius: 12px; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    background:#fff; border:1px solid var(--ring);
+  }
+  .agenda-inline .day:hover{box-shadow: var(--shadow)}
+  .agenda-inline .day.out{opacity:.35}
+  .agenda-inline .day.sel{outline:2px solid #c7e6ff; outline-offset:-2px}
+  .agenda-inline .day .underline{
+    position:absolute; left:20%; right:20%; bottom:6px; height:3px;
+    background:#10b981; border-radius:3px; opacity:0;
+  }
+  .agenda-inline .day.avail .underline{opacity:1}
+
+  /* ---------- KPIs ---------- */
+  .kpi-cards{ display:grid; gap:10px; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); }
+  .kpi{ background:var(--card); border:1px solid var(--ring); border-radius: var(--radius);
+        padding:14px; box-shadow: var(--shadow); }
+  .kpi .lab{font-size:.85rem; color:var(--muted)}
+  .kpi .val{font-weight:800; font-size: clamp(1.15rem, 1.8vw, 1.35rem)}
+
+  /* ---------- chips/legenda ---------- */
+  .legend, .dentist-chips{ display:flex; flex-wrap:wrap; gap:.45rem }
+  .crm-chip{ border-radius:999px; border:1px solid var(--ring); padding:.35rem .65rem; background:#fff }
+  .crm-chip.active{ outline:2px solid rgba(14,165,233,.25) }
+
+  /* ---------- cards ---------- */
+  .crm-card{ background:var(--card); border:1px solid var(--ring); border-radius: var(--radius); padding: var(--pad); box-shadow: var(--shadow)}
+  .crm-head-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px}
+  .muted{ color:var(--muted) }
+
+  /* ---------- tabela do dia ---------- */
+  #agenda-table{ width:100%; }
+  #agenda-table thead th{ border-bottom:1px solid var(--ring); color:var(--muted); font-weight:600 }
+  #agenda-table td{ vertical-align:middle }
+  .badge-soft{ display:inline-block; padding:.25rem .6rem; border-radius:999px; border:1px solid var(--ring); background:#f8fafc; font-weight:600 }
+
+  /* rolagem horizontal sutil em telas pequenas */
+  .table-wrap{ overflow:auto; border-radius: 10px }
+  .table-wrap::-webkit-scrollbar{ height:8px }
+  .table-wrap::-webkit-scrollbar-thumb{ background:#dbe3ef; border-radius:999px }
+
+  /* reduzir ruído em md: esconde coluna ações */
   @media (min-width: 768px) and (max-width: 991.98px){
-    #agenda-table th:last-child,
-    #agenda-table td:last-child{ display:none; }
-  }
-  /* Em 1200–, dá uma enxugada na coluna Procedimento */
-  @media (max-width: 1199.98px){
-    #agenda-table td:nth-child(3){ max-width: 280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #agenda-table th:last-child, #agenda-table td:last-child{ display:none }
   }
 
-  /* Slotes no mobile cabem melhor */
-  .slots button{ margin:2px 4px 0 0; }
-    /* Modal */
-    .modal-header.themed{background:linear-gradient(180deg,#e0f2fe 0%, #f5f3ff 100%);border-bottom:1px solid var(--ring)}
-    .modal-header .modal-title{font-weight:800;letter-spacing:.2px}
-    #reag-slots .slot{border:1px solid var(--ring);border-radius:999px;padding:.35rem .6rem;background:#fff}
-    #reag-slots .slot.selected{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
-    #reag-slots .slot.disabled{opacity:.45;cursor:not-allowed}
+  /* ---------- lateral sticky em desktop ---------- */
+  @media (min-width: 992px){
+    .aside-sticky{ position: sticky; top: 18px }
+  }
 
-    /* bottom bar — só mobile */
-    .bb-dribbble{display:none}
-    @media (max-width: 991.98px){ .bb-dribbble{display:flex} }
-  </style>
+  /* ---------- bottom bar só no mobile ---------- */
+  .bb-dribbble{ display:none }
+  @media (max-width: 991.98px){ .bb-dribbble{ display:flex } }
+</style>
+
 </head>
 
 <body data-page="agenda">
@@ -1103,4 +1114,5 @@ function renderReagendarSlots(container, withStatus){
 </script>
 </body>
 </html>
+
 

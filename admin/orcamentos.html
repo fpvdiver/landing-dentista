@@ -71,6 +71,336 @@
   </main>
 </div>
 
+
+<!-- ================= MODAL: Cálculo de Custo ================= -->
+<div class="modal fade" id="md-costing" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <form class="modal-content" id="cost-form">
+      <div class="modal-header" style="background:linear-gradient(180deg,#e0f2fe, #f5f3ff); border-bottom:1px solid var(--ring);">
+        <div>
+          <div class="muted" style="font-size:12px;">Cálculo de custo</div>
+          <h5 class="mb-0" id="cst-title">Restauração</h5>
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span>&times;</span></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+          <!-- COL ESQ: parâmetros e materiais -->
+          <div class="col-lg-7">
+            <div class="crm-card mb-3">
+              <div class="crm-head-row">
+                <h6 class="mb-0">Parâmetros</h6>
+                <div class="muted" id="cst-proc-code"></div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label>Tempo clínico (min)</label>
+                  <input type="number" min="0" step="5" class="form-control" id="cst-duration" value="60">
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Custo/hora clínica (R$)</label>
+                  <input type="number" min="0" step="1" class="form-control" id="cst-hourly" value="200">
+                  <small class="text-muted">Inclui salário, encargos e overhead.</small>
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Preço cobrado (R$)</label>
+                  <input type="number" min="0" step="1" class="form-control" id="cst-price" value="0">
+                  <small class="text-muted">Se vazio, usaremos só o preço sugerido.</small>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label>Impostos aprox. (% receita)</label>
+                  <input type="number" min="0" max="30" step="0.1" class="form-control" id="cst-tax" value="6">
+                  <small class="text-muted">Simples/ISS etc. Ajuste conforme seu regime.</small>
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Pagamento</label>
+                  <select id="cst-pay" class="form-control">
+                    <option value="pix">PIX</option>
+                    <option value="debit">Débito</option>
+                    <option value="credit_1x">Crédito 1x</option>
+                    <option value="credit_2_6x">Crédito 2–6x</option>
+                  </select>
+                  <small class="text-muted" id="cst-fee-label">Taxa: —</small>
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Margem alvo (%)</label>
+                  <input type="number" min="0" max="90" step="1" class="form-control" id="cst-target" value="40">
+                </div>
+              </div>
+            </div>
+
+            <div class="crm-card">
+              <div class="crm-head-row">
+                <h6 class="mb-0">Materiais</h6>
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-pill" id="btn-add-mat">Adicionar</button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-sm mb-0" id="tbl-mats">
+                  <thead>
+                    <tr>
+                      <th style="min-width:180px;">Material</th>
+                      <th class="text-right">Qtd/uso</th>
+                      <th>Un</th>
+                      <th class="text-right">Custo unit. (R$)</th>
+                      <th class="text-right">Desperdício %</th>
+                      <th class="text-right">Subtotal (R$)</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <small class="text-muted d-block mt-2">Dica: cadastre kits (ex.: “Kit esterilização”) como material com custo unitário.</small>
+            </div>
+          </div>
+
+          <!-- COL DIR: resumo -->
+          <div class="col-lg-5">
+            <div class="crm-card">
+              <h6 class="mb-3">Resumo do custo</h6>
+              <ul class="list-unstyled mb-2" id="cst-breakdown">
+                <!-- preenchido via JS -->
+              </ul>
+              <div class="border-top pt-2 d-flex justify-content-between">
+                <strong>Custo total</strong>
+                <strong id="cst-total">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <div class="crm-card mt-3">
+              <h6 class="mb-2">Preço & Margem</h6>
+              <div class="d-flex justify-content-between">
+                <div>Preço atual</div><div id="cst-price-lbl">R$ 0,00</div>
+              </div>
+              <div class="d-flex justify-content-between">
+                <div>Lucro</div><div id="cst-profit">R$ 0,00</div>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <div>Margem</div><div id="cst-margin">0%</div>
+              </div>
+              <div class="alert alert-soft" role="alert" id="cst-suggest">
+                Preço sugerido (margem <span id="cst-target-lbl">40</span>%): <strong id="cst-price-sugg">R$ 0,00</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-pill" type="button" data-dismiss="modal">Fechar</button>
+        <button class="btn btn-primary btn-pill" type="submit">Usar no orçamento</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .alert-soft{background:#f8fafc;border:1px solid var(--ring);}
+  #tbl-mats input{min-width:90px;}
+</style>
+
+<script>
+(function(){
+  /* ==== CONFIG / MOCKS (substitua por GETs da sua API) ==== */
+  // taxas da maquininha (alíquota sobre o valor recebido)
+  const CARD_FEES = { pix: 0.00, debit: 0.015, credit_1x: 0.035, credit_2_6x: 0.049 };
+
+  // catálogo mínimo (substitua por GET /materials)
+  const MATERIALS = [
+    { code:'resina', name:'Resina composta', unit:'g',   unitCost: 6.00 },
+    { code:'acido',  name:'Ácido fosfórico', unit:'mL',  unitCost: 0.80 },
+    { code:'bond',   name:'Adesivo/Bond',    unit:'gotas', unitCost: 0.60 },
+    { code:'luva',   name:'Luva (par)',      unit:'par',  unitCost: 1.20 },
+    { code:'kit_est',name:'Kit esterilização',unit:'kit', unitCost: 4.00 },
+    { code:'anest',  name:'Anestesia',       unit:'tubete', unitCost: 2.50 },
+  ];
+
+  // template por procedimento (substitua por GET /procedure_materials?code=XYZ)
+  const PROC_TEMPLATES = {
+    'RESTAURACAO': [
+      { code:'resina', qty:0.5, waste:5 },
+      { code:'acido',  qty:0.1, waste:0 },
+      { code:'bond',   qty:2,   waste:0 },
+      { code:'luva',   qty:1,   waste:0 },
+      { code:'kit_est',qty:1,   waste:0 },
+      { code:'anest',  qty:1,   waste:0 },
+    ]
+  };
+
+  /* ==== Helpers ==== */
+  const el = (q,r=document)=>r.querySelector(q);
+  const cur = n => (n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const pct = n => `${(n*100).toFixed(1)}%`;
+
+  function findMat(code){ return MATERIALS.find(m=>m.code===code); }
+
+  // linha DOM de material
+  function addRow(mat={ code:'', name:'', unit:'', unitCost:0 }, qty=1, waste=0){
+    const tb = el('#tbl-mats tbody');
+    const tr = document.createElement('tr');
+
+    const opts = MATERIALS.map(m=>`<option value="${m.code}">${m.name}</option>`).join('');
+    tr.innerHTML = `
+      <td style="min-width:240px">
+        <select class="form-control form-control-sm c-mat">${opts}</select>
+      </td>
+      <td><input type="number" min="0" step="0.01" class="form-control form-control-sm text-right c-qty" value="${qty}"></td>
+      <td><input type="text" class="form-control form-control-sm c-unit" value="${mat.unit||''}" readonly></td>
+      <td><input type="number" min="0" step="0.01" class="form-control form-control-sm text-right c-cost" value="${mat.unitCost?.toFixed?.(2)||0}"></td>
+      <td><input type="number" min="0" step="1" class="form-control form-control-sm text-right c-waste" value="${waste}"></td>
+      <td class="text-right c-sub">R$ 0,00</td>
+      <td class="text-right"><button type="button" class="btn btn-sm btn-outline-secondary btn-pill c-del">Remover</button></td>
+    `;
+    tb.appendChild(tr);
+
+    const sel = el('.c-mat', tr);
+    const unit= el('.c-unit',tr);
+    const cost= el('.c-cost',tr);
+
+    // selecionar item
+    const setMat = code=>{
+      const m = findMat(code); if(!m) return;
+      unit.value = m.unit||'';
+      cost.value = Number(m.unitCost||0).toFixed(2);
+      update();
+    };
+
+    sel.addEventListener('change',()=> setMat(sel.value));
+    el('.c-qty',tr).addEventListener('input',update);
+    cost.addEventListener('input',update);
+    el('.c-waste',tr).addEventListener('input',update);
+    el('.c-del',tr).addEventListener('click',()=>{ tr.remove(); update(); });
+
+    // valor inicial
+    if(mat.code){ sel.value = mat.code; setMat(mat.code); }
+    else update();
+  }
+
+  function readRows(){
+    return Array.from(el('#tbl-mats tbody').children).map(tr=>{
+      const code  = el('.c-mat',tr).value;
+      const name  = MATERIALS.find(m=>m.code===code)?.name || '';
+      const qty   = Number(el('.c-qty',tr).value||0);
+      const unit  = el('.c-unit',tr).value||'';
+      const cost  = Number(el('.c-cost',tr).value||0);
+      const waste = Number(el('.c-waste',tr).value||0);
+      const effQty= qty * (1 + waste/100);
+      const subtotal = effQty * cost;
+      el('.c-sub',tr).textContent = cur(subtotal);
+      return { code,name,qty,unit,unitCost:cost,wastePct:waste,subtotal };
+    });
+  }
+
+  function calc(){
+    const duration   = Number(el('#cst-duration').value||0);
+    const hourly     = Number(el('#cst-hourly').value||0);
+    const price      = Number(el('#cst-price').value||0);
+    const pay        = el('#cst-pay').value;
+    const taxPct     = Number(el('#cst-tax').value||0)/100;
+    const feePct     = CARD_FEES[pay] || 0;
+
+    const mats = readRows();
+    const matCost = mats.reduce((a,b)=>a+b.subtotal,0);
+    const chair   = (duration/60)*hourly;
+
+    // custo NÃO depende do preço. Impostos/maquininha incidem sobre a receita.
+    const baseCost = matCost + chair;
+
+    // Se houver preço informado, calcula lucro/margem efetivos:
+    const feeValue = price * feePct;
+    const taxValue = price * taxPct;
+    const totalCostAtPrice = baseCost + feeValue + taxValue;
+    const profit   = Math.max(0, price - totalCostAtPrice);
+    const margin   = price>0 ? (profit/price) : 0;
+
+    // preço sugerido para margem alvo: resolve p -> p*(1 - fee - tax - marginAlvo) = baseCost
+    const target   = Number(el('#cst-target').value||40)/100;
+    const denom    = 1 - feePct - taxPct - target;
+    const suggested= denom>0 ? baseCost/denom : 0;
+
+    // UI
+    const bd = el('#cst-breakdown');
+    bd.innerHTML = `
+      <li class="d-flex justify-content-between"><span>Materiais</span><span>${cur(matCost)}</span></li>
+      <li class="d-flex justify-content-between"><span>Hora clínica</span><span>${cur(chair)}</span></li>
+      <li class="d-flex justify-content-between"><span>Taxa maquininha (${pct(feePct)})</span><span>${cur(feeValue)}</span></li>
+      <li class="d-flex justify-content-between"><span>Impostos (${pct(taxPct)})</span><span>${cur(taxValue)}</span></li>
+    `;
+    el('#cst-total').textContent = cur(totalCostAtPrice || baseCost);
+    el('#cst-price-lbl').textContent = cur(price);
+    el('#cst-profit').textContent = cur(profit);
+    el('#cst-margin').textContent = `${(margin*100).toFixed(1)}%`;
+    el('#cst-price-sugg').textContent = cur(suggested);
+    el('#cst-target-lbl').textContent = Math.round(target*100);
+    el('#cst-fee-label').textContent = `Taxa: ${(feePct*100).toFixed(1)}% (${el('#cst-pay').selectedOptions[0].text})`;
+
+    return {
+      inputs: {
+        durationMin: duration, hourlyCost: hourly, price, payment: pay,
+        taxPct, feePct, targetMargin: target
+      },
+      materials: mats,
+      baseCost: Number(baseCost.toFixed(2)),
+      feeValue: Number(feeValue.toFixed(2)),
+      taxValue: Number(taxValue.toFixed(2)),
+      totalCostAtPrice: Number(totalCostAtPrice.toFixed(2)),
+      profit: Number(profit.toFixed(2)),
+      margin: Number(margin.toFixed(4)),
+      suggestedPrice: Number(suggested.toFixed(2))
+    };
+  }
+
+  function update(){ calc(); }
+
+  // eventos
+  ['#cst-duration','#cst-hourly','#cst-price','#cst-pay','#cst-tax','#cst-target']
+    .forEach(id => el(id).addEventListener('input', update));
+  el('#btn-add-mat').addEventListener('click', ()=> addRow({},1,0));
+
+  // submit → retorna JSON com breakdown (você decide salvar/usar no orçamento)
+  el('#cost-form').addEventListener('submit', e=>{
+    e.preventDefault();
+    const data = calc();
+    document.dispatchEvent(new CustomEvent('costing:apply', { detail: data }));
+    $('#md-costing').modal('hide');
+  });
+
+  // API pública para abrir o modal
+  window.openCostModal = function({ procedureCode='RESTAURACAO', procedureName='Restauração', durationMin=60, basePrice=0 }={}){
+    el('#cst-title').textContent = procedureName;
+    el('#cst-proc-code').textContent = procedureCode;
+    el('#cst-duration').value = durationMin;
+    el('#cst-price').value = basePrice;
+
+    // zera materiais e carrega template do procedimento
+    el('#tbl-mats tbody').innerHTML = '';
+    (PROC_TEMPLATES[procedureCode]||[]).forEach(t=>{
+      const mat = MATERIALS.find(m=>m.code===t.code) || {code:'',name:'',unit:'',unitCost:0};
+      addRow(mat, t.qty, t.waste||0);
+    });
+    // fallback: adiciona pelo menos um kit
+    if (!el('#tbl-mats tbody').children.length) addRow(MATERIALS[0],1,0);
+
+    $('#md-costing').modal('show');
+    // primeira atualização
+    setTimeout(update, 50);
+  };
+
+  // Exemplo de consumo:
+  document.addEventListener('costing:apply', (e)=>{
+    // e.detail traz o breakdown para salvar junto do orçamento/agendamento
+    console.log('CUSTO CALCULADO', e.detail);
+  });
+})();
+</script>
+
+
   <script>
 (function () {
   const app = document.querySelector('.crm-app');
@@ -333,6 +663,7 @@
 
 </body>
 </html>
+
 
 
 

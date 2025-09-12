@@ -15,8 +15,7 @@
 
   .page{max-width:900px;margin:32px auto;padding:32px;background:var(--card);border:1px solid var(--line);border-radius:20px}
   header{display:flex;gap:16px;align-items:center;margin-bottom:20px}
-  .logo{width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,#e0f2fe,#f5f3ff);
-        display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--brand);font-size:20px}
+
   .clinic h1{margin:0;font-size:22px;letter-spacing:.2px}
   .clinic .meta{color:var(--muted);font-size:13px}
   .hr{height:1px;background:var(--line);margin:20px 0}
@@ -26,6 +25,35 @@
   .btn{appearance:none;border:1px solid var(--brand);background:var(--brand);color:#fff;
        padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer}
   .btn:disabled{opacity:.6;cursor:not-allowed}
+
+  .logo{
+  width:160px;height:72px;border-radius:14px;
+
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:var(--brand);font-size:20px;
+  overflow:hidden; /* evitar overflow do img enorme */
+}
+
+/* quando tiver imagem carregada, tira o fundo e padding */
+.logo.has-img{
+  background:none !important;
+}
+
+/* o IMG ocupa todo o quadrado sem distorcer */
+.logo img{
+  display:block;
+  width:100%;
+  
+  object-fit:contain; /* sem cortes, mantém proporção */
+}
+
+/* impressão: respeitar as cores do logo */
+@media print{
+  .logo, .logo img{
+    print-color-adjust:exact; -webkit-print-color-adjust:exact;
+  }
+}
+
 
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media (max-width:720px){.grid{grid-template-columns:1fr}}
@@ -75,7 +103,7 @@
   <div class="page">
  <header>
   <div class="logo">
-    <img src="caminho/para/o/logo.png" alt="Logo Dra. Elen Nogata" />
+    <img src="../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
   </div>
   <div class="clinic">
     <h1>Dra. Elen Nogata</h1>
@@ -292,4 +320,5 @@
   </script>
 </body>
 </html>
+
 

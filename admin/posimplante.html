@@ -51,11 +51,18 @@
         font-size:11px;color:var(--muted)}
 
   /* Mascote: em fluxo por padrão (estável no PDF); no desktop grande sobrepõe levemente */
-  .mascote{
-    display:block; width:210px; height:auto; margin:6px 8px 0 0;
-    filter: drop-shadow(0 2px 0 rgba(0,0,0,.06));
-    user-select:none; pointer-events:none;
-  }
+  .mascote {
+    position: absolute;
+    /* display: block; */
+    width: 251px;
+    height: auto;
+    left: -24px;
+    top: 337px;
+    margin: 6px 8px 0 0;
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .06));
+    user-select: none;
+    pointer-events: none;
+}
   .pad-left-mascote{padding-left:12px}
 
   @media (min-width:992px){
@@ -277,3 +284,4 @@
   </script>
 </body>
 </html>
+

@@ -122,6 +122,39 @@
     /* No PDF, nada de absolute: tudo em fluxo para não deslocar */
     .mascote{position:absolute !important; margin:0mm 0 0 0 !important; width:300px !important; top:110px !important; left:8px !important}
     .pad-left-mascote{padding-left:0 !important}
+ /* 1) Força o navegador a respeitar as cores no PDF */
+  *{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;    /* Firefox/Chrome recentes */
+    /* color-adjust: exact;  // fallback antigo, use se precisar */
+  }
+
+/* 2) Mesmas cores das tabelas do HTML */
+  .info-table thead th{
+    background: #0a6ebd !important;  /* var(--brand) */
+    color: #ffffff !important;
+  }
+
+  .info-table tbody tr:nth-child(odd) td{
+    background: #f8fafc !important;  /* listras */
+  }
+
+  .info-table{
+    border-color: #e5e7eb !important; /* var(--line) */
+  }
+  .info-table td{
+    border-top-color: #e5e7eb !important;
+  }
+
+      .chip{
+    background: #f1f5f9 !important; /* var(--chip) */
+    color: #475569 !important;       /* var(--muted) */
+  }
+  .brand-badge{
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+  }
+
 
  .logo {
     width: 600px;
@@ -299,4 +332,5 @@
   </script>
 </body>
 </html>
+
 

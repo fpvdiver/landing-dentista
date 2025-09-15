@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pós-Operatório – Implantes | Dra. Elen Nogata</title>
+<style>
+  :root{
+    --brand:#0a6ebd; --text:#0f172a; --muted:#475569; --bg:#ffffff;
+    --card:#ffffff; --line:#e5e7eb; --chip:#f1f5f9; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;padding:0;background:var(--bg);color:var(--text);
+    font:12.75px/1.45 "Inter",system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  }
+
+  .page{max-width:900px;margin:26px auto;padding:22px;background:var(--card);
+        border:1px solid var(--line);border-radius:20px}
+
+  /* Header */
+  header{display:flex;gap:14px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .logo{
+    width:250px; height:85px; border-radius:14px; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .logo img{
+    width:100%; height:100%; object-fit:contain; display:block;
+  }
+  .clinic h1{margin:0;font-size:20px;letter-spacing:.2px}
+  .clinic .meta{color:var(--muted);font-size:12px}
+  .hr{height:1px;background:var(--line);margin:14px 0}
+
+  h2.title{margin:0 0 4px 0;font-size:17px;text-align:center}
+  .subtitle{color:var(--muted);font-size:11.5px;text-align:center;margin-bottom:10px}
+
+  .btn{appearance:none;border:1px solid var(--brand);background:var(--brand);color:#fff;
+       padding:8px 12px;border-radius:12px;font-weight:600;cursor:pointer}
+  .toolbar{display:flex;justify-content:flex-end;margin:6px 0 10px 0}
+
+  .section{margin-top:12px;page-break-inside:avoid}
+  .section h3{margin:0 0 6px 0;font-size:14px;color:var(--brand)}
+
+  /* Tabelas */
+  .info-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;
+              border-radius:14px;border:1px solid var(--line)}
+  .info-table thead th{background:var(--brand);color:#fff;text-align:left;padding:8px 10px;font-size:12.25px}
+  .info-table td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+  .info-table tbody tr:nth-child(odd) td{background:#f8fafc}
+  .chip{display:inline-block;background:var(--chip);padding:4px 8px;border-radius:999px;
+        font-size:11px;color:var(--muted)}
+
+  /* Mascote: em fluxo por padrão (estável no PDF); no desktop grande sobrepõe levemente */
+  .mascote{
+    display:block; width:210px; height:auto; margin:6px 8px 0 0;
+    filter: drop-shadow(0 2px 0 rgba(0,0,0,.06));
+    user-select:none; pointer-events:none;
+  }
+  .pad-left-mascote{padding-left:12px}
+
+  @media (min-width:992px){
+    .hero-wrap{position:relative}
+    .mascote.desktop-overlap{
+      position:absolute; left:12px; top:-40px; margin:0; width:230px;
+    }
+    .pad-left-mascote{padding-left:160px}
+  }
+
+  footer{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+         font-size:11.5px;color:var(--muted)}
+  .brand-badge{display:inline-flex;align-items:center;gap:8px;background:var(--chip);padding:6px 10px;border-radius:999px}
+  .logo {
+    width: 377px;
+    height: 85px;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex
+;
+    align-items: center;
+    justify-content: center;
+}
+
+   .logo img{
+       width: 90%;
+    height: 330%;
+    object-fit: contain;
+    display: block;
+    }
+
+  /* PRINT: logo e mascote permanecem estáveis e visíveis */
+  @page { size: A4; margin: 14mm; }
+  @media print{
+    html,body{font-size:12px}
+    .page{margin:0;border:none;border-radius:0}
+    .toolbar{display:none !important}
+
+    /* Garantir reprodução fiel das cores das imagens */
+    .logo, .logo img, .mascote{print-color-adjust:exact; -webkit-print-color-adjust:exact}
+
+    /* No PDF, nada de absolute: tudo em fluxo para não deslocar */
+    .mascote{position:absolute !important; margin:0mm 0 0 0 !important; width:300px !important; top:110px !important; left:8px !important}
+    .pad-left-mascote{padding-left:0 !important}
+
+ .logo {
+    width: 600px;
+    height: 85px;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex
+;
+    align-items: center;
+    justify-content: center;
+}
+
+   .logo img{
+       width: 90%;
+    height: 330%;
+    object-fit: contain;
+    display: block;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">
+        <!-- ajuste o caminho conforme a sua pasta -->
+        <img src="../../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
+      </div>
+      <div class="clinic">
+        <h1>Dra. Elen Nogata</h1>
+        <div class="meta">CROSP: 76.956 · Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004</div>
+      </div>
+    </header>
+
+    <div class="hr"></div>
+
+    <h2 class="title">Cuidados Pós-Operatórios – Implantes Dentários</h2>
+    <div class="subtitle">Orientações essenciais para cicatrização adequada</div>
+
+    <div class="toolbar">
+      <button class="btn" id="btn-pdf" type="button">Gerar PDF</button>
+    </div>
+
+    <!-- Mensagem + próximos passos -->
+    <section class="section hero-wrap" aria-label="Mensagem e próximos passos">
+      <table class="info-table">
+        <thead>
+          <tr><th style="width:40%"></th><th>Próximos passos</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="pad-left-mascote">
+              <!-- no desktop grande aplicamos a sobreposição via JS/CSS -->
+              <img class="mascote" id="mascote" src="../../images/mascote-balao.png" alt="Mensagem da equipe" />
+            </td>
+            <td>
+              Nas próximas semanas: siga as orientações abaixo, tome as medicações conforme
+              prescrição, mantenha a higiene indicada e compareça à <b>consulta de revisão</b>
+              agendada. Se notar dor intensa, febre ou sangramento contínuo, entre em contato.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Primeiras 24h -->
+    <section class="section">
+      <h3>Primeiras 24 horas</h3>
+      <table class="info-table" aria-label="Primeiras 24 horas">
+        <thead><tr><th>Orientação</th><th>Detalhes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Gelo</strong> <span class="chip">6–8 h</span></td>
+            <td>Compressas externas: <b>15 min com</b> / <b>15 min sem</b>.</td>
+          </tr>
+          <tr>
+            <td><strong>Evitar</strong></td>
+            <td>Não cuspir, não bochechar vigorosamente, não manipular a região com língua/dedos/objetos.</td>
+          </tr>
+          <tr>
+            <td><strong>Repouso</strong></td>
+            <td>Dormir com a cabeça levemente elevada. Pequeno sangramento é normal.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Medicação -->
+    <section class="section">
+      <h3>Medicação</h3>
+      <table class="info-table" aria-label="Medicação">
+        <thead><tr><th>Item</th><th>Orientação</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Prescrições</strong></td><td>Tomar <b>exatamente</b> conforme indicado (antibiótico, anti-inflamatório, analgésico).</td></tr>
+          <tr><td><strong>Segurança</strong></td><td>Não interromper por conta própria. Informe alergias/reação adversa.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Alimentação -->
+    <section class="section">
+      <h3>Alimentação</h3>
+      <table class="info-table" aria-label="Alimentação">
+        <thead><tr><th>Preferir</th><th>Evitar</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Alimentos frios/ambiente nas primeiras 24h; dieta <b>líquida/pastosa</b> (iogurte, purês, sopas frias, vitaminas).</td>
+            <td>Quentes, duros, apimentados, ácidos; bebidas alcoólicas e gaseificadas.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Higiene -->
+    <section class="section">
+      <h3>Higiene</h3>
+      <table class="info-table" aria-label="Higiene">
+        <thead><tr><th>Escovação</th><th>Enxágue</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Escove os demais dentes normalmente, <b>evitando</b> a área operada por 24h.</td>
+            <td>Somente após 24h e se <b>prescrito</b>, bochecho suave com enxaguante indicado.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Adicionais -->
+    <section class="section">
+      <h3>Cuidados adicionais</h3>
+      <table class="info-table" aria-label="Cuidados adicionais">
+        <thead><tr><th>Item</th><th>Orientação</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Tabagismo</strong></td><td><b>Não fumar</b>: compromete a cicatrização/osseointegração.</td></tr>
+          <tr><td><strong>Atividade física</strong></td><td>Evitar esforço por <b>48h</b>.</td></tr>
+          <tr><td><strong>Edema</strong></td><td>Pode aumentar até o 3º dia e reduzir gradualmente.</td></tr>
+          <tr><td><strong>Próteses removíveis</strong></td><td>Evitar apoio na área operada até liberação clínica.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Retorno -->
+    <section class="section">
+      <h3>Retorno e sinais de alerta</h3>
+      <table class="info-table" aria-label="Retorno">
+        <thead><tr><th>Retorno</th><th>Contate a clínica se houver</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Agende a revisão conforme orientação da equipe.</td>
+            <td>Dor intensa, febre, sangramento contínuo, gosto/supuração persistente.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <div class="brand-badge"><strong>Dra. Elen Nogata</strong> · CROSP 76.956</div>
+      <div>Documento informativo – siga sempre as recomendações da sua cirurgiã</div>
+    </footer>
+  </div>
+
+  <script>
+    // Sobreposição do mascote só em telas grandes
+    const mascote = document.getElementById('mascote');
+    const mq = window.matchMedia('(min-width: 992px)');
+    function applyOverlap(e){
+      if(!mascote) return;
+      if(e.matches) mascote.classList.add('desktop-overlap');
+      else mascote.classList.remove('desktop-overlap');
+    }
+    applyOverlap(mq); mq.addEventListener('change', applyOverlap);
+
+    // Gera PDF
+    document.getElementById('btn-pdf').addEventListener('click', () => window.print());
+  </script>
+</body>
+</html>

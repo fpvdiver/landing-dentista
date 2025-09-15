@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pós-Operatório – Implantes | Dra. Elen Nogata</title>
+<title>Pós-Operatório – Orientações | Dra. Elen Nogata</title>
 <style>
   :root{
     --brand:#0a6ebd; --text:#0f172a; --muted:#475569; --bg:#ffffff;
@@ -14,19 +14,16 @@
     margin:0;padding:0;background:var(--bg);color:var(--text);
     font:12.75px/1.45 "Inter",system-ui,-apple-system,Segoe UI,Roboto,Arial;
   }
-
   .page{max-width:900px;margin:26px auto;padding:22px;background:var(--card);
         border:1px solid var(--line);border-radius:20px}
 
   /* Header */
   header{display:flex;gap:14px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
   .logo{
-    width:250px; height:85px; border-radius:14px; overflow:hidden;
+    width:377px; height:85px; border-radius:14px; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
   }
-  .logo img{
-    width:100%; height:100%; object-fit:contain; display:block;
-  }
+  .logo img{width:90%; height:330%; object-fit:contain; display:block}
   .clinic h1{margin:0;font-size:20px;letter-spacing:.2px}
   .clinic .meta{color:var(--muted);font-size:12px}
   .hr{height:1px;background:var(--line);margin:14px 0}
@@ -34,9 +31,13 @@
   h2.title{margin:0 0 4px 0;font-size:17px;text-align:center}
   .subtitle{color:var(--muted);font-size:11.5px;text-align:center;margin-bottom:10px}
 
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 10px 0;flex-wrap:wrap}
   .btn{appearance:none;border:1px solid var(--brand);background:var(--brand);color:#fff;
        padding:8px 12px;border-radius:12px;font-weight:600;cursor:pointer}
-  .toolbar{display:flex;justify-content:flex-end;margin:6px 0 10px 0}
+  .select{
+    border:1px solid var(--line); background:#fff; color:var(--text);
+    padding:8px 10px; border-radius:12px; font-weight:600;
+  }
 
   .section{margin-top:12px;page-break-inside:avoid}
   .section h3{margin:0 0 6px 0;font-size:14px;color:var(--brand)}
@@ -50,129 +51,53 @@
   .chip{display:inline-block;background:var(--chip);padding:4px 8px;border-radius:999px;
         font-size:11px;color:var(--muted)}
 
-  /* Mascote: em fluxo por padrão (estável no PDF); no desktop grande sobrepõe levemente */
-  .mascote {
+  /* Mascote */
+.mascote {
     position: absolute;
-    /* display: block; */
-    width: 251px;
+    width: 252px;
     height: auto;
     left: -24px;
-    top: 337px;
+    top: 285px;
     margin: 6px 8px 0 0;
     filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .06));
     user-select: none;
     pointer-events: none;
 }
   .pad-left-mascote{padding-left:12px}
-
   @media (min-width:992px){
     .hero-wrap{position:relative}
-    .mascote.desktop-overlap{
-      position:absolute; left:12px; top:-40px; margin:0; width:230px;
-    }
+    .mascote.desktop-overlap{position:absolute; left:12px; top:-40px; margin:0; width:230px}
     .pad-left-mascote{padding-left:160px}
   }
+  @media (max-width:390px){
+    .mascote {
+        width: 234px;
+        left: -25px;
+        top: 359px;
+    }  }
 
-   @media (max-width:390px){
-   .mascote {
-    position: absolute;
-    /* display: block; */
-    width: 229px;
-    height: auto;
-    left: -26px;
-    top: 377px;
-    margin: 6px 8px 0 0;
-    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .06));
-    user-select: none;
-    pointer-events: none;
-}
-  }
+
 
   footer{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
          font-size:11.5px;color:var(--muted)}
   .brand-badge{display:inline-flex;align-items:center;gap:8px;background:var(--chip);padding:6px 10px;border-radius:999px}
-  .logo {
-    width: 377px;
-    height: 85px;
-    border-radius: 14px;
-    overflow: hidden;
-    display: flex
-;
-    align-items: center;
-    justify-content: center;
-}
 
-   .logo img{
-       width: 90%;
-    height: 330%;
-    object-fit: contain;
-    display: block;
-    }
-
-  /* PRINT: logo e mascote permanecem estáveis e visíveis */
+  /* PRINT */
   @page { size: A4; margin: 14mm; }
   @media print{
     html,body{font-size:12px}
     .page{margin:0;border:none;border-radius:0}
     .toolbar{display:none !important}
-
-    /* Garantir reprodução fiel das cores das imagens */
     .logo, .logo img, .mascote{print-color-adjust:exact; -webkit-print-color-adjust:exact}
-
-    /* No PDF, nada de absolute: tudo em fluxo para não deslocar */
-    .mascote{position:absolute !important; margin:0mm 0 0 0 !important; width:300px !important; top:110px !important; left:8px !important}
+    .mascote{position:absolute !important; margin:0 !important; width:250px !important; top:133px !important; left:8px !important}
     .pad-left-mascote{padding-left:0 !important}
- /* 1) Força o navegador a respeitar as cores no PDF */
-  *{
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;    /* Firefox/Chrome recentes */
-    /* color-adjust: exact;  // fallback antigo, use se precisar */
-  }
-
-/* 2) Mesmas cores das tabelas do HTML */
-  .info-table thead th{
-    background: #0a6ebd !important;  /* var(--brand) */
-    color: #ffffff !important;
-  }
-
-  .info-table tbody tr:nth-child(odd) td{
-    background: #f8fafc !important;  /* listras */
-  }
-
-  .info-table{
-    border-color: #e5e7eb !important; /* var(--line) */
-  }
-  .info-table td{
-    border-top-color: #e5e7eb !important;
-  }
-
-      .chip{
-    background: #f1f5f9 !important; /* var(--chip) */
-    color: #475569 !important;       /* var(--muted) */
-  }
-  .brand-badge{
-    background: #f1f5f9 !important;
-    color: #475569 !important;
-  }
-
-
- .logo {
-    width: 600px;
-    height: 85px;
-    border-radius: 14px;
-    overflow: hidden;
-    display: flex
-;
-    align-items: center;
-    justify-content: center;
-}
-
-   .logo img{
-       width: 90%;
-    height: 330%;
-    object-fit: contain;
-    display: block;
-    }
+    *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important}
+    .info-table thead th{background:#0a6ebd !important; color:#fff !important}
+    .info-table tbody tr:nth-child(odd) td{background:#f8fafc !important}
+    .info-table{border-color:#e5e7eb !important}
+    .info-table td{border-top-color:#e5e7eb !important}
+    .chip{background:#f1f5f9 !important; color:#475569 !important}
+    .brand-badge{background:#f1f5f9 !important; color:#475569 !important}
   }
 </style>
 </head>
@@ -180,7 +105,6 @@
   <div class="page">
     <header>
       <div class="logo">
-        <!-- ajuste o caminho conforme a sua pasta -->
         <img src="../../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
       </div>
       <div class="clinic">
@@ -191,10 +115,22 @@
 
     <div class="hr"></div>
 
-    <h2 class="title">Cuidados Pós-Operatórios – Implantes Dentários</h2>
-    <div class="subtitle">Orientações essenciais para cicatrização adequada</div>
+    <h2 class="title" id="doc-title">Cuidados Pós-Operatórios</h2>
+    <div class="subtitle" id="doc-subtitle">Orientações essenciais para cicatrização adequada</div>
 
     <div class="toolbar">
+      <div>
+        <label for="proc" style="font-weight:700;margin-right:8px;color:var(--muted)">Selecione o procedimento:</label>
+        <select id="proc" class="select">
+          <option value="siso">Pós-Exo de Siso</option>
+          <option value="extracao">Pós-Extração</option>
+          <option value="canal">Pós-Tratamento de Canal</option>
+          <option value="restauracao">Pós-Restauração</option>
+          <option value="limpeza">Pós-Limpeza</option>
+          <option value="clareamento">Pós-Clareamento</option>
+          <option value="implante">Pós-Implante (modelo)</option>
+        </select>
+      </div>
       <button class="btn" id="btn-pdf" type="button">Gerar PDF</button>
     </div>
 
@@ -204,17 +140,12 @@
         <thead>
           <tr><th style="width:40%"></th><th>Próximos passos</th></tr>
         </thead>
-        <tbody>
+        <tbody id="tb-hero">
           <tr>
             <td class="pad-left-mascote">
-              <!-- no desktop grande aplicamos a sobreposição via JS/CSS -->
               <img class="mascote" id="mascote" src="../../images/mascote-balao.png" alt="Mensagem da equipe" />
             </td>
-            <td>
-              Nas próximas semanas: siga as orientações abaixo, tome as medicações conforme
-              prescrição, mantenha a higiene indicada e compareça à <b>consulta de revisão</b>
-              agendada. Se notar dor intensa, febre ou sangramento contínuo, entre em contato.
-            </td>
+            <td>Selecione o procedimento acima para ver as orientações específicas da sua recuperação.</td>
           </tr>
         </tbody>
       </table>
@@ -222,23 +153,10 @@
 
     <!-- Primeiras 24h -->
     <section class="section">
-      <h3>Primeiras 24 horas</h3>
+      <h3 id="h24h">Primeiras 24 horas</h3>
       <table class="info-table" aria-label="Primeiras 24 horas">
         <thead><tr><th>Orientação</th><th>Detalhes</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><strong>Gelo</strong> <span class="chip">6–8 h</span></td>
-            <td>Compressas externas: <b>15 min com</b> / <b>15 min sem</b>.</td>
-          </tr>
-          <tr>
-            <td><strong>Evitar</strong></td>
-            <td>Não cuspir, não bochechar vigorosamente, não manipular a região com língua/dedos/objetos.</td>
-          </tr>
-          <tr>
-            <td><strong>Repouso</strong></td>
-            <td>Dormir com a cabeça levemente elevada. Pequeno sangramento é normal.</td>
-          </tr>
-        </tbody>
+        <tbody id="tb-24h"></tbody>
       </table>
     </section>
 
@@ -247,10 +165,7 @@
       <h3>Medicação</h3>
       <table class="info-table" aria-label="Medicação">
         <thead><tr><th>Item</th><th>Orientação</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Prescrições</strong></td><td>Tomar <b>exatamente</b> conforme indicado (antibiótico, anti-inflamatório, analgésico).</td></tr>
-          <tr><td><strong>Segurança</strong></td><td>Não interromper por conta própria. Informe alergias/reação adversa.</td></tr>
-        </tbody>
+        <tbody id="tb-med"></tbody>
       </table>
     </section>
 
@@ -259,12 +174,7 @@
       <h3>Alimentação</h3>
       <table class="info-table" aria-label="Alimentação">
         <thead><tr><th>Preferir</th><th>Evitar</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>Alimentos frios/ambiente nas primeiras 24h; dieta <b>líquida/pastosa</b> (iogurte, purês, sopas frias, vitaminas).</td>
-            <td>Quentes, duros, apimentados, ácidos; bebidas alcoólicas e gaseificadas.</td>
-          </tr>
-        </tbody>
+        <tbody id="tb-alim"></tbody>
       </table>
     </section>
 
@@ -273,26 +183,16 @@
       <h3>Higiene</h3>
       <table class="info-table" aria-label="Higiene">
         <thead><tr><th>Escovação</th><th>Enxágue</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>Escove os demais dentes normalmente, <b>evitando</b> a área operada por 24h.</td>
-            <td>Somente após 24h e se <b>prescrito</b>, bochecho suave com enxaguante indicado.</td>
-          </tr>
-        </tbody>
+        <tbody id="tb-hig"></tbody>
       </table>
     </section>
 
     <!-- Adicionais -->
     <section class="section">
-      <h3>Cuidados adicionais</h3>
+      <h3 id="h-extra">Cuidados adicionais</h3>
       <table class="info-table" aria-label="Cuidados adicionais">
         <thead><tr><th>Item</th><th>Orientação</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Tabagismo</strong></td><td><b>Não fumar</b>: compromete a cicatrização/osseointegração.</td></tr>
-          <tr><td><strong>Atividade física</strong></td><td>Evitar esforço por <b>48h</b>.</td></tr>
-          <tr><td><strong>Edema</strong></td><td>Pode aumentar até o 3º dia e reduzir gradualmente.</td></tr>
-          <tr><td><strong>Próteses removíveis</strong></td><td>Evitar apoio na área operada até liberação clínica.</td></tr>
-        </tbody>
+        <tbody id="tb-extra"></tbody>
       </table>
     </section>
 
@@ -301,12 +201,7 @@
       <h3>Retorno e sinais de alerta</h3>
       <table class="info-table" aria-label="Retorno">
         <thead><tr><th>Retorno</th><th>Contate a clínica se houver</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>Agende a revisão conforme orientação da equipe.</td>
-            <td>Dor intensa, febre, sangramento contínuo, gosto/supuração persistente.</td>
-          </tr>
-        </tbody>
+        <tbody id="tb-ret"></tbody>
       </table>
     </section>
 
@@ -317,20 +212,278 @@
   </div>
 
   <script>
-    // Sobreposição do mascote só em telas grandes
-    const mascote = document.getElementById('mascote');
+    // Conteúdo por procedimento
+    const DATA = {
+      implante: {
+        title: "Cuidados Pós-Operatórios – Implantes Dentários",
+        subtitle: "Orientações essenciais para cicatrização adequada",
+        hero: "Nas próximas semanas: siga as orientações abaixo, tome as medicações conforme prescrição, mantenha a higiene indicada e compareça à <b>consulta de revisão</b> agendada. Se notar dor intensa, febre ou sangramento contínuo, entre em contato.",
+        _24h: [
+          ["<strong>Gelo</strong> <span class='chip'>6–8 h</span>","Compressas externas: <b>15 min com</b> / <b>15 min sem</b>."],
+          ["<strong>Evitar</strong>","Não cuspir, não bochechar vigorosamente, não manipular a região com língua/dedos/objetos."],
+          ["<strong>Repouso</strong>","Dormir com a cabeça levemente elevada. Pequeno sangramento é normal."]
+        ],
+        med: [
+          ["<strong>Prescrições</strong>","Tomar <b>exatamente</b> conforme indicado (antibiótico, anti-inflamatório, analgésico)."],
+          ["<strong>Segurança</strong>","Não interromper por conta própria. Informe alergias/reação adversa."]
+        ],
+        alim: [
+          ["Alimentos frios/ambiente nas primeiras 24h; dieta <b>líquida/pastosa</b> (iogurte, purês, sopas frias, vitaminas).",
+           "Quentes, duros, apimentados, ácidos; bebidas alcoólicas e gaseificadas."]
+        ],
+        hig: [
+          ["Escove os demais dentes normalmente, <b>evitando</b> a área operada por 24h.",
+           "Somente após 24h e se <b>prescrito</b>, bochecho suave com enxaguante indicado."]
+        ],
+        extraTitle: "Cuidados adicionais",
+        extra: [
+          ["<strong>Tabagismo</strong>","<b>Não fumar</b>: compromete a cicatrização/osseointegração."],
+          ["<strong>Atividade física</strong>","Evitar esforço por <b>48h</b>."],
+          ["<strong>Edema</strong>","Pode aumentar até o 3º dia e reduzir gradualmente."],
+          ["<strong>Próteses removíveis</strong>","Evitar apoio na área operada até liberação clínica."]
+        ],
+        ret: [
+          ["Agende a revisão conforme orientação da equipe.",
+           "Dor intensa, febre, sangramento contínuo, gosto/supuração persistente."]
+        ]
+      },
+
+      siso: {
+        title: "Cuidados Pós-Operatórios – Exodontia de Siso",
+        subtitle: "Primeiras 72h são decisivas para cicatrização",
+        hero: "Após a extração do siso, controle o sangramento mordendo <b>gaze por 30–45 min</b>. Mantenha repouso relativo e siga abaixo as orientações.",
+        _24h: [
+          ["<strong>Gelo</strong> <span class='chip'>24–48 h</span>","Face do lado operado: 15 min com / 15 min sem."],
+          ["<strong>Hemostasia</strong>","Gaze bem posicionada por 30–45 min. Se necessário, trocar e repetir."],
+          ["<strong>Evitar sucção</strong>","Não usar canudo, não cuspir, não fumar nas primeiras 72h."]
+        ],
+        med: [
+          ["<strong>Analgésico/anti-inflamatório</strong>","Conforme prescrição. Iniciar antes de a anestesia passar se orientado."],
+          ["<strong>Antibiótico</strong>","Apenas se prescrito. <b>Complete o ciclo</b>."]
+        ],
+        alim: [
+          ["Frio/morno, macio: iogurte, sorvete, purês, sopas frias, vitaminas sem sementes. Mastigue do <b>lado oposto</b>.",
+           "Quente, duro, picante, ácido; bebidas alcoólicas e gaseificadas."]
+        ],
+        hig: [
+          ["Escovação suave longe do alvéolo nas primeiras 24h.",
+           "Bochecho só após 24h (se indicado, com enxaguante prescrito)."]
+        ],
+        extraTitle: "Cuidados adicionais",
+        extra: [
+          ["<strong>Tabagismo</strong>","Abstenha-se por <b>72h</b> (ideal 7 dias) para evitar alveolite."],
+          ["<strong>Atividade</strong>","Evite esforços por 48h."],
+          ["<strong>Edema/hematoma</strong>","Pico até o 3º dia. Elevação da cabeça ao dormir ajuda."],
+          ["<strong>Pontos</strong>","Retorno para remoção conforme agendado."]
+        ],
+        ret: [
+          ["Retorno conforme orientação (remoção de pontos/controle).",
+           "Sangramento que não cessa, dor que piora após 48–72h, febre, mau cheiro/sabor persistente."]
+        ]
+      },
+
+      extracao: {
+        title: "Cuidados Pós-Operatórios – Extração Dentária",
+        subtitle: "Proteja o coágulo e evite esforços nas primeiras 48h",
+        hero: "Morda gaze por 30 minutos após a extração para formar o coágulo. Evite bochechos vigorosos e sucção.",
+        _24h: [
+          ["<strong>Repouso</strong>","Cabeça elevada nas primeiras noites."],
+          ["<strong>Gelo</strong> <span class='chip'>6–8 h</span>","15 min com / 15 min sem na face."],
+          ["<strong>Evitar</strong>","Cigarro, álcool, canudo e cuspir."]
+        ],
+        med: [
+          ["<strong>Analgésico/anti-inflamatório</strong>","Conforme prescrição."],
+          ["<strong>Antibiótico</strong>","Somente se indicado; não interromper sem orientação."]
+        ],
+        alim: [
+          ["Líquida/pastosa fria nas primeiras 24h; morna no dia seguinte.",
+           "Quente, crocante, sementes que possam impactar no alvéolo."]
+        ],
+        hig: [
+          ["Escove os outros dentes normalmente; evite o alvéolo por 24h.",
+           "Enxágue leve somente após 24h, se indicado (sem álcool)."]
+        ],
+        extraTitle: "Cuidados adicionais",
+        extra: [
+          ["<strong>Atividade física</strong>","Evitar 48h."],
+          ["<strong>Sangramento discreto</strong>","Gaze por 30 min. Persistindo, contate a clínica."],
+          ["<strong>Edema</strong>","Pico 48–72h, depois regride."]
+        ],
+        ret: [
+          ["Retorno conforme necessidade/avaliação.",
+           "Sangramento contínuo, dor intensa, febre, sabor/odor desagradável."]
+        ]
+      },
+
+      canal: {
+        title: "Cuidados Pós-Operatórios – Tratamento de Canal",
+        subtitle: "Controle de sensibilidade e proteção do dente tratado",
+        hero: "É comum sensibilidade ao mastigar por alguns dias. Use o lado oposto e siga as medicações se prescritas.",
+        _24h: [
+          ["<strong>Proteção</strong>","Evite mastigar alimentos duros no dente tratado até a restauração definitiva."],
+          ["<strong>Desconforto</strong>","Sensibilidade leve a moderada é esperada por 2–5 dias."]
+        ],
+        med: [
+          ["<strong>Analgésico/anti-inflamatório</strong>","Use conforme prescrição."],
+          ["<strong>Antibiótico</strong>","Somente se indicado (casos com infecção)."]
+        ],
+        alim: [
+          ["Textura macia inicialmente; mastigue do lado oposto.",
+           "Balas, castanhas, torresmo, gelo, sementes no dente tratado."]
+        ],
+        hig: [
+          ["Higiene normal com escova macia e fio dental.",
+           "Evite bochechos agressivos no dia do procedimento se houver sensibilidade."]
+        ],
+        extraTitle: "Cuidados adicionais",
+        extra: [
+          ["<strong>Restauração</strong>","Concluir restauração/coroa <b>o quanto antes</b> para evitar fraturas."],
+          ["<strong>Contato oclusal</strong>","Se sentir dente “alto”, procure ajuste."]
+        ],
+        ret: [
+          ["Retorno para restauração definitiva e controle radiográfico.",
+           "Dor que não cede com analgésico, aumento de inchaço/febre, fratura do dente."]
+        ]
+      },
+
+      restauracao: {
+        title: "Cuidados Pós-Operatórios – Restauração",
+        subtitle: "Ajuste oclusal e sensibilidade podem ocorrer",
+        hero: "Após restauração, pode haver leve sensibilidade ao frio/quente. Caso sinta o dente alto, retorne para ajuste.",
+        _24h: [
+          ["<strong>Alimentação</strong>","Espere a anestesia passar para evitar morder a bochecha/língua."],
+          ["<strong>Mastigação</strong>","Preferir o lado oposto no primeiro dia."]
+        ],
+        med: [
+          ["<strong>Analgésico</strong>","Se necessário, conforme orientação."],
+          ["<strong>Anti-inflamatório</strong>","Somente se prescrito."]
+        ],
+        alim: [
+          ["Textura macia no início.",
+           "Muito duros/pegajosos (caramelos, torrones) no dente restaurado nas primeiras 24–48h."]
+        ],
+        hig: [
+          ["Higiene normal com escova macia e fio dental.",
+           "Evite forçar fio dental em restauração recente se estiver “pegando”; retorne para ajuste."]
+        ],
+        extraTitle: "Cuidados adicionais",
+        extra: [
+          ["<strong>Contato alto</strong>","Se incomodar ao morder, agende ajuste."],
+          ["<strong>Cor</strong>","Restaurações em resina podem estabilizar a cor em alguns dias."]
+        ],
+        ret: [
+          ["Retorno se persistir sensibilidade > 1 semana ou houver desconforto ao morder.",
+           "Dor espontânea, fratura ou queda da restauração."]
+        ]
+      },
+
+      limpeza: {
+        title: "Cuidados Pós-Profilaxia (Limpeza)",
+        subtitle: "Gengivas podem ficar levemente sensíveis",
+        hero: "Após a limpeza, é comum sensibilidade e leve sangramento das gengivas por 1–2 dias.",
+        _24h: [
+          ["<strong>Higiene</strong>","Mantenha escovação e fio dental; faça movimentos suaves se estiver sensível."],
+          ["<strong>Alimentação</strong>","Preferir alimentos mornos/macios se houver sensibilidade gengival."]
+        ],
+        med: [
+          ["<strong>Analgésico</strong>","Se necessário, conforme orientação."],
+          ["<strong>Enxaguante</strong>","Somente se indicado (inflamação gengival)."]
+        ],
+        alim: [
+          ["Hidratação frequente; dieta equilibrada.",
+           "Muito picantes/ácidos se gengivas estiverem sensíveis."]
+        ],
+        hig: [
+          ["Escova macia + fio dental diariamente.",
+           "Evitar escovação agressiva que pode irritar mais a gengiva."]
+        ],
+        extraTitle: "Manutenção",
+        extra: [
+          ["<strong>Placa</strong>","Técnica correta reduz acúmulo de biofilme."],
+          ["<strong>Periodicidade</strong>","Retornos de prevenção conforme plano (3–6 meses)."]
+        ],
+        ret: [
+          ["Retorno no intervalo recomendado pela clínica.",
+           "Sangramento persistente, dor, mobilidade dental ou mau hálito que não melhora."]
+        ]
+      },
+
+      clareamento: {
+        title: "Cuidados Pós-Clareamento",
+        subtitle: "Evite pigmentos e temperaturas extremas por 48h",
+        hero: "Logo após o clareamento, o esmalte fica mais suscetível a pigmentos e temperaturas. Siga as orientações abaixo.",
+        _24h: [
+          ["<strong>Dieta branca</strong> <span class='chip'>48 h</span>","Prefira alimentos claros e sem corantes: arroz, frango, batata, leite, iogurte."],
+          ["<strong>Temperatura</strong>","Evitar muito quente ou muito gelado para reduzir sensibilidade."]
+        ],
+        med: [
+          ["<strong>Desensibilizante</strong>","Use o produto/gel recomendado, se indicado."],
+          ["<strong>Analgésico</strong>","Se necessário, conforme orientação."]
+        ],
+        alim: [
+          ["Alimentos claros/neutros; água em boa quantidade.",
+           "Café, vinho, chá preto, refrigerantes escuros, açaí, molhos fortes, cigarros."]
+        ],
+        hig: [
+          ["Escova macia e creme dental para sensibilidade (se indicado).",
+           "Evitar enxaguantes com álcool no mesmo dia."]
+        ],
+        extraTitle: "Observações",
+        extra: [
+          ["<strong>Sensibilidade</strong>","É comum nas primeiras 24–48h; tende a regredir."],
+          ["<strong>Manutenção</strong>","Reforço do clareamento conforme plano individual."]
+        ],
+        ret: [
+          ["Retorno para avaliação do resultado e fotos comparativas.",
+           "Dor intensa, manchamento irregular persistente, hipersensibilidade que não melhora."]
+        ]
+      }
+    };
+
+    // Helpers de renderização
+    const el = q => document.querySelector(q);
+    function renderTable(tbody, rows){
+      tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+    }
+    function render(procKey){
+      const d = DATA[procKey] || DATA.implante;
+      el("#doc-title").textContent = d.title;
+      el("#doc-subtitle").textContent = d.subtitle || "Orientações essenciais para cicatrização adequada";
+      el("#tb-hero").innerHTML = `
+        <tr>
+          <td class="pad-left-mascote">
+            <img class="mascote" id="mascote" src="../../images/mascote-balao.png" alt="Mensagem da equipe" />
+          </td>
+          <td>${d.hero}</td>
+        </tr>`;
+      renderTable(el("#tb-24h"), d._24h);
+      renderTable(el("#tb-med"), d.med);
+      renderTable(el("#tb-alim"), d.alim);
+      renderTable(el("#tb-hig"), d.hig);
+      el("#h-extra").textContent = d.extraTitle || "Cuidados adicionais";
+      renderTable(el("#tb-extra"), d.extra);
+      renderTable(el("#tb-ret"), d.ret);
+      // reaplica sobreposição do mascote em telas grandes
+      applyOverlap(mq);
+    }
+
+    // Mascote overlap em telas grandes
     const mq = window.matchMedia('(min-width: 992px)');
     function applyOverlap(e){
+      const mascote = document.getElementById('mascote');
       if(!mascote) return;
       if(e.matches) mascote.classList.add('desktop-overlap');
       else mascote.classList.remove('desktop-overlap');
     }
-    applyOverlap(mq); mq.addEventListener('change', applyOverlap);
+    mq.addEventListener('change', applyOverlap);
 
-    // Gera PDF
+    // UI events
+    const select = document.getElementById('proc');
+    select.addEventListener('change', e => render(e.target.value));
     document.getElementById('btn-pdf').addEventListener('click', () => window.print());
+
+    // Inicial: siso (pode trocar para outro se preferir)
+    render('siso');
   </script>
 </body>
 </html>
-
-

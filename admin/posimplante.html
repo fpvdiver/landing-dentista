@@ -73,6 +73,21 @@
     .pad-left-mascote{padding-left:160px}
   }
 
+   @media (max-width:375px){
+   .mascote {
+    position: absolute;
+    /* display: block; */
+    width: 229px;
+    height: auto;
+    left: -26px;
+    top: 377px;
+    margin: 6px 8px 0 0;
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .06));
+    user-select: none;
+    pointer-events: none;
+}
+  }
+
   footer{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
          font-size:11.5px;color:var(--muted)}
   .brand-badge{display:inline-flex;align-items:center;gap:8px;background:var(--chip);padding:6px 10px;border-radius:999px}
@@ -284,4 +299,3 @@
   </script>
 </body>
 </html>
-

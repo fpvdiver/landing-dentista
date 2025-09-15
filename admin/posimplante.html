@@ -88,7 +88,11 @@
     html,body{font-size:12px}
     .page{margin:0;border:none;border-radius:0}
     .toolbar{display:none !important}
-    .logo, .logo img, .mascote{print-color-adjust:exact; -webkit-print-color-adjust:exact}
+     .logo{
+    width:377px; height:85px; border-radius:14px; overflow:hidden; margin-left:120px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .logo img{width:90%; height:330%; object-fit:contain;} .mascote{print-color-adjust:exact; -webkit-print-color-adjust:exact}
     .mascote{position:absolute !important; margin:0 !important; width:250px !important; top:133px !important; left:8px !important}
     .pad-left-mascote{padding-left:0 !important}
     *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important}

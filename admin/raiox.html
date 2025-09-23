@@ -1,148 +1,325 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Planejamento de Implantes Dentários</title>
-  <style>
-    :root{
-      --brand:#0a6ebd; --brand-2:#094f8a;
-      --text:#0f172a; --muted:#475569; --bg:#ffffff;
-      --card:#ffffff; --line:#e5e7eb; --chip:#f1f5f9; --radius:16px;
-      --shadow:0 18px 50px rgba(2,6,23,.08);
-    }
-    *{box-sizing:border-box}
-    html,body{
-      margin:0;padding:0;background:var(--bg);color:var(--text);
-      font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,"Noto Sans",sans-serif
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solicitação de Exame – Dra. Elen Nogata</title>
+<style>
+  :root{
+    --brand:#0a6ebd; --text:#0f172a; --muted:#475569; --bg:#ffffff;
+    --card:#ffffff; --line:#e5e7eb; --chip:#f1f5f9; --radius:14px;
+    --danger:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.5 "Inter",system-ui,-apple-system,Segoe UI,Roboto,Arial}
 
-    /* Toolbar */
-    .toolbar{
-      position:sticky; top:0; z-index:10;
-      display:flex; justify-content:flex-end; gap:8px;
-      padding:10px; background:#fff; border-bottom:1px solid var(--line)
-    }
-    .btn{
-      appearance:none; border:1px solid var(--line); background:var(--brand);
-      color:#fff; font-weight:600; padding:8px 14px; border-radius:999px;
-      cursor:pointer
-    }
-    .btn:hover{ filter:brightness(0.95) }
+  .page{max-width:900px;margin:32px auto;padding:32px;background:var(--card);border:1px solid var(--line);border-radius:20px}
+  header{display:flex;gap:16px;align-items:center;margin-bottom:20px}
 
-    .page{
-      max-width:980px;margin:18px auto;padding:18px;background:var(--card);
-      border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)
-    }
-    header{display:flex;align-items:center;gap:16px;justify-content:space-between;margin-bottom:10px}
-    .title{font-weight:800;letter-spacing:.2px;font-size:20px;margin:0}
-    .badge{background:var(--chip);border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
-    .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 16px}
-    .meta .item{background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-    .meta .label{display:block;font-size:11px;color:var(--muted);margin-bottom:2px}
-    .meta .value{font-weight:600}
-    h2{font-size:16px;margin:14px 0 8px;color:var(--brand)}
-    .hero{overflow:hidden;border-radius:16px;border:1px solid var(--line);background:#000}
-    .hero img{display:block;width:100%;height:auto;filter:contrast(1.02)}
-    .tbl{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
-    .tbl th,.tbl td{padding:10px 12px;vertical-align:top}
-    .tbl thead th{background:var(--brand);color:#fff;text-align:left;font-size:13px}
-    .tbl tbody td{background:#f8fafc;border-top:1px solid var(--line)}
-    .note{margin-top:12px;padding:10px 12px;border:1px dashed #cbd5e1;border-radius:12px;background:#f8fafc;color:#0f172a}
-    .note strong{color:#b91c1c}
-    footer{margin-top:18px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}
-    .brand{font-weight:700;color:var(--brand)}
+  .clinic h1{margin:0;font-size:22px;letter-spacing:.2px}
+  .clinic .meta{color:var(--muted);font-size:13px}
+  .hr{height:1px;background:var(--line);margin:20px 0}
+  h2.title{margin:0 0 6px 0;font-size:18px;text-align:center}
+  .subtitle{color:var(--muted);font-size:12px;text-align:center;margin-bottom:12px}
+  .toolbar{display:flex;justify-content:flex-end;margin:8px 0 16px 0}
+  .btn{appearance:none;border:1px solid var(--brand);background:var(--brand);color:#fff;
+       padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
 
-    /* Evitar quebras entre blocos */
-    .page, header, .meta, .hero, table, .note, footer{ page-break-inside: avoid; }
+  .logo{
+  width:160px;height:72px;border-radius:14px;
 
-    /* Print (A4, 1 página) */
-    @media print {
-      body{background:#fff}
-      .toolbar{display:none !important}
-      .page{
-        box-shadow:none;border:none;margin:0;border-radius:0;max-width:none;padding:10mm 8mm;
-      }
-      header{margin-bottom:6px}
-      .meta{gap:6px;margin:6px 0 10px}
-      .tbl th,.tbl td{padding:8px 9px}
-      h2{margin:8px 0 6px}
-      .note{margin-top:8px;padding:8px 9px}
-      footer{margin-top:10px}
-      /* Ajuste fino da imagem para caber em 1 página.
-         Se ainda passar do limite, diminua o max-height (ex: 300mm -> 260mm). */
-      .hero img{max-height:260mm; object-fit:contain}
-      @page { size: A4; margin: 10mm; }
-    }
-  </style>
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:var(--brand);font-size:20px;
+  overflow:hidden; /* evitar overflow do img enorme */
+}
+
+/* quando tiver imagem carregada, tira o fundo e padding */
+.logo.has-img{
+  background:none !important;
+}
+
+/* o IMG ocupa todo o quadrado sem distorcer */
+.logo img{
+  display:block;
+  width:100%;
+  
+  object-fit:contain; /* sem cortes, mantém proporção */
+}
+
+/* impressão: respeitar as cores do logo */
+@media print{
+  .logo, .logo img{
+    print-color-adjust:exact; -webkit-print-color-adjust:exact;
+  }
+}
+
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:720px){.grid{grid-template-columns:1fr}}
+  .section{margin-top:18px}
+  .section h3{margin:0 0 8px 0;font-size:15px;color:var(--brand)}
+
+  .card{border:1px solid var(--line);border-radius:var(--radius);padding:14px;background:#fff}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .field{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1}
+  .label{font-size:12px;color:var(--muted)}
+  input.input, .input-static{
+    padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;width:100%;font:inherit;color:inherit;outline:none
+  }
+  .input-static{display:flex;align-items:center;min-height:42px}
+  input.input.error{border-color:var(--danger)}
+  .error-text{color:var(--danger);font-size:12px;margin-top:4px;display:none}
+  .error + .error-text{display:block}
+  .chip{display:inline-block;background:var(--chip);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+
+  .exam-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:14px;border:1px solid var(--line);margin-top:6px}
+  .exam-table thead th{background:var(--brand);color:#fff;text-align:left;padding:10px 12px;font-size:13px}
+  .exam-table td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+  .exam-table tr:nth-child(odd) td{background:#f8fafc}
+
+  .note{background:var(--chip);padding:10px 12px;border-radius:12px;color:var(--muted);font-size:12px}
+
+  /* Assinatura única centralizada */
+  .sign-area{display:flex;justify-content:center;gap:16px;margin-top:28px;flex-wrap:wrap}
+  .sign{min-width:300px;max-width:420px;text-align:center;margin-top:36px}
+  .line{border-top:1px solid #000;padding-top:6px;font-size:13px}
+
+  footer{margin-top:26px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted)}
+  .brand-badge{display:inline-flex;align-items:center;gap:8px;background:var(--chip);padding:8px 12px;border-radius:999px}
+
+  /* Print */
+  @media print{
+    .page{border:none;margin:0;padding:24px;border-radius:0}
+    .logo{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .exam-table thead th{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    input.input{border:0;border-bottom:1px solid #000;border-radius:0;padding:6px 4px}
+    .toolbar{display:none !important}
+    .error-text{display:none !important}
+  }
+</style>
 </head>
 <body>
-  <!-- Botão Gerar PDF -->
-  <div class="toolbar">
-    <button class="btn" onclick="window.print()">Gerar PDF</button>
+  <div class="page">
+ <header>
+  <div class="logo">
+    <img src="../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
   </div>
+  <div class="clinic">
+    <h1>Dra. Elen Nogata</h1>
+    <div class="meta">
+      CROSP: 76.956 · Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004
+    </div>
+  </div>
+</header>
 
-  <div class="page" id="sheet">
-    <header>
-      <h1 class="title">📑 Planejamento de Implantes Dentários</h1>
-      <span class="badge">Versão técnica</span>
-    </header>
+    <div class="hr"></div>
 
-    <section class="meta" role="contentinfo">
-      <div class="item"><span class="label">Paciente</span><span class="value">Alexandre dos Santos Araujo</span></div>
-      <div class="item"><span class="label">Data</span><span class="value">11/09/2025</span></div>
-      <div class="item"><span class="label">Profissional</span><span class="value">Dra. Elen Nogata</span></div>
+    <h2 class="title">Solicitação de Exame Radiográfico</h2>
+    <div class="subtitle">Documento clínico para fins de diagnóstico odontológico</div>
+
+   
+
+    <!-- Identificação do paciente -->
+    <section class="section">
+      <h3>Identificação</h3>
+      <div class="card">
+        <div class="grid">
+          <div class="field">
+            <label class="label" for="paciente">Paciente</label>
+            <input class="input" id="paciente" name="paciente" type="text" placeholder="Digite o nome do paciente" />
+          </div>
+          <div class="field">
+            <div class="label">Data</div>
+            <div class="input-static"><span id="data-emissao"></span></div>
+          </div>
+        </div>
+        <div class="grid" style="margin-top:10px">
+          <div class="field">
+            <label class="label" for="cpf">CPF (opcional)</label>
+            <input class="input" id="cpf" name="cpf" type="text" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14" />
+            <div class="error-text" id="cpf-error">CPF inválido.</div>
+          </div>
+          <div class="field">
+            <label class="label" for="contato">Contato (opcional)</label>
+            <input class="input" id="contato" name="contato" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" maxlength="15" />
+            <div class="error-text" id="contato-error">Telefone inválido.</div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <h2>Radiografia panorâmica com implantes simulados</h2>
-    <figure class="hero">
-      <!-- Troque por seu arquivo local (raiox.png) -->
-      <img alt="Radiografia panorâmica com implantes simulados" src="raiox.png">
-    </figure>
+    <!-- Exame solicitado -->
+    <section class="section">
+      <h3>Exame solicitado</h3>
+      <table class="exam-table" aria-label="Exame solicitado">
+        <thead>
+          <tr><th>Exame</th><th>Finalidade</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Radiografia Panorâmica (Ortopantomografia)</strong><br/>
+              <span class="chip">Auxiliar diagnóstico</span>
+            </td>
+            <td>
+              Exame solicitado como <strong>auxiliar diagnóstico</strong> para avaliação global de estruturas ósseas e dentárias,
+              suporte ao planejamento clínico e identificação de possíveis alterações patológicas, dentárias e/ou ósseas.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note" style="margin-top:10px">
+        Se disponível, solicitar entrega do exame em formato digital (DICOM/JPEG) e laudo radiológico correspondente.
+      </div>
+    </section>
 
-    <h2>Plano sugerido por região</h2>
-    <table class="tbl" aria-describedby="Plano de implantes sugeridos">
-      <thead>
-        <tr>
-          <th>Região</th>
-          <th>Observações</th>
-          <th>Implante sugerido</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Posterior superior esquerda</td>
-          <td>Altura óssea limitada pelo seio maxilar. Pode exigir levantamento de seio.</td>
-          <td>Ø 3,5 – 4,0 mm / 8 – 10 mm</td>
-        </tr>
-        <tr>
-          <td>Posterior inferior esquerda</td>
-          <td>Bom volume ósseo disponível.</td>
-          <td>Ø 4,0 – 4,5 mm / 10 – 12 mm</td>
-        </tr>
-        <tr>
-          <td>Posterior inferior direita</td>
-          <td>Avaliar proximidade com canal mandibular.</td>
-          <td>Ø 4,0 mm / 10 mm</td>
-        </tr>
-        <tr>
-          <td>Posterior superior direita</td>
-          <td>Verificar altura remanescente até o seio maxilar.</td>
-          <td>Ø 3,5 – 4,0 mm / 8 – 10 mm</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="note">
-      <strong>Observação:</strong> Este plano é uma estimativa inicial baseada em radiografia panorâmica.
-      Para um planejamento definitivo, é indispensável tomografia computadorizada 3D com análise de altura/espessura óssea e relação com seio maxilar e canal mandibular.
+    <!-- Assinatura única centralizada -->
+    <div class="sign-area">
+      <div class="sign">
+        <div class="line">Cirurgiã Dentista</div>
+      </div>
+    </div>
+     <div class="toolbar">
+      <button class="btn" id="btn-pdf" type="button" title="Gerar PDF">Gerar PDF</button>
     </div>
 
     <footer>
-      <div>Documento gerado automaticamente • planejamento-implantes.html</div>
-      <div class="brand">Elen Nogata • Planejamento Odontológico</div>
+      <div class="brand-badge"><strong>Dra. Elen Nogata</strong><span class="sep">·</span><span>CROSP 76.956</span></div>
+      <div>Documento emitido para fins clínicos – não substitui laudo radiológico</div>
     </footer>
   </div>
 
+  <script>
+    // Data da emissão (pt-BR)
+    document.getElementById("data-emissao").textContent =
+      new Date().toLocaleDateString("pt-BR");
+
+    // Utilidades
+    const onlyDigits = (v) => v.replace(/\D+/g, "");
+
+    // Máscara de CPF: 000.000.000-00
+    function maskCPF(v) {
+      v = onlyDigits(v).slice(0, 11);
+      if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, "$1.$2.$3-$4");
+      else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+      else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+      return v;
+    }
+
+    // Validação de CPF (módulo 11)
+    function isValidCPF(cpf) {
+      cpf = onlyDigits(cpf);
+      if (!cpf || cpf.length !== 11) return false;
+      if (/^(\d)\1{10}$/.test(cpf)) return false; // todos iguais
+      const calcDV = (base) => {
+        let sum = 0;
+        for (let i = 0; i < base.length; i++) sum += parseInt(base[i], 10) * (base.length + 1 - i);
+        const mod = sum % 11;
+        return mod < 2 ? 0 : 11 - mod;
+      };
+      const dv1 = calcDV(cpf.slice(0, 9));
+      const dv2 = calcDV(cpf.slice(0, 9) + dv1);
+      return cpf.endsWith(`${dv1}${dv2}`);
+    }
+
+    // Máscara de telefone brasileiro
+    function maskPhone(v) {
+      v = onlyDigits(v).slice(0, 11);
+      if (v.length <= 10) {
+        if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d{1,4})/, "($1) $2-$3");
+        else if (v.length > 2) v = v.replace(/(\d{2})(\d{1,4})/, "($1) $2");
+        else if (v.length > 0) v = v.replace(/(\d{1,2})/, "($1");
+      } else {
+        v = v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+      }
+      if (v.startsWith("(") && !v.includes(")")) v += ")";
+      return v;
+    }
+    function isValidPhone(v) {
+      const d = onlyDigits(v);
+      if (!(d.length === 10 || d.length === 11)) return false;
+      if (d.startsWith("0")) return false;
+      return true;
+    }
+
+    // Inputs e erros
+    const cpfInput = document.getElementById("cpf");
+    const cpfError = document.getElementById("cpf-error");
+    const contatoInput = document.getElementById("contato");
+    const contatoError = document.getElementById("contato-error");
+    const pacienteInput = document.getElementById("paciente");
+
+    // Máscaras + validação on input/blur
+    if (cpfInput) {
+      cpfInput.addEventListener("input", (e) => {
+        e.target.value = maskCPF(e.target.value);
+        const hasValue = onlyDigits(e.target.value).length > 0;
+        const ok = !hasValue || isValidCPF(e.target.value);
+        e.target.classList.toggle("error", !ok);
+        cpfError.style.display = ok ? "none" : "block";
+      });
+      cpfInput.addEventListener("blur", (e) => {
+        const hasValue = onlyDigits(e.target.value).length > 0;
+        const ok = !hasValue || isValidCPF(e.target.value);
+        e.target.classList.toggle("error", !ok);
+        cpfError.style.display = ok ? "none" : "block";
+      });
+    }
+    if (contatoInput) {
+      contatoInput.addEventListener("input", (e) => {
+        e.target.value = maskPhone(e.target.value);
+        const hasValue = onlyDigits(e.target.value).length > 0;
+        const ok = !hasValue || isValidPhone(e.target.value);
+        e.target.classList.toggle("error", !ok);
+        contatoError.style.display = ok ? "none" : "block";
+      });
+      contatoInput.addEventListener("blur", (e) => {
+        const hasValue = onlyDigits(e.target.value).length > 0;
+        const ok = !hasValue || isValidPhone(e.target.value);
+        e.target.classList.toggle("error", !ok);
+        contatoError.style.display = ok ? "none" : "block";
+      });
+    }
+
+    // Botão Gerar PDF (valida antes de imprimir)
+    function hasErrors() {
+      // Paciente obrigatório
+      const nameOk = pacienteInput.value.trim().length > 0;
+      pacienteInput.classList.toggle("error", !nameOk);
+
+      // CPF opcional porém, se preenchido, precisa ser válido
+      let cpfOk = true;
+      if (cpfInput && onlyDigits(cpfInput.value).length > 0) {
+        cpfOk = isValidCPF(cpfInput.value);
+        cpfInput.classList.toggle("error", !cpfOk);
+        cpfError.style.display = cpfOk ? "none" : "block";
+      }
+      // Telefone opcional porém, se preenchido, precisa ser válido
+      let phoneOk = true;
+      if (contatoInput && onlyDigits(contatoInput.value).length > 0) {
+        phoneOk = isValidPhone(contatoInput.value);
+        contatoInput.classList.toggle("error", !phoneOk);
+        contatoError.style.display = phoneOk ? "none" : "block";
+      }
+      return !(nameOk && cpfOk && phoneOk);
+    }
+
+    document.getElementById("btn-pdf").addEventListener("click", () => {
+      if (hasErrors()) {
+        alert("Por favor, corrija os campos destacados antes de gerar o PDF.");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      window.print();
+    });
+
+    // Preenche data
+    document.getElementById("data-emissao").textContent =
+      new Date().toLocaleDateString("pt-BR");
+  </script>
 </body>
 </html>
+
+
+

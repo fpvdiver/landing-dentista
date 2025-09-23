@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planejamento de Implantes Dentários</title>
+  <style>
+    :root{
+      --brand:#0a6ebd; --brand-2:#094f8a;
+      --text:#0f172a; --muted:#475569; --bg:#ffffff;
+      --card:#ffffff; --line:#e5e7eb; --chip:#f1f5f9; --radius:16px;
+      --shadow:0 18px 50px rgba(2,6,23,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+      font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,"Noto Sans",sans-serif}
+    .page{max-width:980px;margin:28px auto;padding:22px;background:var(--card);
+      border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+    header{display:flex;align-items:center;gap:16px;justify-content:space-between;margin-bottom:10px}
+    .title{font-weight:800;letter-spacing:.2px;font-size:20px;margin:0}
+    .badge{background:var(--chip);border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+    .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 20px}
+    .meta .item{background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+    .meta .label{display:block;font-size:11px;color:var(--muted);margin-bottom:2px}
+    .meta .value{font-weight:600}
+    h2{font-size:16px;margin:18px 0 10px;color:var(--brand)}
+    .hero{overflow:hidden;border-radius:16px;border:1px solid var(--line);background:#000}
+    .hero img{display:block;width:100%;height:auto;filter:contrast(1.02)}
+    .tbl{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .tbl th,.tbl td{padding:12px 14px;vertical-align:top}
+    .tbl thead th{background:var(--brand);color:#fff;text-align:left;font-size:13px}
+    .tbl tbody td{background:#f8fafc;border-top:1px solid var(--line)}
+    .note{margin-top:16px;padding:12px 14px;border:1px dashed #cbd5e1;border-radius:12px;background:#f8fafc;color:#0f172a}
+    .note strong{color:#b91c1c}
+    footer{margin-top:26px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}
+    .brand{font-weight:700;color:var(--brand)}
+
+    /* Print (A4) */
+    @media print {
+      body{background:#fff}
+      .page{box-shadow:none;border:none;margin:0;border-radius:0;max-width:none}
+      @page { size: A4; margin: 12mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1 class="title">📑 Planejamento de Implantes Dentários</h1>
+      <span class="badge">Versão técnica</span>
+    </header>
+
+    <section class="meta" role="contentinfo">
+      <div class="item"><span class="label">Paciente</span><span class="value">Alexandre dos Santos Araujo</span></div>
+      <div class="item"><span class="label">Data</span><span class="value">11/09/2025</span></div>
+      <div class="item"><span class="label">Profissional</span><span class="value">Dra. Elen Nogata</span></div>
+    </section>
+
+    <h2>Radiografia panorâmica com implantes simulados</h2>
+    <figure class="hero">
+      <img alt="Radiografia panorâmica com implantes simulados" src="raiox.png">
+    </figure>
+
+    <h2>Plano sugerido por região</h2>
+    <table class="tbl" aria-describedby="Plano de implantes sugeridos">
+      <thead>
+        <tr>
+          <th>Região</th>
+          <th>Observações</th>
+          <th>Implante sugerido</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Posterior superior esquerda</td>
+          <td>Altura óssea limitada pelo seio maxilar. Pode exigir levantamento de seio.</td>
+          <td>Ø 3,5 – 4,0 mm / 8 – 10 mm</td>
+        </tr>
+        <tr>
+          <td>Posterior inferior esquerda</td>
+          <td>Bom volume ósseo disponível.</td>
+          <td>Ø 4,0 – 4,5 mm / 10 – 12 mm</td>
+        </tr>
+        <tr>
+          <td>Posterior inferior direita</td>
+          <td>Avaliar proximidade com canal mandibular.</td>
+          <td>Ø 4,0 mm / 10 mm</td>
+        </tr>
+        <tr>
+          <td>Posterior superior direita</td>
+          <td>Verificar altura remanescente até o seio maxilar.</td>
+          <td>Ø 3,5 – 4,0 mm / 8 – 10 mm</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <strong>Observação:</strong> Este plano é uma estimativa inicial baseada em radiografia panorâmica. 
+      Para um planejamento definitivo, é indispensável tomografia computadorizada 3D com análise de altura/espessura óssea e relação com seio maxilar e canal mandibular.
+    </div>
+
+    <footer>
+      <div>Documento gerado automaticamente • planejamento-implantes.html</div>
+      <div class="brand">Elen Nogata • Planejamento Odontológico</div>
+    </footer>
+  </div>
+</body>
+</html>

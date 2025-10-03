@@ -6,8 +6,10 @@
 <title>Pós-Operatório – Orientações | Dra. Elen Nogata</title>
 <style>
   :root{
-    --brand:#0a6ebd; --text:#0f172a; --muted:#475569; --bg:#ffffff;
-    --card:#ffffff; --line:#e5e7eb; --chip:#f1f5f9; --radius:14px;
+    --brand:#0a6ebd; --brand-600:#0a66ae; --brand-50:#eff6ff;
+    --text:#0f172a; --muted:#475569; --muted-2:#94a3b8;
+    --bg:#ffffff; --card:#ffffff; --line:#e5e7eb; --chip:#f1f5f9; --radius:14px;
+    --shadow:0 6px 24px rgba(2,6,23,.06);
   }
   *{box-sizing:border-box}
   html,body{
@@ -17,30 +19,57 @@
   .page{max-width:900px;margin:26px auto;padding:22px;background:var(--card);
         border:1px solid var(--line);border-radius:20px}
 
-  /* ====== CONFIG BAR ====== */
+  /* ====== CONFIG BAR (navbar) ====== */
   .configbar{
-    display:flex; gap:10px; align-items:center; margin-bottom:10px;
-    padding:6px; border:1px dashed var(--line); border-radius:12px; background:#fff;
+    position:relative;
+    display:flex; gap:10px; align-items:center; margin-bottom:12px;
+    padding:8px 10px;
+    border-radius:14px;
+    background:linear-gradient(180deg,#ffffff, #fafbff);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
     flex-wrap:wrap;
   }
   .configbar .menu{ position:relative; }
   .configbar .menubtn{
     appearance:none; border:1px solid var(--line); background:#fff; color:var(--text);
-    padding:8px 12px; border-radius:12px; font-weight:700; cursor:pointer;
+    padding:9px 14px; border-radius:999px; font-weight:700; cursor:pointer;
+    transition:all .15s ease; display:inline-flex; align-items:center; gap:8px;
   }
+  .configbar .menubtn::after{content:"▾"; font-size:11px; color:var(--muted)}
+  .configbar .menubtn:hover{ border-color:var(--brand); box-shadow:0 4px 14px rgba(2,6,23,.06) }
+  .configbar .menubtn:focus{ outline:2px solid var(--brand-50); outline-offset:2px }
+
   .configbar .dropdown{
-    position:absolute; top:110%; left:0; min-width:260px; z-index:10;
-    background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,.08);
-    display:none; padding:6px;
+    position:absolute; top:110%; left:0; min-width:280px; z-index:20;
+    background:#fff; border:1px solid var(--line); border-radius:12px;
+    box-shadow:0 16px 40px rgba(2,6,23,.12);
+    display:none; padding:8px;
   }
-  .configbar .dropdown.open{ display:block; }
-  .configbar .dd-title{ font-size:12px; color:var(--muted); margin:4px 8px 6px; }
+  .configbar .dropdown.open{ display:block; animation:ddIn .12s ease-out }
+  @keyframes ddIn{ from{transform:translateY(-4px); opacity:0} to{transform:none; opacity:1}}
+
+  .configbar .dd-title{ font-size:12px; color:var(--muted); margin:4px 8px 8px; }
   .configbar .dd-item{
-    width:100%; text-align:left; padding:8px 10px; border-radius:10px;
+    width:100%; text-align:left; padding:10px 12px; border-radius:10px;
     border:1px solid transparent; background:#fff; cursor:pointer; font-weight:600;
+    transition:all .12s ease;
   }
   .configbar .dd-item:hover{ background:#f8fafc; border-color:#e5e7eb; }
-  .configbar .dd-sep{ height:1px; background:#e5e7eb; margin:6px 0; }
+  .configbar .dd-sep{ height:1px; background:#e5e7eb; margin:8px 0; }
+  /* empurra “Enviar” para a direita */
+  .configbar .push-right{ margin-left:auto }
+
+  /* ====== RESPONSIVO NAVBAR ====== */
+  @media (max-width:600px){
+    .configbar{ gap:8px; padding:8px }
+    .configbar .menu{ width:100% }
+    .configbar .menubtn{ width:100%; justify-content:space-between }
+    .configbar .dropdown{
+      position:static; width:100%; margin-top:6px; display:none;
+    }
+    .configbar .dropdown.open{ display:block }
+  }
 
   /* ====== HEADER ====== */
   header{
@@ -86,20 +115,11 @@
   }
   .pad-left-mascote{ padding-left:160px }
   @media (max-width:845px){
-      .mascote {
-        left: -15px;
-        top: -35px;
-        width: 149px;
-    }
+    .mascote{ left:-15px; top:-35px; width:149px }
     .pad-left-mascote{ padding-left:140px }
   }
-
-   @media (max-width: 933px) {
-    .mascote {
-        left: -23px;
-        top: -49px;
-        width: 145px;
-    }
+  @media (max-width:933px){
+    .mascote{ left:-23px; top:-49px; width:145px }
     .pad-left-mascote{ padding-left:140px }
   }
 
@@ -129,13 +149,17 @@
     .chip{background:#f1f5f9 !important; color:#475569 !important}
     .brand-badge{background:#f1f5f9 !important; color:#475569 !important}
 
-    .print-line{display:block !important; margin:0 0 6px 0}
-    #print-proc{display:none !important} /* mantenho oculto como antes */
+    /* Cabeçalho textual no PDF, alinhado à direita como Nome/CROSP */
+    .print-lines{ display:block !important; text-align:right; margin-top:2px; }
+    .print-line{ display:block !important; font-weight:600; margin:0; }
+    .print-line small{ color:#64748b !important; font-weight:700 }
+    #print-proc{display:none !important} /* mantém oculto o procedimento no PDF */
   }
 
   /* Linhas espelhadas (somem na tela) */
-  .print-line{display:none; font-weight:600}
-  .print-line small{font-weight:600; color:#94a3b8}
+  .print-lines{ display:none }
+  .print-line{ font-weight:600 }
+  .print-line small{font-weight:700; color:var(--muted-2)}
 </style>
 </head>
 <body>
@@ -145,7 +169,7 @@
     <nav class="configbar" aria-label="Configurações">
       <!-- Procedimentos -->
       <div class="menu" id="m-proc">
-        <button class="menubtn" type="button">Procedimentos ▾</button>
+        <button class="menubtn" type="button">Procedimentos</button>
         <div class="dropdown" role="menu" id="dd-proc">
           <div class="dd-title">Selecione um procedimento</div>
           <div id="dd-proc-list"></div>
@@ -154,7 +178,7 @@
 
       <!-- Endereço -->
       <div class="menu" id="m-address">
-        <button class="menubtn" type="button">Endereço ▾</button>
+        <button class="menubtn" type="button">Endereço</button>
         <div class="dropdown" role="menu" id="dd-address">
           <div class="dd-title">Endereços cadastrados</div>
           <div id="dd-address-list"></div>
@@ -165,7 +189,7 @@
 
       <!-- Logo -->
       <div class="menu" id="m-logo">
-        <button class="menubtn" type="button">Logo ▾</button>
+        <button class="menubtn" type="button">Logo</button>
         <div class="dropdown" role="menu">
           <button class="dd-item" type="button" id="dd-edit-logo">Editar a logo</button>
         </div>
@@ -173,7 +197,7 @@
 
       <!-- Dados -->
       <div class="menu" id="m-dados">
-        <button class="menubtn" type="button">Dados ▾</button>
+        <button class="menubtn" type="button">Dados</button>
         <div class="dropdown" role="menu">
           <button class="dd-item" type="button" id="dd-edit-nome">Alterar nome</button>
           <button class="dd-item" type="button" id="dd-edit-cro">Alterar CROSP</button>
@@ -181,8 +205,8 @@
       </div>
 
       <!-- Enviar -->
-      <div class="menu" id="m-enviar" style="margin-left:auto">
-        <button class="menubtn" type="button">Enviar ▾</button>
+      <div class="menu push-right" id="m-enviar">
+        <button class="menubtn" type="button">Enviar</button>
         <div class="dropdown" role="menu">
           <button class="dd-item" type="button" id="dd-print">PDF</button>
           <button class="dd-item" type="button" id="dd-share">Compartilhar</button>
@@ -204,9 +228,11 @@
 
     <div class="hr"></div>
 
-    <!-- Linhas exibidas só no PDF -->
-    <div class="print-line" id="print-address"><small>Endereço:</small> <span></span></div>
-    <div class="print-line" id="print-proc"><small>Procedimento:</small> <span></span></div>
+    <!-- Linhas exibidas só no PDF (agora agrupadas e alinhadas à direita) -->
+    <div class="print-lines">
+      <div class="print-line" id="print-address"><small>Endereço:</small> <span></span></div>
+      <div class="print-line" id="print-proc"><small>Procedimento:</small> <span></span></div>
+    </div>
 
     <h2 class="title" id="doc-title">Cuidados Pós-Operatórios – Exodontia de Siso</h2>
     <div class="subtitle" id="doc-subtitle">Primeiras 72h são decisivas para cicatrização</div>
@@ -322,7 +348,6 @@
     let currentProcLabel = PROCS.find(p=>p.key===currentProcKey).label;
 
     /* ========= CONFIG BAR: build menus ========= */
-    const ddAddress = document.getElementById('dd-address');
     const ddAddressList = document.getElementById('dd-address-list');
     const ddProcList = document.getElementById('dd-proc-list');
 
@@ -670,7 +695,7 @@
       updatePrintMirrors();
     }
 
-    /* ========= SELECTORS (sem toolbar) ========= */
+    /* ========= SELECTORS ========= */
     function setProcedure(key,label){
       currentProcKey = key;
       currentProcLabel = label || (PROCS.find(p=>p.key===key)?.label||"");
@@ -684,22 +709,9 @@
     }
 
     /* ========= INIT ========= */
-    // build dropdowns
     buildProcDropdown();
     rebuildAddressDropdown();
-
-    // logo/dados já carregados
-    // fechar dropdowns ao clicar fora (já feito acima)
-
-    // ações de Enviar
-    // (já conectadas)
-
-    // primeira renderização
     setProcedure(currentProcKey, currentProcLabel);
   </script>
 </body>
 </html>
-
-
-
-

@@ -17,26 +17,59 @@
   .page{max-width:900px;margin:26px auto;padding:22px;background:var(--card);
         border:1px solid var(--line);border-radius:20px}
 
-  /* Header */
-  header{display:flex;gap:14px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  /* ====== HEADER (igual ao mock) ====== */
+  header{
+    position:relative;
+    display:grid;
+    grid-template-columns: 1fr auto;
+    align-items:center;
+    gap:14px;
+    margin-bottom:8px;
+  }
+  .logo-wrap{
+    grid-column:1 / -1;
+    display:flex; justify-content:center; align-items:center;
+  }
   .logo{
     width:377px; height:85px; border-radius:14px; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
   }
   .logo img{width:90%; height:330%; object-fit:contain; display:block}
-  .clinic h1{margin:0;font-size:20px;letter-spacing:.2px}
-  .clinic .meta{color:var(--muted);font-size:12px}
-  .hr{height:1px;background:var(--line);margin:14px 0}
+  .clinic-box{
+    grid-column:2 / 3;
+    justify-self:end;
+    text-align:right;
+  }
+  .clinic-box h1{margin:0;font-size:18px;letter-spacing:.2px}
+  .clinic-box .meta{color:var(--muted);font-size:12px}
+  /* mascote à esquerda como no mock */
+  .mascote{
+    position:absolute; left:-4px; top:-10px;
+    width:145px; height:auto; filter:drop-shadow(0 2px 0 rgba(0,0,0,.06));
+    user-select:none; pointer-events:none;
+  }
+
+  .hr{height:1px;background:var(--line);margin:12px 0}
 
   h2.title{margin:0 0 4px 0;font-size:17px;text-align:center}
   .subtitle{color:var(--muted);font-size:11.5px;text-align:center;margin-bottom:10px}
 
-  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 10px 0;flex-wrap:wrap}
-  .btn{appearance:none;border:1px solid var(--brand);background:var(--brand);color:#fff;
-       padding:8px 12px;border-radius:12px;font-weight:600;cursor:pointer}
+  /* ====== TOOLBAR (endereços + procedimento + PDF) ====== */
+  .toolbar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; flex-wrap:wrap; margin:8px 0 10px 0;
+  }
+  .group{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+  .label{font-weight:700;color:var(--muted)}
   .select{
     border:1px solid var(--line); background:#fff; color:var(--text);
-    padding:8px 10px; border-radius:12px; font-weight:600;
+    padding:8px 10px; border-radius:12px; font-weight:600; min-width:220px;
+  }
+  .btn{appearance:none;border:1px solid var(--brand);background:var(--brand);color:#fff;
+       padding:8px 12px;border-radius:12px;font-weight:700;cursor:pointer}
+  .link{
+    border:none;background:transparent;color:var(--brand);font-weight:700;cursor:pointer;
+    padding:0 2px; text-decoration:underline;
   }
 
   .section{margin-top:12px;page-break-inside:avoid}
@@ -51,50 +84,32 @@
   .chip{display:inline-block;background:var(--chip);padding:4px 8px;border-radius:999px;
         font-size:11px;color:var(--muted)}
 
-  /* Mascote */
-.mascote {
-    position: absolute;
-    width: 145px;
-    height: auto;
-    left: -2px;
-    top: 330px;
-    margin: 6px 8px 0 0;
-    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .06));
-    user-select: none;
-    pointer-events: none;
-}
+  /* helper para herói/mensagem */
   .pad-left-mascote{padding-left:12px}
   @media (min-width:992px){
-    .hero-wrap{position:relative}
-    .mascote.desktop-overlap{position:absolute; left:12px; top:-193px; margin:0; width:230px}
+    header{min-height:120px}
+    .mascote{left:12px; top:-28px; width:230px}
     .pad-left-mascote{padding-left:160px}
   }
   @media (max-width:390px){
-        .mascote {
-        width: 157px;
-        left: 0px;
-        top: 376px;
-    }  }
-
-
+    .mascote{width:157px; left:0; top:10px}
+  }
 
   footer{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
          font-size:11.5px;color:var(--muted)}
   .brand-badge{display:inline-flex;align-items:center;gap:8px;background:var(--chip);padding:6px 10px;border-radius:999px}
 
-  /* PRINT */
+  /* ====== PRINT ====== */
   @page { size: A4; margin: 14mm; }
   @media print{
     html,body{font-size:12px}
     .page{margin:0;border:none;border-radius:0}
     .toolbar{display:none !important}
-     .logo{
-    width:377px; height:85px; border-radius:14px; overflow:hidden; margin-left:120px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .logo img{width:90%; height:330%; object-fit:contain;} .mascote{print-color-adjust:exact; -webkit-print-color-adjust:exact}
-    .mascote{position:absolute !important; margin:0 !important; width:250px !important; top:133px !important; left:8px !important}
-    .pad-left-mascote{padding-left:0 !important}
+    .logo-wrap{justify-content:center}
+    .clinic-box{justify-self:end}
+    .logo{margin-left:0}
+    .mascote{position:absolute !important; margin:0 !important; width:250px !important; top:100px !important; left:8px !important;
+             print-color-adjust:exact; -webkit-print-color-adjust:exact}
     *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important}
     .info-table thead th{background:#0a6ebd !important; color:#fff !important}
     .info-table tbody tr:nth-child(odd) td{background:#f8fafc !important}
@@ -102,25 +117,41 @@
     .info-table td{border-top-color:#e5e7eb !important}
     .chip{background:#f1f5f9 !important; color:#475569 !important}
     .brand-badge{background:#f1f5f9 !important; color:#475569 !important}
+    /* mostra as linhas espelhadas dos selects */
+    .print-line{display:block !important}
   }
+
+  /* linhas espelhadas para impressão (somem na tela) */
+  .print-line{display:none; margin:4px 0; font-weight:600}
+  .print-line small{font-weight:600; color:var(--muted)}
 </style>
 </head>
 <body>
   <div class="page">
     <header>
-      <div class="logo">
-        <img src="../../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
+      <img class="mascote" src="../../images/avatarElen.png" alt="Mensagem da equipe" />
+      <div class="logo-wrap">
+        <div class="logo">
+          <img src="../../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
+        </div>
       </div>
-      <div class="clinic">
+      <div class="clinic-box">
         <h1>Dra. Elen Nogata</h1>
-        <div class="meta">CROSP: 76.956 · Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004</div>
+        <div class="meta">CROSP: 76.956</div>
       </div>
     </header>
 
     <div class="hr"></div>
-     <div class="toolbar">
-      <div>
-        <label for="proc" style="font-weight:700;margin-right:8px;color:var(--muted)">Selecione o procedimento:</label>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar" aria-label="Seleções">
+      <div class="group">
+        <span class="label">Selecione o endereço:</span>
+        <select id="addr" class="select"></select>
+        <button id="manage" class="link" type="button">Gerenciar endereços</button>
+      </div>
+      <div class="group">
+        <span class="label">Selecione o procedimento:</span>
         <select id="proc" class="select">
           <option value="siso">Pós-Exo de Siso</option>
           <option value="extracao">Pós-Extração</option>
@@ -134,10 +165,12 @@
       <button class="btn" id="btn-pdf" type="button">Gerar PDF</button>
     </div>
 
-    <h2 class="title" id="doc-title">Cuidados Pós-Operatórios</h2>
-    <div class="subtitle" id="doc-subtitle">Orientações essenciais para cicatrização adequada</div>
+    <!-- Linhas espelhadas para impressão (ficam idênticas ao mock no PDF) -->
+    <div class="print-line" id="print-address"><small>Endereço:</small> <span></span></div>
+    <div class="print-line" id="print-proc"><small>Procedimento:</small> <span></span></div>
 
-   
+    <h2 class="title" id="doc-title">Cuidados Pós-Operatórios – Exodontia de Siso</h2>
+    <div class="subtitle" id="doc-subtitle">Primeiras 72h são decisivas para cicatrização</div>
 
     <!-- Mensagem + próximos passos -->
     <section class="section hero-wrap" aria-label="Mensagem e próximos passos">
@@ -147,9 +180,7 @@
         </thead>
         <tbody id="tb-hero">
           <tr>
-            <td class="pad-left-mascote">
-              <img class="mascote" id="mascote" src="../../images/avatarElen.png" alt="Mensagem da equipe" />
-            </td>
+            <td class="pad-left-mascote"></td>
             <td>Selecione o procedimento acima para ver as orientações específicas da sua recuperação.</td>
           </tr>
         </tbody>
@@ -217,7 +248,47 @@
   </div>
 
   <script>
-    // Conteúdo por procedimento
+    /* =================== ENDEREÇOS =================== */
+    const ADDR_STORAGE_KEY = "posimplante_enderecos_v1";
+    const DEFAULT_ADDR = [
+      "Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004"
+    ];
+
+    function loadAddrs(){
+      try{
+        const data = JSON.parse(localStorage.getItem(ADDR_STORAGE_KEY));
+        return Array.isArray(data) && data.length ? data : DEFAULT_ADDR.slice();
+      }catch{ return DEFAULT_ADDR.slice(); }
+    }
+    function saveAddrs(list){
+      localStorage.setItem(ADDR_STORAGE_KEY, JSON.stringify(list));
+    }
+
+    const addrSelect = document.getElementById('addr');
+    function refreshAddrSelect(selected){
+      const addrs = loadAddrs();
+      addrSelect.innerHTML = addrs.map((a,i)=>`<option value="${i}">${a}</option>`).join('');
+      if(typeof selected === "number" && addrs[selected]) addrSelect.value = String(selected);
+      updatePrintMirrors();
+    }
+
+    document.getElementById('manage').addEventListener('click', () => {
+      const current = loadAddrs();
+      const text = prompt(
+`Gerenciar endereços
+- Digite um por linha.
+- Serão salvos exatamente como você escrever.
+
+Endereços atuais:`, current.join("\n"));
+      if(text === null) return;
+      const list = text.split("\n").map(s=>s.trim()).filter(Boolean);
+      if(list.length){
+        saveAddrs(list);
+        refreshAddrSelect(0);
+      }
+    });
+
+    /* ====== DADOS POR PROCEDIMENTO ====== */
     const DATA = {
       implante: {
         title: "Cuidados Pós-Operatórios – Implantes Dentários",
@@ -445,58 +516,46 @@
       }
     };
 
-    // Helpers de renderização
-    const el = q => document.querySelector(q);
+    /* ====== RENDER ====== */
+    const $ = s => document.querySelector(s);
     function renderTable(tbody, rows){
       tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
     }
     function render(procKey){
-      const d = DATA[procKey] || DATA.implante;
-      el("#doc-title").textContent = d.title;
-      el("#doc-subtitle").textContent = d.subtitle || "Orientações essenciais para cicatrização adequada";
-      el("#tb-hero").innerHTML = `
+      const d = DATA[procKey] || DATA.siso;
+      $("#doc-title").textContent = d.title;
+      $("#doc-subtitle").textContent = d.subtitle || "";
+      $("#tb-hero").innerHTML = `
         <tr>
-          <td class="pad-left-mascote">
-            <img class="mascote" id="mascote" src="../../images/avatarElen.png" alt="Mensagem da equipe" />
-          </td>
+          <td class="pad-left-mascote"></td>
           <td>${d.hero}</td>
         </tr>`;
-      renderTable(el("#tb-24h"), d._24h);
-      renderTable(el("#tb-med"), d.med);
-      renderTable(el("#tb-alim"), d.alim);
-      renderTable(el("#tb-hig"), d.hig);
-      el("#h-extra").textContent = d.extraTitle || "Cuidados adicionais";
-      renderTable(el("#tb-extra"), d.extra);
-      renderTable(el("#tb-ret"), d.ret);
-      // reaplica sobreposição do mascote em telas grandes
-      applyOverlap(mq);
+      renderTable($("#tb-24h"), d._24h);
+      renderTable($("#tb-med"), d.med);
+      renderTable($("#tb-alim"), d.alim);
+      renderTable($("#tb-hig"), d.hig);
+      $("#h-extra").textContent = d.extraTitle || "Cuidados adicionais";
+      renderTable($("#tb-extra"), d.extra);
+      renderTable($("#tb-ret"), d.ret);
+      updatePrintMirrors();
     }
 
-    // Mascote overlap em telas grandes
-    const mq = window.matchMedia('(min-width: 992px)');
-    function applyOverlap(e){
-      const mascote = document.getElementById('mascote');
-      if(!mascote) return;
-      if(e.matches) mascote.classList.add('desktop-overlap');
-      else mascote.classList.remove('desktop-overlap');
+    /* ====== PRINT MIRRORS ====== */
+    function updatePrintMirrors(){
+      const addrText = addrSelect.options[addrSelect.selectedIndex]?.text || "";
+      const procText = $("#proc").options[$("#proc").selectedIndex]?.text || "";
+      $("#print-address span").textContent = addrText;
+      $("#print-proc span").textContent = procText;
     }
-    mq.addEventListener('change', applyOverlap);
 
-    // UI events
-    const select = document.getElementById('proc');
-    select.addEventListener('change', e => render(e.target.value));
+    /* ====== EVENTS ====== */
+    document.getElementById('proc').addEventListener('change', e => { render(e.target.value); });
+    addrSelect.addEventListener('change', updatePrintMirrors);
     document.getElementById('btn-pdf').addEventListener('click', () => window.print());
 
-    // Inicial: siso (pode trocar para outro se preferir)
+    /* INIT */
+    refreshAddrSelect(0);
     render('siso');
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-

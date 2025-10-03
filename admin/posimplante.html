@@ -162,33 +162,32 @@
   .print-line small{font-weight:700; color:var(--muted-2)}
 
   /* botões PDF + Compartilhar lado a lado */
-#m-enviar{
-  margin-left:auto;                 /* empurra pro lado direito */
-  display:flex;                     /* fica em linha */
-  gap:10px;                         /* espaço entre eles */
-  align-items:center;
-}
-#m-enviar .dd-item{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:9px 14px;
-  border-radius:999px;
-  font-weight:700;
-  border:1px solid var(--line);
-  cursor:pointer;
-}
+  #m-enviar{
+    margin-left:auto;                 /* empurra pro lado direito */
+    display:flex;                     /* fica em linha */
+    gap:10px;                         /* espaço entre eles */
+    align-items:center;
+  }
+  #m-enviar .dd-item{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:9px 14px;
+    border-radius:999px;
+    font-weight:700;
+    border:1px solid var(--line);
+    cursor:pointer;
+  }
 
-/* opcional: cores */
-#dd-print{ background:#0a6ebd; color:#fff; border-color:#0a6ebd; }
-#dd-share{ background:#16a34a; color:#fff; border-color:#16a34a; }
+  /* opcional: cores */
+  #dd-print{ background:#0a6ebd; color:#fff; border-color:#0a6ebd; }
+  #dd-share{ background:#16a34a; color:#fff; border-color:#16a34a; }
 
-/* empilha no mobile, se quiser */
-@media (max-width:600px){
-  #m-enviar{ width:100%; }
-  #m-enviar .dd-item{ flex:1 }
-}
-
+  /* empilha no mobile, se quiser */
+  @media (max-width:600px){
+    #m-enviar{ width:100%; }
+    #m-enviar .dd-item{ flex:1 }
+  }
 </style>
 </head>
 <body>
@@ -234,8 +233,10 @@
       </div>
 
       <!-- Enviar -->
-     <div class="menu push-right" id="m-enviar"> <button class="dd-item" type="button" id="dd-print">PDF</button> 
-       <button class="dd-item" type="button" id="dd-share">Compartilhar</button> </div>
+      <div class="menu push-right" id="m-enviar">
+        <button class="dd-item" type="button" id="dd-print">PDF</button>
+        <button class="dd-item" type="button" id="dd-share">Compartilhar</button>
+      </div>
     </nav>
 
     <header>
@@ -448,13 +449,9 @@
 
     /* ========= ENVIAR ========= */
     document.getElementById('dd-print').addEventListener('click', ()=>{ window.print(); closeAllDropdowns(); });
+    /* >>> ALTERADO: Compartilhar agora gera e compartilha o ARQUIVO PDF completo <<< */
     document.getElementById('dd-share').addEventListener('click', async ()=>{
-      const title = document.title;
-      const url = location.href;
-      try{
-        if(navigator.share){ await navigator.share({title, url}); }
-        else { await navigator.clipboard.writeText(url); alert("Link copiado para a área de transferência."); }
-      }catch(e){}
+      await sharePdfOfPage(); // gera PDF multi-página e compartilha o arquivo
       closeAllDropdowns();
     });
 
@@ -591,7 +588,7 @@
         ],
         hig: [
           ["Higiene normal com escova macia e fio dental.",
-           "Evite bochechos agressivos no dia do procedimento se houver sensibilidade."]
+          "Evite bochechos agressivos no dia do procedimento se houver sensibilidade."]
         ],
         extraTitle: "Cuidados adicionais",
         extra: [
@@ -737,12 +734,131 @@
     rebuildAddressDropdown();
     setProcedure(currentProcKey, currentProcLabel);
   </script>
+
+  <!-- ====== Helpers PDF (multi-página + share arquivo) ====== -->
+  <script>
+async function ensurePdfLibs(){
+  const needH2C = (typeof window.html2canvas === 'undefined');
+  const needJSPDF = (typeof window.jspdf === 'undefined');
+  const tasks = [];
+  if(needH2C){ tasks.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')); }
+  if(needJSPDF){ tasks.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')); }
+  await Promise.all(tasks);
+}
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    const s = document.createElement('script');
+    s.src = src; s.async = true; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+/* Aplica ajustes de "modo print" durante a captura e restaura depois */
+function toggleCaptureMode(on){
+  const cfg = document.querySelector('.configbar');
+  const printLines = document.querySelector('.print-lines');
+  const printProc = document.getElementById('print-proc');
+  const mascote = document.querySelector('.mascote');
+  const padCell = document.querySelector('.pad-left-mascote');
+
+  // guardar estados anteriores
+  if(on){
+    cfg && (cfg._prevDisplay = cfg.style.display, cfg.style.display = 'none');
+    if(printLines){ printLines._prevDisplay = printLines.style.display; printLines.style.display = 'block'; }
+    if(printProc){ printProc._prevDisplay = printProc.style.display; printProc.style.display = 'none'; }
+    if(mascote){
+      mascote._prev = { w: mascote.style.width, l: mascote.style.left, t: mascote.style.top, pos: mascote.style.position };
+      mascote.style.position = 'absolute'; mascote.style.width='230px'; mascote.style.left='-10px'; mascote.style.top='-200px';
+    }
+    if(padCell){ padCell._prevPad = padCell.style.paddingLeft; padCell.style.paddingLeft='180px'; }
+  }else{
+    if(cfg){ cfg.style.display = cfg._prevDisplay || ''; delete cfg._prevDisplay; }
+    if(printLines){ printLines.style.display = printLines._prevDisplay || ''; delete printLines._prevDisplay; }
+    if(printProc){ printProc.style.display = printProc._prevDisplay || ''; delete printProc._prevDisplay; }
+    if(mascote && mascote._prev){
+      mascote.style.position = mascote._prev.pos || '';
+      mascote.style.width = mascote._prev.w || '';
+      mascote.style.left = mascote._prev.l || '';
+      mascote.style.top = mascote._prev.t || '';
+      delete mascote._prev;
+    }
+    if(padCell){ padCell.style.paddingLeft = padCell._prevPad || ''; delete padCell._prevPad; }
+  }
+}
+
+/* Gera Blob PDF da .page com quebra automática em A4 */
+async function generatePdfBlob(){
+  await ensurePdfLibs();
+  const { jsPDF } = window.jspdf;
+
+  const node = document.querySelector('.page');
+  toggleCaptureMode(true);
+
+  // captura em alta resolução
+  const canvas = await html2canvas(node, { scale: 2, backgroundColor:'#ffffff', useCORS:true });
+
+  toggleCaptureMode(false);
+
+  // montar PDF multipágina
+  const pdf = new jsPDF({ orientation:'p', unit:'mm', format:'a4' });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const margin = 14;
+  const targetW = pageW - margin*2;
+  const targetHAvail = pageH - margin*2;
+
+  const scaleMMperPX = targetW / canvas.width;
+  const sliceHeightPX = Math.floor(targetHAvail / scaleMMperPX);
+
+  const sliceCanvas = document.createElement('canvas');
+  const ctx = sliceCanvas.getContext('2d');
+
+  let y = 0, page = 0;
+  while(y < canvas.height){
+    const h = Math.min(sliceHeightPX, canvas.height - y);
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = h;
+    ctx.clearRect(0,0,sliceCanvas.width,sliceCanvas.height);
+    ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
+
+    const img = sliceCanvas.toDataURL('image/jpeg', 0.98);
+    const hMM = h * scaleMMperPX;
+
+    if(page > 0) pdf.addPage();
+    pdf.addImage(img, 'JPEG', margin, margin, targetW, hMM, undefined, 'FAST');
+
+    y += h; page++;
+  }
+
+  return pdf.output('blob');
+}
+
+/* Compartilha o PDF via Web Share API (fallback: download) */
+async function sharePdfOfPage(){
+  try{
+    const blob = await generatePdfBlob();
+    const fileName = (document.title || 'documento') + '.pdf';
+    const file = new File([blob], fileName, { type: 'application/pdf' });
+
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({
+        files: [file],
+        title: document.title,
+        text: 'Pós-operatório – orientações'
+      });
+    }else{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      alert('Seu navegador não suporta compartilhar arquivos. Baixei o PDF para você enviar.');
+    }
+  }catch(err){
+    console.error(err);
+    alert('Não consegui gerar o PDF agora. Tente novamente.');
+  }
+}
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-

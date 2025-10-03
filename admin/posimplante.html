@@ -160,21 +160,96 @@
   .print-lines{ display:none }
   .print-line{ font-weight:600 }
   .print-line small{font-weight:700; color:var(--muted-2)}
+
+  /* ====== HAMBURGUER + OVERLAY ====== */
+.menu-icon{
+  height:30px; width:30px; position:fixed; z-index:60; left:14px; top:14px;
+  cursor:pointer; display:none; /* só mobile; ver media query abaixo */
+}
+.menu-icon__line{
+  height:2px; width:30px; display:block; background-color:var(--text);
+  margin-bottom:5px; transition:transform .2s ease, background-color .5s ease;
+}
+.menu-icon__line-left{ width:15px }
+.menu-icon__line-right{ width:15px; float:right }
+
+/* overlay base */
+.nav{ position:fixed; inset:0; z-index:50; visibility:hidden }
+.nav::before, .nav::after{
+  content:""; position:fixed; inset:0; background:rgba(234,234,234,.2);
+  transform:translateY(-100%); transition:transform .8s cubic-bezier(.77,0,.175,1);
+}
+.nav::after{ background:#ffffff; transition-delay:0s }
+.nav::before{ transition-delay:.1s }
+
+.nav__content{
+  position:fixed; top:50%; left:0; width:100%; transform:translateY(-50%);
+  text-align:center; font-size:calc(2vw + 10px); font-weight:200; color:#000; cursor:pointer;
+}
+.nav__list-item{
+  display:inline-block; margin:0 10px 12px; padding:6px 10px; position:relative;
+  opacity:0; transform:translateY(100%); transition:opacity .3s ease, transform .3s ease, color .3s ease;
+}
+.nav__list-item::before{
+  content:""; position:absolute; left:0; right:auto; bottom:-3px; width:20px; height:1px;
+  background:#000; transition:width .3s ease
+}
+.nav__list-item:hover::before{ width:100% }
+
+/* estado ativo */
+body.nav-active .menu-icon__line{ background-color:#000; transform:translateX(0) rotate(-45deg) }
+body.nav-active .menu-icon__line-left{ transform:translateX(1px) rotate(45deg) }
+body.nav-active .menu-icon__line-right{ transform:translateX(-2px) rotate(45deg) }
+
+body.nav-active .nav{ visibility:visible }
+body.nav-active .nav::before, body.nav-active .nav::after{ transform:translateY(0) }
+body.nav-active .nav::after{ transition-delay:.1s }
+body.nav-active .nav::before{ transition-delay:0s }
+body.nav-active .nav__list-item{
+  opacity:1; transform:translateY(0)
+}
+body.nav-active .nav__list-item:nth-child(1){ transition-delay:.55s }
+body.nav-active .nav__list-item:nth-child(2){ transition-delay:.65s }
+body.nav-active .nav__list-item:nth-child(3){ transition-delay:.75s }
+body.nav-active .nav__list-item:nth-child(4){ transition-delay:.85s }
+body.nav-active .nav__list-item:nth-child(5){ transition-delay:.95s }
+body.nav-active .nav__list-item:nth-child(6){ transition-delay:1.05s }
+
+/* responsivo: mostra hambúrguer, esconde a configbar (já é empilhável no seu CSS) */
+@media (max-width:700px){
+  .menu-icon{ display:block }
+  .configbar{ padding-left:52px } /* espaço pro ícone */
+}
+
+/* print: esconde overlay/ícone */
+@media print{
+  .menu-icon, .nav{ display:none !important }
+}
+
+  
 </style>
 </head>
 <body>
-  <div class="page">
+<!-- HAMBURGUER + OVERLAY NAV -->
+<div class="menu-icon" aria-label="Abrir menu" role="button" tabindex="0">
+  <span class="menu-icon__line menu-icon__line-left"></span>
+  <span class="menu-icon__line"></span>
+  <span class="menu-icon__line menu-icon__line-right"></span>
+</div>
 
-    <!-- ====== NAVBAR DE CONFIG (Procedimentos antes de Endereço) ====== -->
-    <nav class="configbar" aria-label="Configurações">
-      <!-- Procedimentos -->
-      <div class="menu" id="m-proc">
-        <button class="menubtn" type="button">Procedimentos</button>
-        <div class="dropdown" role="menu" id="dd-proc">
-          <div class="dd-title">Selecione um procedimento</div>
-          <div id="dd-proc-list"></div>
-        </div>
-      </div>
+<div class="nav" aria-hidden="true">
+  <div class="nav__content">
+    <ul class="nav__list">
+      <li class="nav__list-item" data-open="#m-proc">Procedimentos</li>
+      <li class="nav__list-item" data-open="#m-address">Endereço</li>
+      <li class="nav__list-item" data-open="#m-logo">Logo</li>
+      <li class="nav__list-item" data-open="#m-dados">Dados</li>
+      <li class="nav__list-item" data-action="pdf">Gerar PDF</li>
+      <li class="nav__list-item" data-action="share">Compartilhar</li>
+    </ul>
+  </div>
+</div>
+
 
       <!-- Endereço -->
       <div class="menu" id="m-address">
@@ -712,9 +787,76 @@
     buildProcDropdown();
     rebuildAddressDropdown();
     setProcedure(currentProcKey, currentProcLabel);
+
+    /* ====== HAMBURGUER NAV WIRES ====== */
+(function(){
+  const body = document.body;
+  const icon = document.querySelector('.menu-icon');
+  const nav  = document.querySelector('.nav');
+
+  function toggleNav(force){
+    const on = force !== undefined ? force : !body.classList.contains('nav-active');
+    body.classList.toggle('nav-active', on);
+    nav.setAttribute('aria-hidden', on ? 'false' : 'true');
+  }
+
+  // abre/fecha
+  icon.addEventListener('click', ()=> toggleNav());
+  icon.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); toggleNav(); } });
+
+  // fechar tocando fora
+  nav.addEventListener('click', (e)=>{ if(e.target === nav) toggleNav(false); });
+
+  // mapeia itens do overlay para as ações existentes
+  document.querySelectorAll('.nav__list-item').forEach(li=>{
+    li.addEventListener('click', ()=>{
+      const ddTarget = li.getAttribute('data-open');
+      const action   = li.getAttribute('data-action');
+
+      // fecha overlay
+      toggleNav(false);
+
+      // aguarda a animação finalizar um tico pra UX
+      setTimeout(()=>{
+        if(ddTarget){
+          // abre a dropdown correspondente na configbar
+          const menu = document.querySelector(ddTarget);
+          const dd = menu?.querySelector('.dropdown');
+          if(dd){
+            // fecha outras e abre esta
+            document.querySelectorAll('.configbar .dropdown').forEach(d=>d.classList.remove('open'));
+            dd.classList.add('open');
+            // scroll até a barra (mobile)
+            menu.scrollIntoView({behavior:'smooth', block:'start'});
+          }
+        }else if(action === 'pdf'){
+          window.print();
+        }else if(action === 'share'){
+          (async ()=>{
+            try{
+              const title = document.title;
+              const url = location.href;
+              if(navigator.share){
+                await navigator.share({title, url, text:"Orientações pós-operatórias"});
+              }else{
+                await navigator.clipboard.writeText(url);
+                alert("Link copiado para a área de transferência.");
+              }
+            }catch(e){}
+          })();
+        }
+      }, 200);
+    });
+  });
+
+  // fecha overlay com ESC
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') toggleNav(false); });
+})();
+
   </script>
 </body>
 </html>
+
 
 
 

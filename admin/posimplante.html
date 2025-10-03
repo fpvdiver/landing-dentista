@@ -1,844 +1,642 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pós-Operatório – Orientações | Dra. Elen Nogata</title>
-<style>
-  :root{
-    --brand:#0a6ebd; --brand-600:#0a66ae; --brand-50:#eff6ff;
-    --text:#0f172a; --muted:#475569; --muted-2:#94a3b8;
-    --bg:#ffffff; --card:#ffffff; --line:#e5e7eb; --chip:#f1f5f9; --radius:14px;
-    --shadow:0 6px 24px rgba(2,6,23,.06);
-  }
-  *{box-sizing:border-box}
-  html,body{
-    margin:0;padding:0;background:var(--bg);color:var(--text);
-    font:12.75px/1.45 "Inter",system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  }
-  .page{max-width:900px;margin:26px auto;padding:22px;background:var(--card);
-        border:1px solid var(--line);border-radius:20px}
-
-  /* ====== CONFIG BAR (navbar) ====== */
-  .configbar{
-    position:relative;
-    display:flex; gap:10px; align-items:center; margin-bottom:12px;
-    padding:8px 10px;
-    border-radius:14px;
-    background:linear-gradient(180deg,#ffffff, #fafbff);
-    border:1px solid var(--line);
-    box-shadow:var(--shadow);
-    flex-wrap:wrap;
-  }
-  .configbar .menu{ position:relative; }
-  .configbar .menubtn{
-    appearance:none; border:1px solid var(--line); background:#fff; color:var(--text);
-    padding:9px 14px; border-radius:999px; font-weight:700; cursor:pointer;
-    transition:all .15s ease; display:inline-flex; align-items:center; gap:8px;
-  }
-  .configbar .menubtn::after{content:"▾"; font-size:11px; color:var(--muted)}
-  .configbar .menubtn:hover{ border-color:var(--brand); box-shadow:0 4px 14px rgba(2,6,23,.06) }
-  .configbar .menubtn:focus{ outline:2px solid var(--brand-50); outline-offset:2px }
-
-  .configbar .dropdown{
-    position:absolute; top:110%; left:0; min-width:280px; z-index:20;
-    background:#fff; border:1px solid var(--line); border-radius:12px;
-    box-shadow:0 16px 40px rgba(2,6,23,.12);
-    display:none; padding:8px;
-  }
-  .configbar .dropdown.open{ display:block; animation:ddIn .12s ease-out }
-  @keyframes ddIn{ from{transform:translateY(-4px); opacity:0} to{transform:none; opacity:1}}
-
-  .configbar .dd-title{ font-size:12px; color:var(--muted); margin:4px 8px 8px; }
-  .configbar .dd-item{
-    width:100%; text-align:left; padding:10px 12px; border-radius:10px;
-    border:1px solid transparent; background:#fff; cursor:pointer; font-weight:600;
-    transition:all .12s ease;
-  }
-  .configbar .dd-item:hover{ background:#f8fafc; border-color:#e5e7eb; }
-  .configbar .dd-sep{ height:1px; background:#e5e7eb; margin:8px 0; }
-  .configbar .push-right{ margin-left:auto }
-
-  /* ====== RESPONSIVO NAVBAR ====== */
-  @media (max-width:600px){
-    .configbar{ gap:8px; padding:8px }
-    .configbar .menu{ width:100% }
-    .configbar .menubtn{ width:100%; justify-content:space-between }
-    .configbar .dropdown{
-      position:static; width:100%; margin-top:6px; display:none;
-    }
-    .configbar .dropdown.open{ display:block }
-  }
-
-  /* ====== HEADER ====== */
-  header{
-    position:relative;
-    display:grid;
-    grid-template-columns: 1fr auto;
-    align-items:center;
-    gap:14px;
-    margin-bottom:8px;
-  }
-  .logo-wrap{ grid-column:1 / -1; display:flex; justify-content:center; align-items:center; }
-  .logo{
-    width:377px; height:85px; border-radius:14px; overflow:hidden;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .logo img{width:90%; height:330%; object-fit:contain; display:block}
-  .clinic-box{ grid-column:2 / 3; justify-self:end; text-align:right; }
-  .clinic-box h1{margin:0;font-size:18px;letter-spacing:.2px}
-  .clinic-box .meta{color:var(--muted);font-size:12px}
-
-  .hr{height:1px;background:var(--line);margin:12px 0}
-
-  h2.title{margin:0 0 4px 0;font-size:17px;text-align:center}
-  .subtitle{color:var(--muted);font-size:11.5px;text-align:center;margin-bottom:10px}
-
-  /* ====== TABELAS ====== */
-  .section{margin-top:12px;page-break-inside:avoid}
-  .section h3{margin:0 0 6px 0;font-size:14px;color:var(--brand)}
-
-  .info-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;
-              border-radius:14px;border:1px solid var(--line)}
-  .info-table thead th{background:var(--brand);color:#fff;text-align:left;padding:8px 10px;font-size:12.25px}
-  .info-table td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
-  .info-table tbody tr:nth-child(odd) td{background:#f8fafc}
-  .chip{display:inline-block;background:var(--chip);padding:4px 8px;border-radius:999px;
-        font-size:11px;color:var(--muted)}
-
-  /* ====== MASCOTE NO BLOCO HERO ====== */
-  .hero-wrap{ position:relative; }
-  .mascote{
-    position:absolute; left:28px; top:-18px; width:150px; height:auto;
-    filter:drop-shadow(0 2px 0 rgba(0,0,0,.06)); user-select:none; pointer-events:none;
-  }
-  .pad-left-mascote{ padding-left:160px }
-  @media (max-width:845px){
-    .mascote{ left:-15px; top:-35px; width:149px }
-    .pad-left-mascote{ padding-left:140px }
-  }
-  @media (max-width:933px){
-    .mascote{ left:-23px; top:-49px; width:145px }
-    .pad-left-mascote{ padding-left:140px }
-  }
-
-  footer{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-         font-size:11.5px;color:var(--muted)}
-  .brand-badge{display:inline-flex;align-items:center;gap:8px;background:var(--chip);padding:6px 10px;border-radius:999px}
-
-  /* ====== PRINT (PDF) ====== */
-  @page { size: A4; margin: 14mm; }
-  @media print{
-    html,body{font-size:12px}
-    .page{margin:0;border:none;border-radius:0}
-    .configbar{display:none !important}
-
-    .hero-wrap{ position:relative }
-    .mascote{
-      position:absolute !important; width:230px !important; left:-10px !important; top:-200px !important;
-      margin:0 !important; print-color-adjust:exact; -webkit-print-color-adjust:exact;
-    }
-    .pad-left-mascote{ padding-left:180px !important }
-
-    *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important}
-    .info-table thead th{background:#0a6ebd !important; color:#fff !important}
-    .info-table tbody tr:nth-child(odd) td{background:#f8fafc !important}
-    .info-table{border-color:#e5e7eb !important}
-    .info-table td{border-top-color:#e5e7eb !important}
-    .chip{background:#f1f5f9 !important; color:#475569 !important}
-    .brand-badge{background:#f1f5f9 !important; color:#475569 !important}
-
-    .print-lines{ display:block !important; text-align:right; margin-top:2px; }
-    .print-line{ display:block !important; font-weight:600; margin:0; }
-    .print-line small{ color:#64748b !important; font-weight:700 }
-    #print-proc{display:none !important}
-  }
-
-  /* Linhas espelhadas (somem na tela) */
-  .print-lines{ display:none }
-  .print-line{ font-weight:600 }
-  .print-line small{font-weight:700; color:var(--muted-2)}
-
-  /* botões PDF + Compartilhar lado a lado + hover igual dropdown */
-  #m-enviar{
-    margin-left:auto; display:flex; gap:10px; align-items:center;
-  }
-  #m-enviar .dd-item{
-    display:inline-flex; align-items:center; justify-content:center;
-    padding:9px 14px; border-radius:999px; font-weight:700;
-    border:1px solid var(--line); background:#fff; cursor:pointer;
-    transition:all .15s ease;
-  }
-  #m-enviar .dd-item:hover{ background:#f8fafc; border-color:#e5e7eb; box-shadow:0 4px 14px rgba(2,6,23,.06) }
-  #dd-print{ background:#0a6ebd; color:#000; border-color:#0a6ebd; }
-  #dd-share{ background:#16a34a; color:#000; border-color:#16a34a; }
-
-  @media (max-width:600px){
-    #m-enviar{ width:100%; }
-    #m-enviar .dd-item{ flex:1 }
-  }
-
-  /* ====== MODO CAPTURA PDF (força ajustes do @media print na renderização html2canvas) */
-  body.pdf-capture .configbar{ display:none !important; }
-  body.pdf-capture .print-lines{ display:block !important; text-align:right; margin-top:2px; }
-  body.pdf-capture #print-proc{ display:none !important; }
-  body.pdf-capture .mascote{ position:absolute !important; width:230px !important; left:-10px !important; top:-200px !important; }
-  body.pdf-capture .pad-left-mascote{ padding-left:180px !important; }
-</style>
-</head>
-<body>
-  <div class="page">
-
-    <!-- ====== NAVBAR ====== -->
-    <nav class="configbar" aria-label="Configurações">
-      <!-- Procedimentos -->
-      <div class="menu" id="m-proc">
-        <button class="menubtn" type="button">Procedimentos</button>
-        <div class="dropdown" role="menu" id="dd-proc">
-          <div class="dd-title">Selecione um procedimento</div>
-          <div id="dd-proc-list"></div>
-        </div>
-      </div>
-
-      <!-- Endereço -->
-      <div class="menu" id="m-address">
-        <button class="menubtn" type="button">Endereço</button>
-        <div class="dropdown" role="menu" id="dd-address">
-          <div class="dd-title">Endereços cadastrados</div>
-          <div id="dd-address-list"></div>
-          <div class="dd-sep"></div>
-          <button class="dd-item" type="button" id="dd-new-address">Outro endereço…</button>
-        </div>
-      </div>
-
-      <!-- Logo -->
-      <div class="menu" id="m-logo">
-        <button class="menubtn" type="button">Logo</button>
-        <div class="dropdown" role="menu">
-          <button class="dd-item" type="button" id="dd-edit-logo">Editar a logo</button>
-        </div>
-      </div>
-
-      <!-- Dados -->
-      <div class="menu" id="m-dados">
-        <button class="menubtn" type="button">Dados</button>
-        <div class="dropdown" role="menu">
-          <button class="dd-item" type="button" id="dd-edit-nome">Alterar nome</button>
-          <button class="dd-item" type="button" id="dd-edit-cro">Alterar CROSP</button>
-        </div>
-      </div>
-
-      <!-- Ações -->
-      <div class="menu push-right" id="m-enviar">
-        <button class="dd-item" type="button" id="dd-print">PDF</button>
-        <button class="dd-item" type="button" id="dd-share">Compartilhar</button>
-      </div>
-    </nav>
-
-    <header>
-      <div class="logo-wrap">
-        <div class="logo">
-          <img id="logo-img" src="../../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
-        </div>
-      </div>
-      <div class="clinic-box">
-        <h1 id="clinic-name">Dra. Elen Nogata</h1>
-        <div class="meta">CROSP: <span id="clinic-cro">76.956</span></div>
-      </div>
-    </header>
-
-    <div class="hr"></div>
-
-    <!-- Linhas exibidas só no PDF -->
-    <div class="print-lines">
-      <div class="print-line" id="print-address"><small>Endereço:</small> <span></span></div>
-      <div class="print-line" id="print-proc"><small>Procedimento:</small> <span></span></div>
-    </div>
-
-    <h2 class="title" id="doc-title">Cuidados Pós-Operatórios – Exodontia de Siso</h2>
-    <div class="subtitle" id="doc-subtitle">Primeiras 72h são decisivas para cicatrização</div>
-
-    <!-- ====== HERO ====== -->
-    <section class="section hero-wrap" aria-label="Mensagem e próximos passos">
-      <img class="mascote" src="../../images/avatarElen.png" alt="Mensagem da equipe" />
-      <table class="info-table">
-        <thead>
-          <tr><th style="width:40%"></th><th>Próximos passos</th></tr>
-        </thead>
-        <tbody id="tb-hero">
-          <tr>
-            <td class="pad-left-mascote"></td>
-            <td>Selecione o procedimento acima para ver as orientações específicas da sua recuperação.</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- Primeiras 24h -->
-    <section class="section">
-      <h3 id="h24h">Primeiras 24 horas</h3>
-      <table class="info-table" aria-label="Primeiras 24 horas">
-        <thead><tr><th>Orientação</th><th>Detalhes</th></tr></thead>
-        <tbody id="tb-24h"></tbody>
-      </table>
-    </section>
-
-    <!-- Medicação -->
-    <section class="section">
-      <h3>Medicação</h3>
-      <table class="info-table" aria-label="Medicação">
-        <thead><tr><th>Item</th><th>Orientação</th></tr></thead>
-        <tbody id="tb-med"></tbody>
-      </table>
-    </section>
-
-    <!-- Alimentação -->
-    <section class="section">
-      <h3>Alimentação</h3>
-      <table class="info-table" aria-label="Alimentação">
-        <thead><tr><th>Preferir</th><th>Evitar</th></tr></thead>
-        <tbody id="tb-alim"></tbody>
-      </table>
-    </section>
-
-    <!-- Higiene -->
-    <section class="section">
-      <h3>Higiene</h3>
-      <table class="info-table" aria-label="Higiene">
-        <thead><tr><th>Escovação</th><th>Enxágue</th></tr></thead>
-        <tbody id="tb-hig"></tbody>
-      </table>
-    </section>
-
-    <!-- Adicionais -->
-    <section class="section">
-      <h3 id="h-extra">Cuidados adicionais</h3>
-      <table class="info-table" aria-label="Cuidados adicionais">
-        <thead><tr><th>Item</th><th>Orientação</th></tr></thead>
-        <tbody id="tb-extra"></tbody>
-      </table>
-    </section>
-
-    <!-- Retorno -->
-    <section class="section">
-      <h3>Retorno e sinais de alerta</h3>
-      <table class="info-table" aria-label="Retorno">
-        <thead><tr><th>Retorno</th><th>Contate a clínica se houver</th></tr></thead>
-        <tbody id="tb-ret"></tbody>
-      </table>
-    </section>
-
-    <footer>
-      <div class="brand-badge"><strong>Dra. Elen Nogata</strong> · CROSP 76.956</div>
-      <div>Documento informativo – siga sempre as recomendações da sua cirurgiã</div>
-    </footer>
-  </div>
-
-  <script>
-    /* ========= STORAGE KEYS ========= */
-    const ADDR_STORAGE_KEY = "posimplante_enderecos_v1";
-    const LOGO_STORAGE_KEY = "posimplante_logo_url_v1";
-    const NAME_STORAGE_KEY = "posimplante_nome_v1";
-    const CRO_STORAGE_KEY  = "posimplante_cro_v1";
-
-    /* ========= ENDEREÇOS ========= */
-    const DEFAULT_ADDR = [
-      "Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004"
-    ];
-    function loadAddrs(){
-      try{
-        const data = JSON.parse(localStorage.getItem(ADDR_STORAGE_KEY));
-        return Array.isArray(data) && data.length ? data : DEFAULT_ADDR.slice();
-      }catch{ return DEFAULT_ADDR.slice(); }
-    }
-    function saveAddrs(list){ localStorage.setItem(ADDR_STORAGE_KEY, JSON.stringify(list)); }
-
-    let selectedAddrIndex = 0;
-
-    /* ========= PROCEDIMENTOS ========= */
-    const PROCS = [
-      {key:"siso",         label:"Pós-Exo de Siso"},
-      {key:"extracao",     label:"Pós-Extração"},
-      {key:"canal",        label:"Pós-Tratamento de Canal"},
-      {key:"restauracao",  label:"Pós-Restauração"},
-      {key:"limpeza",      label:"Pós-Limpeza"},
-      {key:"clareamento",  label:"Pós-Clareamento"},
-      {key:"implante",     label:"Pós-Implante (modelo)"}
-    ];
-    let currentProcKey = "siso";
-    let currentProcLabel = PROCS.find(p=>p.key===currentProcKey).label;
-
-    /* ========= CONFIG BAR: build menus ========= */
-    const ddAddressList = document.getElementById('dd-address-list');
-    const ddProcList = document.getElementById('dd-proc-list');
-
-    function rebuildAddressDropdown(){
-      const addrs = loadAddrs();
-      ddAddressList.innerHTML = addrs.map((a,i)=>`
-        <button class="dd-item" data-addr-idx="\${i}" type="button">\${a}</button>
-      `).join('');
-      ddAddressList.querySelectorAll('.dd-item').forEach(btn=>{
-        btn.addEventListener('click', e=>{
-          selectedAddrIndex = Number(e.currentTarget.getAttribute('data-addr-idx'));
-          updatePrintMirrors();
-          closeAllDropdowns();
-        });
-      });
-    }
-    document.getElementById('dd-new-address').addEventListener('click', ()=>{
-      const val = prompt("Digite o novo endereço:");
-      if(!val) return;
-      const list = loadAddrs(); list.push(val.trim());
-      saveAddrs(list); selectedAddrIndex = list.length-1;
-      rebuildAddressDropdown(); updatePrintMirrors(); closeAllDropdowns();
-    });
-
-    function buildProcDropdown(){
-      ddProcList.innerHTML = PROCS.map(p=>`
-        <button class="dd-item" data-proc="\${p.key}" type="button">\${p.label}</button>
-      `).join('');
-      ddProcList.querySelectorAll('.dd-item').forEach(btn=>{
-        btn.addEventListener('click', e=>{
-          const key = e.currentTarget.getAttribute('data-proc');
-          const label = PROCS.find(p=>p.key===key)?.label || "";
-          setProcedure(key, label);
-          closeAllDropdowns();
-        });
-      });
-    }
-
-    /* ========= LOGO / DADOS ========= */
-    const logoImg = document.getElementById('logo-img');
-    const clinicName = document.getElementById('clinic-name');
-    const clinicCro  = document.getElementById('clinic-cro');
-
-    (function initBranding(){
-      const logoUrl = localStorage.getItem(LOGO_STORAGE_KEY);
-      if(logoUrl) logoImg.src = logoUrl;
-      const nm = localStorage.getItem(NAME_STORAGE_KEY);
-      if(nm) clinicName.textContent = nm;
-      const cro = localStorage.getItem(CRO_STORAGE_KEY);
-      if(cro) clinicCro.textContent = cro;
-    })();
-
-    document.getElementById('dd-edit-logo').addEventListener('click', ()=>{
-      const url = prompt("Cole a URL da nova logo (PNG/SVG/JPG):", logoImg.src);
-      if(!url) return;
-      logoImg.src = url;
-      localStorage.setItem(LOGO_STORAGE_KEY, url);
-      closeAllDropdowns();
-    });
-    document.getElementById('dd-edit-nome').addEventListener('click', ()=>{
-      const v = prompt("Nome para exibir:", clinicName.textContent);
-      if(!v) return;
-      clinicName.textContent = v.trim();
-      localStorage.setItem(NAME_STORAGE_KEY, v.trim());
-      closeAllDropdowns();
-    });
-    document.getElementById('dd-edit-cro').addEventListener('click', ()=>{
-      const v = prompt("CROSP (apenas números e pontos):", clinicCro.textContent);
-      if(!v) return;
-      clinicCro.textContent = v.trim();
-      localStorage.setItem(CRO_STORAGE_KEY, v.trim());
-      closeAllDropdowns();
-    });
-
-    /* ========= ENVIAR ========= */
-    document.getElementById('dd-print').addEventListener('click', ()=>{ window.print(); closeAllDropdowns(); });
-    document.getElementById('dd-share').addEventListener('click', async ()=>{
-      await sharePdfOfPage(); // gera e compartilha PDF em múltiplas páginas
-      closeAllDropdowns();
-    });
-
-    // dropdown toggles
-    document.querySelectorAll('.configbar .menubtn').forEach(btn=>{
-      btn.addEventListener('click', e=>{
-        const dd = e.currentTarget.parentElement.querySelector('.dropdown');
-        const open = dd.classList.contains('open');
-        closeAllDropdowns();
-        if(!open) dd.classList.add('open');
-      });
-    });
-    function closeAllDropdowns(){ document.querySelectorAll('.configbar .dropdown').forEach(d=>d.classList.remove('open')); }
-    document.addEventListener('click', (e)=>{ if(!e.target.closest('.configbar')) closeAllDropdowns(); });
-
-    /* ========= DADOS POR PROCEDIMENTO ========= */
-    const DATA = {
-      implante: {
-        title: "Cuidados Pós-Operatórios – Implantes Dentários",
-        subtitle: "Orientações essenciais para cicatrização adequada",
-        hero: "Nas próximas semanas: siga as orientações abaixo, tome as medicações conforme prescrição, mantenha a higiene indicada e compareça à <b>consulta de revisão</b> agendada. Se notar dor intensa, febre ou sangramento contínuo, entre em contato.",
-        _24h: [
-          ["<strong>Gelo</strong> <span class='chip'>2–8 h</span>","Compressas externas: <b>15 min com</b> / <b>15 min sem</b>."],
-          ["<strong>Evitar</strong>","Não cuspir, não bochechar vigorosamente, não manipular a região com língua/dedos/objetos."],
-          ["<strong>Repouso</strong>","Dormir com a cabeça levemente elevada. Pequeno sangramento é normal."]
-        ],
-        med: [
-          ["<strong>Prescrições</strong>","Tomar <b>exatamente</b> conforme indicado (antibiótico, anti-inflamatório, analgésico)."],
-          ["<strong>Segurança</strong>","Não interromper por conta própria. Informe alergias/reação adversa."]
-        ],
-        alim: [
-          ["Alimentos frios/ambiente nas primeiras 24h; dieta <b>líquida/pastosa</b> (iogurte, purês, sopas frias, vitaminas).",
-           "Quentes, duros, apimentados, ácidos; bebidas alcoólicas e gaseificadas."]
-        ],
-        hig: [
-          ["Escove os demais dentes normalmente, <b>evitando</b> a área operada por 24h.",
-           "Somente após 24h e se <b>prescrito</b>, bochecho suave com enxaguante indicado."]
-        ],
-        extraTitle: "Cuidados adicionais",
-        extra: [
-          ["<strong>Tabagismo</strong>","<b>Não fumar</b>: compromete a cicatrização/osseointegração."],
-          ["<strong>Atividade física</strong>","Evitar esforço por <b>48h</b>."],
-          ["<strong>Edema</strong>","Pode aumentar até o 3º dia e reduzir gradualmente."],
-          ["<strong>Próteses removíveis</strong>","Evitar apoio na área operada até liberação clínica."]
-        ],
-        ret: [
-          ["Agende a revisão conforme orientação da equipe.",
-           "Dor intensa, febre, sangramento contínuo, gosto/supuração persistente."]
-        ]
-      },
-
-      siso: {
-        title: "Cuidados Pós-Operatórios – Exodontia de Siso",
-        subtitle: "Primeiras 72h são decisivas para cicatrização",
-        hero: "Após a extração do siso, controle o sangramento mordendo <b>gaze por 30–45 min</b>. Mantenha repouso relativo e siga abaixo as orientações.",
-        _24h: [
-          ["<strong>Gelo</strong> <span class='chip'>24–48 h</span>","Face do lado operado: 15 min com / 15 min sem."],
-          ["<strong>Hemostasia</strong>","Gaze bem posicionada por 30–45 min. Se necessário, trocar e repetir."],
-          ["<strong>Evitar sucção</strong>","Não usar canudo, não cuspir, não fumar nas primeiras 72h."]
-        ],
-        med: [
-          ["<strong>Analgésico/anti-inflamatório</strong>","Conforme prescrição. Iniciar antes de a anestesia passar se orientado."],
-          ["<strong>Antibiótico</strong>","Apenas se prescrito. <b>Complete o ciclo</b>."]
-        ],
-        alim: [
-          ["Frio/morno, macio: iogurte, sorvete, purês, sopas frias, vitaminas sem sementes. Mastigue do <b>lado oposto</b>.",
-           "Quente, duro, picante, ácido; bebidas alcoólicas e gaseificadas."]
-        ],
-        hig: [
-          ["Escovação suave longe do alvéolo nas primeiras 24h.",
-           "Bochecho só após 24h (se indicado, com enxaguante prescrito)."]
-        ],
-        extraTitle: "Cuidados adicionais",
-        extra: [
-          ["<strong>Tabagismo</strong>","Abstenha-se por <b>72h</b> (ideal 7 dias) para evitar alveolite."],
-          ["<strong>Atividade</strong>","Evite esforços por 48h."],
-          ["<strong>Edema/hematoma</strong>","Pico até o 3º dia. Elevação da cabeça ao dormir ajuda."],
-          ["<strong>Pontos</strong>","Retorno para remoção conforme agendado."]
-        ],
-        ret: [
-          ["Retorno conforme orientação (remoção de pontos/controle).",
-           "Sangramento que não cessa, dor que piora após 48–72h, febre, mau cheiro/sabor persistente."]
-        ]
-      },
-
-      extracao: {
-        title: "Cuidados Pós-Operatórios – Extração Dentária",
-        subtitle: "Proteja o coágulo e evite esforços nas primeiras 48h",
-        hero: "Morda gaze por 30 minutos após a extração para formar o coágulo. Evite bochechos vigorosos e sucção.",
-        _24h: [
-          ["<strong>Repouso</strong>","Cabeça elevada nas primeiras noites."],
-          ["<strong>Gelo</strong> <span class='chip'>6–8 h</span>","15 min com / 15 min sem na face."],
-          ["<strong>Evitar</strong>","Cigarro, álcool, canudo e cuspir."]
-        ],
-        med: [
-          ["<strong>Analgésico/anti-inflamatório</strong>","Conforme prescrição."],
-          ["<strong>Antibiótico</strong>","Somente se indicado; não interromper sem orientação."]
-        ],
-        alim: [
-          ["Líquida/pastosa fria nas primeiras 24h; morna no dia seguinte.",
-           "Quente, crocante, sementes que possam impactar no alvéolo."]
-        ],
-        hig: [
-          ["Escove os outros dentes normalmente; evite o alvéolo por 24h.",
-           "Enxágue leve somente após 24h, se indicado (sem álcool)."]
-        ],
-        extraTitle: "Cuidados adicionais",
-        extra: [
-          ["<strong>Atividade física</strong>","Evitar 48h."],
-          ["<strong>Sangramento discreto</strong>","Gaze por 30 min. Persistindo, contate a clínica."],
-          ["<strong>Edema</strong>","Pico 48–72h, depois regride."]
-        ],
-        ret: [
-          ["Retorno conforme necessidade/avaliação.",
-           "Sangramento contínuo, dor intensa, febre, sabor/odor desagradável."]
-        ]
-      },
-
-      canal: {
-        title: "Cuidados Pós-Operatórios – Tratamento de Canal",
-        subtitle: "Controle de sensibilidade e proteção do dente tratado",
-        hero: "É comum sensibilidade ao mastigar por alguns dias. Use o lado oposto e siga as medicações se prescritas.",
-        _24h: [
-          ["<strong>Proteção</strong>","Evite mastigar alimentos duros no dente tratado até a restauração definitiva."],
-          ["<strong>Desconforto</strong>","Sensibilidade leve a moderada é esperada por 2–5 dias."]
-        ],
-        med: [
-          ["<strong>Analgésico/anti-inflamatório</strong>","Use conforme prescrição."],
-          ["<strong>Antibiótico</strong>","Somente se indicado (casos com infecção)."]
-        ],
-        alim: [
-          ["Textura macia inicialmente; mastigue do lado oposto.",
-           "Balas, castanhas, torresmo, gelo, sementes no dente tratado."]
-        ],
-        hig: [
-          ["Higiene normal com escova macia e fio dental.",
-           "Evite bochechos agressivos no dia do procedimento se houver sensibilidade."]
-        ],
-        extraTitle: "Cuidados adicionais",
-        extra: [
-          ["<strong>Restauração</strong>","Concluir restauração/coroa <b>o quanto antes</b> para evitar fraturas."],
-          ["<strong>Contato oclusal</strong>","Se sentir dente “alto”, procure ajuste."]
-        ],
-        ret: [
-          ["Retorno para restauração definitiva e controle radiográfico.",
-           "Dor que não cede com analgésico, aumento de inchaço/febre, fratura do dente."]
-        ]
-      },
-
-      restauracao: {
-        title: "Cuidados Pós-Operatórios – Restauração",
-        subtitle: "Ajuste oclusal e sensibilidade podem ocorrer",
-        hero: "Após restauração, pode haver leve sensibilidade ao frio/quente. Caso sinta o dente alto, retorne para ajuste.",
-        _24h: [
-          ["<strong>Alimentação</strong>","Espere a anestesia passar para evitar morder a bochecha/língua."],
-          ["<strong>Mastigação</strong>","Preferir o lado oposto no primeiro dia."]
-        ],
-        med: [
-          ["<strong>Analgésico</strong>","Se necessário, conforme orientação."],
-          ["<strong>Anti-inflamatório</strong>","Somente se prescrito."]
-        ],
-        alim: [
-          ["Textura macia no início.",
-           "Muito duros/pegajosos (caramelos, torrones) no dente restaurado nas primeiras 24–48h."]
-        ],
-        hig: [
-          ["Higiene normal com escova macia e fio dental.",
-           "Evite forçar fio dental em restauração recente se estiver “pegando”; retorne para ajuste."]
-        ],
-        extraTitle: "Cuidados adicionais",
-        extra: [
-          ["<strong>Contato alto</strong>","Se incomodar ao morder, agende ajuste."],
-          ["<strong>Cor</strong>","Restaurações em resina podem estabilizar a cor em alguns dias."]
-        ],
-        ret: [
-          ["Retorno se persistir sensibilidade > 1 semana ou houver desconforto ao morder.",
-           "Dor espontânea, fratura ou queda da restauração."]
-        ]
-      },
-
-      limpeza: {
-        title: "Cuidados Pós-Profilaxia (Limpeza)",
-        subtitle: "Gengivas podem ficar levemente sensíveis",
-        hero: "Após a limpeza, é comum sensibilidade e leve sangramento das gengivas por 1–2 dias.",
-        _24h: [
-          ["<strong>Higiene</strong>","Mantenha escovação e fio dental; faça movimentos suaves se estiver sensível."],
-          ["<strong>Alimentação</strong>","Preferir alimentos mornos/macios se houver sensibilidade gengival."]
-        ],
-        med: [
-          ["<strong>Analgésico</strong>","Se necessário, conforme orientação."],
-          ["<strong>Enxaguante</strong>","Somente se indicado (inflamação gengival)."]
-        ],
-        alim: [
-          ["Hidratação frequente; dieta equilibrada.",
-           "Muito picantes/ácidos se gengivas estiverem sensíveis."]
-        ],
-        hig: [
-          ["Escova macia + fio dental diariamente.",
-           "Evitar escovação agressiva que pode irritar mais a gengiva."]
-        ],
-        extraTitle: "Manutenção",
-        extra: [
-          ["<strong>Placa</strong>","Técnica correta reduz acúmulo de biofilme."],
-          ["<strong>Periodicidade</strong>","Retornos de prevenção conforme plano (3–6 meses)."]
-        ],
-        ret: [
-          ["Retorno no intervalo recomendado pela clínica.",
-           "Sangramento persistente, dor, mobilidade dental ou mau hálito que não melhora."]
-        ]
-      },
-
-      clareamento: {
-        title: "Cuidados Pós-Clareamento",
-        subtitle: "Evite pigmentos e temperaturas extremas por 48h",
-        hero: "Logo após o clareamento, o esmalte fica mais suscetível a pigmentos e temperaturas. Siga as orientações abaixo.",
-        _24h: [
-          ["<strong>Dieta branca</strong> <span class='chip'>48 h</span>","Prefira alimentos claros e sem corantes: arroz, frango, batata, leite, iogurte."],
-          ["<strong>Temperatura</strong>","Evitar muito quente ou muito gelado para reduzir sensibilidade."]
-        ],
-        med: [
-          ["<strong>Desensibilizante</strong>","Use o produto/gel recomendado, se indicado."],
-          ["<strong>Analgésico</strong>","Se necessário, conforme orientação."]
-        ],
-        alim: [
-          ["Alimentos claros/neutros; água em boa quantidade.",
-           "Café, vinho, chá preto, refrigerantes escuros, açaí, molhos fortes, cigarros."]
-        ],
-        hig: [
-          ["Escova macia e creme dental para sensibilidade (se indicado).",
-           "Evitar enxaguantes com álcool no mesmo dia."]
-        ],
-        extraTitle: "Observações",
-        extra: [
-          ["<strong>Sensibilidade</strong>","É comum nas primeiras 24–48h; tende a regredir."],
-          ["<strong>Manutenção</strong>","Reforço do clareamento conforme plano individual."]
-        ],
-        ret: [
-          ["Retorno para avaliação do resultado e fotos comparativas.",
-           "Dor intensa, manchamento irregular persistente, hipersensibilidade que não melhora."]
-        ]
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pós-Operatório – Orientações | Dra. Elen Nogata</title>
+    <style>
+      :root {
+        --brand: #0a6ebd;
+        --brand-600: #0a66ae;
+        --brand-50: #eff6ff;
+        --text: #0f172a;
+        --muted: #475569;
+        --muted-2: #94a3b8;
+        --bg: #ffffff;
+        --card: #ffffff;
+        --line: #e5e7eb;
+        --chip: #f1f5f9;
+        --radius: 14px;
+        --shadow: 0 6px 24px rgba(2, 6, 23, 0.06);
       }
-    };
-
-    /* ========= RENDER ========= */
-    const $ = s => document.querySelector(s);
-    function renderTable(tbody, rows){
-      tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
-    }
-    function render(procKey){
-      const d = DATA[procKey] || DATA.siso;
-      $("#doc-title").textContent = d.title;
-      $("#doc-subtitle").textContent = d.subtitle || "";
-      $("#tb-hero").innerHTML = `
-        <tr><td class="pad-left-mascote"></td><td>${d.hero}</td></tr>`;
-      renderTable($("#tb-24h"), d._24h);
-      renderTable($("#tb-med"), d.med);
-      renderTable($("#tb-alim"), d.alim);
-      renderTable($("#tb-hig"), d.hig);
-      $("#h-extra").textContent = d.extraTitle || "Cuidados adicionais";
-      renderTable($("#tb-extra"), d.extra);
-      renderTable($("#tb-ret"), d.ret);
-      updatePrintMirrors();
-    }
-
-    /* ========= SELECTORS ========= */
-    function setProcedure(key,label){
-      currentProcKey = key;
-      currentProcLabel = label || (PROCS.find(p=>p.key===key)?.label||"");
-      render(key);
-    }
-
-    function updatePrintMirrors(){
-      const addrText = loadAddrs()[selectedAddrIndex] || "";
-      $("#print-address span").textContent = addrText;
-      $("#print-proc span").textContent = currentProcLabel;
-    }
-
-    /* ========= INIT ========= */
-    buildProcDropdown();
-    rebuildAddressDropdown();
-    setProcedure(currentProcKey, currentProcLabel);
-  </script>
-
-  <!-- ====== Helpers PDF (multi-página + share arquivo) ====== -->
-  <script>
-/* carrega libs (html2canvas + jsPDF) só se ainda não estiverem na página */
-async function ensurePdfLibs(){
-  const needH2C = (typeof window.html2canvas === 'undefined');
-  const needJSPDF = (typeof window.jspdf === 'undefined');
-  const loaders = [];
-  if(needH2C){
-    loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
-  }
-  if(needJSPDF){
-    loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'));
-  }
-  await Promise.all(loaders);
-}
-function loadScript(src){
-  return new Promise((resolve,reject)=>{
-    const s = document.createElement('script');
-    s.src = src; s.async = true;
-    s.onload = resolve; s.onerror = reject;
-    document.head.appendChild(s);
-  });
-}
-
-/* Gera Blob PDF da página inteira (quebrado em várias páginas A4 se precisar) */
-async function generatePdfBlob(){
-  await ensurePdfLibs();
-  const { jsPDF } = window.jspdf;
-
-  const node = document.querySelector('.page');
-  const body = document.body;
-
-  // Força ajustes visuais equivalentes ao @media print para a captura
-  body.classList.add('pdf-capture');
-
-  // captura em alta resolução
-  const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-
-  // volta o visual da tela
-  body.classList.remove('pdf-capture');
-
-  // --- montar PDF multipágina ---
-  const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-  const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const margin = 14;
-  const targetW = pageW - margin*2;      // largura útil (mm)
-  const targetHAvail = pageH - margin*2; // altura útil (mm)
-
-  // escala mm/px para caber na largura
-  const scaleMMperPX = targetW / canvas.width;
-  // altura em px que cabe por página
-  const sliceHeightPX = Math.floor(targetHAvail / scaleMMperPX);
-
-  let renderedY = 0;
-  let pageIndex = 0;
-
-  // canvas auxiliar para fatiar
-  const sliceCanvas = document.createElement('canvas');
-  const sliceCtx = sliceCanvas.getContext('2d');
-
-  while (renderedY < canvas.height) {
-    const sliceHeight = Math.min(sliceHeightPX, canvas.height - renderedY);
-    sliceCanvas.width = canvas.width;
-    sliceCanvas.height = sliceHeight;
-
-    // recorta parte do canvas original
-    sliceCtx.clearRect(0,0,sliceCanvas.width, sliceCanvas.height);
-    sliceCtx.drawImage(canvas, 0, renderedY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-
-    const imgData = sliceCanvas.toDataURL('image/jpeg', 0.98);
-    const sliceHeightMM = sliceHeight * scaleMMperPX;
-
-    if (pageIndex > 0) pdf.addPage();
-    pdf.addImage(imgData, 'JPEG', margin, margin, targetW, sliceHeightMM, undefined, 'FAST');
-
-    renderedY += sliceHeight;
-    pageIndex++;
-  }
-
-  return pdf.output('blob');
-}
-
-/* Compartilha o PDF gerado via Web Share API (fallback: download) */
-async function sharePdfOfPage(){
-  try{
-    const blob = await generatePdfBlob();
-    const fileName = (document.title || 'documento') + '.pdf';
-    const file = new File([blob], fileName, { type: 'application/pdf' });
-
-    if(navigator.canShare && navigator.canShare({ files:[file] })){
-      await navigator.share({
-        files: [file],
-        title: document.title,
-        text: 'Pós-operatório – orientações'
-      });
-    }else{
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = fileName;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-      alert('Seu navegador não suporta compartilhar arquivos. Baixei o PDF para você enviar.');
-    }
-  }catch(err){
-    console.error(err);
-    alert('Não consegui gerar o PDF agora. Tente novamente.');
-  }
-}
-  </script>
-</body>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 12.75px/1.45 "Inter", system-ui, -apple-system, Segoe UI, Roboto,
+          Arial;
+      }
+      .page {
+        max-width: 900px;
+        margin: 26px auto;
+        padding: 22px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+      } /* ====== CONFIG BAR (navbar) ====== */
+      .configbar {
+        position: relative;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 8px 10px;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #ffffff, #fafbff);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        flex-wrap: wrap;
+      }
+      .configbar .menu {
+        position: relative;
+      }
+      .configbar .menubtn {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+        padding: 9px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .configbar .menubtn::after {
+        content: "▾";
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .configbar .menubtn:hover {
+        border-color: var(--brand);
+        box-shadow: 0 4px 14px rgba(2, 6, 23, 0.06);
+      }
+      .configbar .menubtn:focus {
+        outline: 2px solid var(--brand-50);
+        outline-offset: 2px;
+      }
+      .configbar .dropdown {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        min-width: 280px;
+        z-index: 20;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(2, 6, 23, 0.12);
+        display: none;
+        padding: 8px;
+      }
+      .configbar .dropdown.open {
+        display: block;
+        animation: ddIn 0.12s ease-out;
+      }
+      @keyframes ddIn {
+        from {
+          transform: translateY(-4px);
+          opacity: 0;
+        }
+        to {
+          transform: none;
+          opacity: 1;
+        }
+      }
+      .configbar .dd-title {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 4px 8px 8px;
+      }
+      .configbar .dd-item {
+        width: 100%;
+        text-align: left;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background: #fff;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.12s ease;
+      }
+      .configbar .dd-item:hover {
+        background: #f8fafc;
+        border-color: #e5e7eb;
+      }
+      .configbar .dd-sep {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 8px 0;
+      } /* empurra “Enviar” para a direita */
+      .configbar .push-right {
+        margin-left: auto;
+      } /* ====== RESPONSIVO NAVBAR ====== */
+      @media (max-width: 600px) {
+        .configbar {
+          gap: 8px;
+          padding: 8px;
+        }
+        .configbar .menu {
+          width: 100%;
+        }
+        .configbar .menubtn {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .configbar .dropdown {
+          position: static;
+          width: 100%;
+          margin-top: 6px;
+          display: none;
+        }
+        .configbar .dropdown.open {
+          display: block;
+        }
+      } /* ====== HEADER ====== */
+      header {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 8px;
+      }
+      .logo-wrap {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .logo {
+        width: 377px;
+        height: 85px;
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo img {
+        width: 90%;
+        height: 330%;
+        object-fit: contain;
+        display: block;
+      }
+      .clinic-box {
+        grid-column: 2 / 3;
+        justify-self: end;
+        text-align: right;
+      }
+      .clinic-box h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.2px;
+      }
+      .clinic-box .meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .hr {
+        height: 1px;
+        background: var(--line);
+        margin: 12px 0;
+      }
+      h2.title {
+        margin: 0 0 4px 0;
+        font-size: 17px;
+        text-align: center;
+      }
+      .subtitle {
+        color: var(--muted);
+        font-size: 11.5px;
+        text-align: center;
+        margin-bottom: 10px;
+      } /* ====== TABELAS ====== */
+      .section {
+        margin-top: 12px;
+        page-break-inside: avoid;
+      }
+      .section h3 {
+        margin: 0 0 6px 0;
+        font-size: 14px;
+        color: var(--brand);
+      }
+      .info-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+      }
+      .info-table thead th {
+        background: var(--brand);
+        color: #fff;
+        text-align: left;
+        padding: 8px 10px;
+        font-size: 12.25px;
+      }
+      .info-table td {
+        padding: 8px 10px;
+        border-top: 1px solid var(--line);
+        vertical-align: top;
+      }
+      .info-table tbody tr:nth-child(odd) td {
+        background: #f8fafc;
+      }
+      .chip {
+        display: inline-block;
+        background: var(--chip);
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        color: var(--muted);
+      } /* ====== MASCOTE NO BLOCO HERO ====== */
+      .hero-wrap {
+        position: relative;
+      }
+      .mascote {
+        position: absolute;
+        left: 28px;
+        top: -18px;
+        width: 150px;
+        height: auto;
+        filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.06));
+        user-select: none;
+        pointer-events: none;
+      }
+      .pad-left-mascote {
+        padding-left: 160px;
+      }
+      @media (max-width: 845px) {
+        .mascote {
+          left: -15px;
+          top: -35px;
+          width: 149px;
+        }
+        .pad-left-mascote {
+          padding-left: 140px;
+        }
+      }
+      @media (max-width: 933px) {
+        .mascote {
+          left: -23px;
+          top: -49px;
+          width: 145px;
+        }
+        .pad-left-mascote {
+          padding-left: 140px;
+        }
+      }
+      footer {
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 11.5px;
+        color: var(--muted);
+      }
+      .brand-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--chip);
+        padding: 6px 10px;
+        border-radius: 999px;
+      } /* ====== PRINT (PDF) ====== */
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+      @media print {
+        html,
+        body {
+          font-size: 12px;
+        }
+        .page {
+          margin: 0;
+          border: none;
+          border-radius: 0;
+        }
+        .configbar {
+          display: none !important;
+        }
+        .hero-wrap {
+          position: relative;
+        }
+        .mascote {
+          position: absolute !important;
+          width: 230px !important;
+          left: -10px !important;
+          top: -200px !important;
+          margin: 0 !important;
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        .pad-left-mascote {
+          padding-left: 180px !important;
+        }
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .info-table thead th {
+          background: #0a6ebd !important;
+          color: #fff !important;
+        }
+        .info-table tbody tr:nth-child(odd) td {
+          background: #f8fafc !important;
+        }
+        .info-table {
+          border-color: #e5e7eb !important;
+        }
+        .info-table td {
+          border-top-color: #e5e7eb !important;
+        }
+        .chip {
+          background: #f1f5f9 !important;
+          color: #475569 !important;
+        }
+        .brand-badge {
+          background: #f1f5f9 !important;
+          color: #475569 !important;
+        } /* Cabeçalho textual no PDF, alinhado à direita como Nome/CROSP */
+        .print-lines {
+          display: block !important;
+          text-align: right;
+          margin-top: 2px;
+        }
+        .print-line {
+          display: block !important;
+          font-weight: 600;
+          margin: 0;
+        }
+        .print-line small {
+          color: #64748b !important;
+          font-weight: 700;
+        }
+        #print-proc {
+          display: none !important;
+        } /* mantém oculto o procedimento no PDF */
+      } /* Linhas espelhadas (somem na tela) */
+      .print-lines {
+        display: none;
+      }
+      .print-line {
+        font-weight: 600;
+      }
+      .print-line small {
+        font-weight: 700;
+        color: var(--muted-2);
+      } /* botões PDF + Compartilhar lado a lado */
+      #m-enviar {
+        margin-left: auto; /* empurra pro lado direito */
+        display: flex; /* fica em linha */
+        gap: 10px; /* espaço entre eles */
+        align-items: center;
+      }
+      #m-enviar .dd-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        border: 1px solid var(--line);
+        background: #fff;
+        cursor: pointer;
+      } /* opcional: cores */
+      #dd-print {
+        background: #0a6ebd;
+        color: #000000;
+        border-color: #0a6ebd;
+      }
+      #dd-share {
+        background: #16a34a;
+        color: #000000;
+        border-color: #16a34a;
+      } /* empilha no mobile, se quiser */
+      @media (max-width: 600px) {
+        #m-enviar {
+          width: 100%;
+        }
+        #m-enviar .dd-item {
+          flex: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- ====== NAVBAR DE CONFIG (Procedimentos antes de Endereço) ====== -->
+      <nav class="configbar" aria-label="Configurações">
+        <!-- Procedimentos -->
+        <div class="menu" id="m-proc">
+          <button class="menubtn" type="button">Procedimentos</button>
+          <div class="dropdown" role="menu" id="dd-proc">
+            <div class="dd-title">Selecione um procedimento</div>
+            <div id="dd-proc-list"></div>
+          </div>
+        </div>
+        <!-- Endereço -->
+        <div class="menu" id="m-address">
+          <button class="menubtn" type="button">Endereço</button>
+          <div class="dropdown" role="menu" id="dd-address">
+            <div class="dd-title">Endereços cadastrados</div>
+            <div id="dd-address-list"></div>
+            <div class="dd-sep"></div>
+            <button class="dd-item" type="button" id="dd-new-address">
+              Outro endereço…
+            </button>
+          </div>
+        </div>
+        <!-- Logo -->
+        <div class="menu" id="m-logo">
+          <button class="menubtn" type="button">Logo</button>
+          <div class="dropdown" role="menu">
+            <button class="dd-item" type="button" id="dd-edit-logo">
+              Editar a logo
+            </button>
+          </div>
+        </div>
+        <!-- Dados -->
+        <div class="menu" id="m-dados">
+          <button class="menubtn" type="button">Dados</button>
+          <div class="dropdown" role="menu">
+            <button class="dd-item" type="button" id="dd-edit-nome">
+              Alterar nome
+            </button>
+            <button class="dd-item" type="button" id="dd-edit-cro">
+              Alterar CROSP
+            </button>
+          </div>
+        </div>
+        <!-- Enviar -->
+        <div class="menu push-right" id="m-enviar">
+          <button class="dd-item" type="button" id="dd-print">PDF</button>
+          <button class="dd-item" type="button" id="dd-share">
+            Compartilhar
+          </button>
+        </div>
+      </nav>
+      <header>
+        <div class="logo-wrap">
+          <div class="logo">
+            <img
+              id="logo-img"
+              src="../../images/elenlogopng.png"
+              alt="Logo Dra. Elen Nogata"
+            />
+          </div>
+        </div>
+        <div class="clinic-box">
+          <h1 id="clinic-name">Dra. Elen Nogata</h1>
+          <div class="meta">CROSP: <span id="clinic-cro">76.956</span></div>
+        </div>
+      </header>
+      <div class="hr"></div>
+      <!-- Linhas exibidas só no PDF (agora agrupadas e alinhadas à direita) -->
+      <div class="print-lines">
+        <div class="print-line" id="print-address">
+          <small>Endereço:</small> <span></span>
+        </div>
+        <div class="print-line" id="print-proc">
+          <small>Procedimento:</small> <span></span>
+        </div>
+      </div>
+      <h2 class="title" id="doc-title">
+        Cuidados Pós-Operatórios – Exodontia de Siso
+      </h2>
+      <div class="subtitle" id="doc-subtitle">
+        Primeiras 72h são decisivas para cicatrização
+      </div>
+      <!-- ====== HERO / PRÓXIMOS PASSOS ====== -->
+      <section
+        class="section hero-wrap"
+        aria-label="Mensagem e próximos passos"
+      >
+        <img
+          class="mascote"
+          src="../../images/avatarElen.png"
+          alt="Mensagem da equipe"
+        />
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th style="width: 40%"></th>
+              <th>Próximos passos</th>
+            </tr>
+          </thead>
+          <tbody id="tb-hero">
+            <tr>
+              <td class="pad-left-mascote"></td>
+              <td>
+                Selecione o procedimento acima para ver as orientações
+                específicas da sua recuperação.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <!-- Primeiras 24h -->
+      <section class="section">
+        <h3 id="h24h">Primeiras 24 horas</h3>
+        <table class="info-table" aria-label="Primeiras 24 horas">
+          <thead>
+            <tr>
+              <th>Orientação</th>
+              <th>Detalhes</th>
+            </tr>
+          </thead>
+          <tbody id="tb-24h"></tbody>
+        </table>
+      </section>
+      <!-- Medicação -->
+      <section class="section">
+        <h3>Medicação</h3>
+        <table class="info-table" aria-label="Medicação">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Orientação</th>
+            </tr>
+          </thead>
+          <tbody id="tb-med"></tbody>
+        </table>
+      </section>
+      <!-- Alimentação -->
+      <section class="section">
+        <h3>Alimentação</h3>
+        <table class="info-table" aria-label="Alimentação">
+          <thead>
+            <tr>
+              <th>Preferir</th>
+              <th>Evitar</th>
+            </tr>
+          </thead>
+          <tbody id="tb-alim"></tbody>
+        </table>
+      </section>
+      <!-- Higiene -->
+      <section class="section">
+        <h3>Higiene</h3>
+        <table class="info-table" aria-label="Higiene">
+          <thead>
+            <tr>
+              <th>Escovação</th>
+              <th>Enxágue</th>
+            </tr>
+          </thead>
+          <tbody id="tb-hig"></tbody>
+        </table>
+      </section>
+      <!-- Adicionais -->
+      <section class="section">
+        <h3 id="h-extra">Cuidados adicionais</h3>
+        <table class="info-table" aria-label="Cuidados adicionais">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Orientação</th>
+            </tr>
+          </thead>
+          <tbody id="tb-extra"></tbody>
+        </table>
+      </section>
+      <!-- Retorno -->
+      <section class="section">
+        <h3>Retorno e sinais de alerta</h3>
+        <table class="info-table" aria-label="Retorno">
+          <thead>
+            <tr>
+              <th>Retorno</th>
+              <th>Contate a clínica se houver</th>
+            </tr>
+          </thead>
+          <tbody id="tb-ret"></tbody>
+        </table>
+      </section>
+      <footer>
+        <div class="brand-badge">
+          <strong>Dra. Elen Nogata</strong> · CROSP 76.956
+        </div>
+        <div>
+          Documento informativo – siga sempre as recomendações da sua cirurgiã
+        </div>
+      </footer>
+    </div>
+    <script>
+      /* ========= STORAGE KEYS ========= */ const ADDR_STORAGE_KEY = "posimplante_enderecos_v1"; const LOGO_STORAGE_KEY = "posimplante_logo_url_v1"; const NAME_STORAGE_KEY = "posimplante_nome_v1"; const CRO_STORAGE_KEY = "posimplante_cro_v1"; /* ========= ENDEREÇOS ========= */ const DEFAULT_ADDR = [ "Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004" ]; function loadAddrs(){ try{ const data = JSON.parse(localStorage.getItem(ADDR_STORAGE_KEY)); return Array.isArray(data) && data.length ? data : DEFAULT_ADDR.slice(); }catch{ return DEFAULT_ADDR.slice(); } } function saveAddrs(list){ localStorage.setItem(ADDR_STORAGE_KEY, JSON.stringify(list)); } let selectedAddrIndex = 0; /* ========= PROCEDIMENTOS ========= */ const PROCS = [ {key:"siso", label:"Pós-Exo de Siso"}, {key:"extracao", label:"Pós-Extração"}, {key:"canal", label:"Pós-Tratamento de Canal"}, {key:"restauracao", label:"Pós-Restauração"}, {key:"limpeza", label:"Pós-Limpeza"}, {key:"clareamento", label:"Pós-Clareamento"}, {key:"implante", label:"Pós-Implante (modelo)"} ]; let currentProcKey = "siso"; let currentProcLabel = PROCS.find(p=>p.key===currentProcKey).label; /* ========= CONFIG BAR: build menus ========= */ const ddAddressList = document.getElementById('dd-address-list'); const ddProcList = document.getElementById('dd-proc-list'); function rebuildAddressDropdown(){ const addrs = loadAddrs(); ddAddressList.innerHTML = addrs.map((a,i)=> <button class="dd-item" data-addr-idx="${i}" type="button">${a}</button> ).join(''); ddAddressList.querySelectorAll('.dd-item').forEach(btn=>{ btn.addEventListener('click', e=>{ selectedAddrIndex = Number(e.currentTarget.getAttribute('data-addr-idx')); updatePrintMirrors(); closeAllDropdowns(); }); }); } document.getElementById('dd-new-address').addEventListener('click', ()=>{ const val = prompt("Digite o novo endereço:"); if(!val) return; const list = loadAddrs(); list.push(val.trim()); saveAddrs(list); selectedAddrIndex = list.length-1; rebuildAddressDropdown(); updatePrintMirrors(); closeAllDropdowns(); }); function buildProcDropdown(){ ddProcList.innerHTML = PROCS.map(p=> <button class="dd-item" data-proc="${p.key}" type="button">${p.label}</button> ).join(''); ddProcList.querySelectorAll('.dd-item').forEach(btn=>{ btn.addEventListener('click', e=>{ const key = e.currentTarget.getAttribute('data-proc'); const label = PROCS.find(p=>p.key===key)?.label || ""; setProcedure(key, label); closeAllDropdowns(); }); }); } /* ========= LOGO / DADOS ========= */ const logoImg = document.getElementById('logo-img'); const clinicName = document.getElementById('clinic-name'); const clinicCro = document.getElementById('clinic-cro'); (function initBranding(){ const logoUrl = localStorage.getItem(LOGO_STORAGE_KEY); if(logoUrl) logoImg.src = logoUrl; const nm = localStorage.getItem(NAME_STORAGE_KEY); if(nm) clinicName.textContent = nm; const cro = localStorage.getItem(CRO_STORAGE_KEY); if(cro) clinicCro.textContent = cro; })(); document.getElementById('dd-edit-logo').addEventListener('click', ()=>{ const url = prompt("Cole a URL da nova logo (PNG/SVG/JPG):", logoImg.src); if(!url) return; logoImg.src = url; localStorage.setItem(LOGO_STORAGE_KEY, url); closeAllDropdowns(); }); document.getElementById('dd-edit-nome').addEventListener('click', ()=>{ const v = prompt("Nome para exibir:", clinicName.textContent); if(!v) return; clinicName.textContent = v.trim(); localStorage.setItem(NAME_STORAGE_KEY, v.trim()); closeAllDropdowns(); }); document.getElementById('dd-edit-cro').addEventListener('click', ()=>{ const v = prompt("CROSP (apenas números e pontos):", clinicCro.textContent); if(!v) return; clinicCro.textContent = v.trim(); localStorage.setItem(CRO_STORAGE_KEY, v.trim()); closeAllDropdowns(); }); /* ========= ENVIAR ========= */ document.getElementById('dd-print').addEventListener('click', ()=>{ window.print(); closeAllDropdowns(); }); document.getElementById('dd-share').addEventListener('click', async ()=>{ await sharePdfOfPage(); // gera o PDF e compartilha o ARQUIVO closeAllDropdowns(); }); // dropdown toggles document.querySelectorAll('.configbar .menubtn').forEach(btn=>{ btn.addEventListener('click', e=>{ const dd = e.currentTarget.parentElement.querySelector('.dropdown'); const open = dd.classList.contains('open'); closeAllDropdowns(); if(!open) dd.classList.add('open'); }); }); function closeAllDropdowns(){ document.querySelectorAll('.configbar .dropdown').forEach(d=>d.classList.remove('open')); } document.addEventListener('click', (e)=>{ if(!e.target.closest('.configbar')) closeAllDropdowns(); }); /* ========= DADOS POR PROCEDIMENTO ========= */ const DATA = { implante: { title: "Cuidados Pós-Operatórios – Implantes Dentários", subtitle: "Orientações essenciais para cicatrização adequada", hero: "Nas próximas semanas: siga as orientações abaixo, tome as medicações conforme prescrição, mantenha a higiene indicada e compareça à <b>consulta de revisão</b> agendada. Se notar dor intensa, febre ou sangramento contínuo, entre em contato.", _24h: [ ["<strong>Gelo</strong> <span class='chip'>2–8 h</span>","Compressas externas: <b>15 min com</b> / <b>15 min sem</b>."], ["<strong>Evitar</strong>","Não cuspir, não bochechar vigorosamente, não manipular a região com língua/dedos/objetos."], ["<strong>Repouso</strong>","Dormir com a cabeça levemente elevada. Pequeno sangramento é normal."] ], med: [ ["<strong>Prescrições</strong>","Tomar <b>exatamente</b> conforme indicado (antibiótico, anti-inflamatório, analgésico)."], ["<strong>Segurança</strong>","Não interromper por conta própria. Informe alergias/reação adversa."] ], alim: [ ["Alimentos frios/ambiente nas primeiras 24h; dieta <b>líquida/pastosa</b> (iogurte, purês, sopas frias, vitaminas).", "Quentes, duros, apimentados, ácidos; bebidas alcoólicas e gaseificadas."] ], hig: [ ["Escove os demais dentes normalmente, <b>evitando</b> a área operada por 24h.", "Somente após 24h e se <b>prescrito</b>, bochecho suave com enxaguante indicado."] ], extraTitle: "Cuidados adicionais", extra: [ ["<strong>Tabagismo</strong>","<b>Não fumar</b>: compromete a cicatrização/osseointegração."], ["<strong>Atividade física</strong>","Evitar esforço por <b>48h</b>."], ["<strong>Edema</strong>","Pode aumentar até o 3º dia e reduzir gradualmente."], ["<strong>Próteses removíveis</strong>","Evitar apoio na área operada até liberação clínica."] ], ret: [ ["Agende a revisão conforme orientação da equipe.", "Dor intensa, febre, sangramento contínuo, gosto/supuração persistente."] ] }, siso: { title: "Cuidados Pós-Operatórios – Exodontia de Siso", subtitle: "Primeiras 72h são decisivas para cicatrização", hero: "Após a extração do siso, controle o sangramento mordendo <b>gaze por 30–45 min</b>. Mantenha repouso relativo e siga abaixo as orientações.", _24h: [ ["<strong>Gelo</strong> <span class='chip'>24–48 h</span>","Face do lado operado: 15 min com / 15 min sem."], ["<strong>Hemostasia</strong>","Gaze bem posicionada por 30–45 min. Se necessário, trocar e repetir."], ["<strong>Evitar sucção</strong>","Não usar canudo, não cuspir, não fumar nas primeiras 72h."] ], med: [ ["<strong>Analgésico/anti-inflamatório</strong>","Conforme prescrição. Iniciar antes de a anestesia passar se orientado."], ["<strong>Antibiótico</strong>","Apenas se prescrito. <b>Complete o ciclo</b>."] ], alim: [ ["Frio/morno, macio: iogurte, sorvete, purês, sopas frias, vitaminas sem sementes. Mastigue do <b>lado oposto</b>.", "Quente, duro, picante, ácido; bebidas alcoólicas e gaseificadas."] ], hig: [ ["Escovação suave longe do alvéolo nas primeiras 24h.", "Bochecho só após 24h (se indicado, com enxaguante prescrito)."] ], extraTitle: "Cuidados adicionais", extra: [ ["<strong>Tabagismo</strong>","Abstenha-se por <b>72h</b> (ideal 7 dias) para evitar alveolite."], ["<strong>Atividade</strong>","Evite esforços por 48h."], ["<strong>Edema/hematoma</strong>","Pico até o 3º dia. Elevação da cabeça ao dormir ajuda."], ["<strong>Pontos</strong>","Retorno para remoção conforme agendado."] ], ret: [ ["Retorno conforme orientação (remoção de pontos/controle).", "Sangramento que não cessa, dor que piora após 48–72h, febre, mau cheiro/sabor persistente."] ] }, extracao: { title: "Cuidados Pós-Operatórios – Extração Dentária", subtitle: "Proteja o coágulo e evite esforços nas primeiras 48h", hero: "Morda gaze por 30 minutos após a extração para formar o coágulo. Evite bochechos vigorosos e sucção.", _24h: [ ["<strong>Repouso</strong>","Cabeça elevada nas primeiras noites."], ["<strong>Gelo</strong> <span class='chip'>6–8 h</span>","15 min com / 15 min sem na face."], ["<strong>Evitar</strong>","Cigarro, álcool, canudo e cuspir."] ], med: [ ["<strong>Analgésico/anti-inflamatório</strong>","Conforme prescrição."], ["<strong>Antibiótico</strong>","Somente se indicado; não interromper sem orientação."] ], alim: [ ["Líquida/pastosa fria nas primeiras 24h; morna no dia seguinte.", "Quente, crocante, sementes que possam impactar no alvéolo."] ], hig: [ ["Escove os outros dentes normalmente; evite o alvéolo por 24h.", "Enxágue leve somente após 24h, se indicado (sem álcool)."] ], extraTitle: "Cuidados adicionais", extra: [ ["<strong>Atividade física</strong>","Evitar 48h."], ["<strong>Sangramento discreto</strong>","Gaze por 30 min. Persistindo, contate a clínica."], ["<strong>Edema</strong>","Pico 48–72h, depois regride."] ], ret: [ ["Retorno conforme necessidade/avaliação.", "Sangramento contínuo, dor intensa, febre, sabor/odor desagradável."] ] }, canal: { title: "Cuidados Pós-Operatórios – Tratamento de Canal", subtitle: "Controle de sensibilidade e proteção do dente tratado", hero: "É comum sensibilidade ao mastigar por alguns dias. Use o lado oposto e siga as medicações se prescritas.", _24h: [ ["<strong>Proteção</strong>","Evite mastigar alimentos duros no dente tratado até a restauração definitiva."], ["<strong>Desconforto</strong>","Sensibilidade leve a moderada é esperada por 2–5 dias."] ], med: [ ["<strong>Analgésico/anti-inflamatório</strong>","Use conforme prescrição."], ["<strong>Antibiótico</strong>","Somente se indicado (casos com infecção)."] ], alim: [ ["Textura macia inicialmente; mastigue do lado oposto.", "Balas, castanhas, torresmo, gelo, sementes no dente tratado."] ], hig: [ ["Higiene normal com escova macia e fio dental.", "Evite bochechos agressivos no dia do procedimento se houver sensibilidade."] ], extraTitle: "Cuidados adicionais", extra: [ ["<strong>Restauração</strong>","Concluir restauração/coroa <b>o quanto antes</b> para evitar fraturas."], ["<strong>Contato oclusal</strong>","Se sentir dente “alto”, procure ajuste."] ], ret: [ ["Retorno para restauração definitiva e controle radiográfico.", "Dor que não cede com analgésico, aumento de inchaço/febre, fratura do dente."] ] }, restauracao: { title: "Cuidados Pós-Operatórios – Restauração", subtitle: "Ajuste oclusal e sensibilidade podem ocorrer", hero: "Após restauração, pode haver leve sensibilidade ao frio/quente. Caso sinta o dente alto, retorne para ajuste.", _24h: [ ["<strong>Alimentação</strong>","Espere a anestesia passar para evitar morder a bochecha/língua."], ["<strong>Mastigação</strong>","Preferir o lado oposto no primeiro dia."] ], med: [ ["<strong>Analgésico</strong>","Se necessário, conforme orientação."], ["<strong>Anti-inflamatório</strong>","Somente se prescrito."] ], alim: [ ["Textura macia no início.", "Muito duros/pegajosos (caramelos, torrones) no dente restaurado nas primeiras 24–48h."] ], hig: [ ["Higiene normal com escova macia e fio dental.", "Evite forçar fio dental em restauração recente se estiver “pegando”; retorne para ajuste."] ], extraTitle: "Cuidados adicionais", extra: [ ["<strong>Contato alto</strong>","Se incomodar ao morder, agende ajuste."], ["<strong>Cor</strong>","Restaurações em resina podem estabilizar a cor em alguns dias."] ], ret: [ ["Retorno se persistir sensibilidade > 1 semana ou houver desconforto ao morder.", "Dor espontânea, fratura ou queda da restauração."] ] }, limpeza: { title: "Cuidados Pós-Profilaxia (Limpeza)", subtitle: "Gengivas podem ficar levemente sensíveis", hero: "Após a limpeza, é comum sensibilidade e leve sangramento das gengivas por 1–2 dias.", _24h: [ ["<strong>Higiene</strong>","Mantenha escovação e fio dental; faça movimentos suaves se estiver sensível."], ["<strong>Alimentação</strong>","Preferir alimentos mornos/macios se houver sensibilidade gengival."] ], med: [ ["<strong>Analgésico</strong>","Se necessário, conforme orientação."], ["<strong>Enxaguante</strong>","Somente se indicado (inflamação gengival)."] ], alim: [ ["Hidratação frequente; dieta equilibrada.", "Muito picantes/ácidos se gengivas estiverem sensíveis."] ], hig: [ ["Escova macia + fio dental diariamente.", "Evitar escovação agressiva que pode irritar mais a gengiva."] ], extraTitle: "Manutenção", extra: [ ["<strong>Placa</strong>","Técnica correta reduz acúmulo de biofilme."], ["<strong>Periodicidade</strong>","Retornos de prevenção conforme plano (3–6 meses)."] ], ret: [ ["Retorno no intervalo recomendado pela clínica.", "Sangramento persistente, dor, mobilidade dental ou mau hálito que não melhora."] ] }, clareamento: { title: "Cuidados Pós-Clareamento", subtitle: "Evite pigmentos e temperaturas extremas por 48h", hero: "Logo após o clareamento, o esmalte fica mais suscetível a pigmentos e temperaturas. Siga as orientações abaixo.", _24h: [ ["<strong>Dieta branca</strong> <span class='chip'>48 h</span>","Prefira alimentos claros e sem corantes: arroz, frango, batata, leite, iogurte."], ["<strong>Temperatura</strong>","Evitar muito quente ou muito gelado para reduzir sensibilidade."] ], med: [ ["<strong>Desensibilizante</strong>","Use o produto/gel recomendado, se indicado."], ["<strong>Analgésico</strong>","Se necessário, conforme orientação."] ], alim: [ ["Alimentos claros/neutros; água em boa quantidade.", "Café, vinho, chá preto, refrigerantes escuros, açaí, molhos fortes, cigarros."] ], hig: [ ["Escova macia e creme dental para sensibilidade (se indicado).", "Evitar enxaguantes com álcool no mesmo dia."] ], extraTitle: "Observações", extra: [ ["<strong>Sensibilidade</strong>","É comum nas primeiras 24–48h; tende a regredir."], ["<strong>Manutenção</strong>","Reforço do clareamento conforme plano individual."] ], ret: [ ["Retorno para avaliação do resultado e fotos comparativas.", "Dor intensa, manchamento irregular persistente, hipersensibilidade que não melhora."] ] } }; /* ========= RENDER ========= */ const $ = s => document.querySelector(s); function renderTable(tbody, rows){ tbody.innerHTML = rows.map(r => <tr><td>${r[0]}</td><td>${r[1]}</td></tr>).join(""); } function render(procKey){ const d = DATA[procKey] || DATA.siso; $("#doc-title").textContent = d.title; $("#doc-subtitle").textContent = d.subtitle || ""; $("#tb-hero").innerHTML = <tr><td class="pad-left-mascote"></td><td>${d.hero}</td></tr>; renderTable($("#tb-24h"), d._24h); renderTable($("#tb-med"), d.med); renderTable($("#tb-alim"), d.alim); renderTable($("#tb-hig"), d.hig); $("#h-extra").textContent = d.extraTitle || "Cuidados adicionais"; renderTable($("#tb-extra"), d.extra); renderTable($("#tb-ret"), d.ret); updatePrintMirrors(); } /* ========= SELECTORS ========= */ function setProcedure(key,label){ currentProcKey = key; currentProcLabel = label || (PROCS.find(p=>p.key===key)?.label||""); render(key); } function updatePrintMirrors(){ const addrText = loadAddrs()[selectedAddrIndex] || ""; $("#print-address span").textContent = addrText; $("#print-proc span").textContent = currentProcLabel; } /* ========= INIT ========= */ buildProcDropdown(); rebuildAddressDropdown(); setProcedure(currentProcKey, currentProcLabel);
+    </script>
+    <script>
+      /* ===== Helpers para gerar PDF e compartilhar arquivo ===== */ /* carrega libs (html2canvas + jsPDF) só se ainda não estiverem na página */ async function ensurePdfLibs(){ const needH2C = (typeof window.html2canvas === 'undefined'); const needJSPDF = (typeof window.jspdf === 'undefined'); const loaders = []; if(needH2C){ loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')); } if(needJSPDF){ loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')); } await Promise.all(loaders); } function loadScript(src){ return new Promise((resolve,reject)=>{ const s = document.createElement('script'); s.src = src; s.async = true; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); }); } /* gera um Blob PDF do conteúdo da .page (A4, retrato) */ async function generatePdfBlob(){ await ensurePdfLibs(); const { jsPDF } = window.jspdf; const node = document.querySelector('.page'); // tira a barra de config para o PDF (já some no @media print, mas aqui é canvas) const cfg = document.querySelector('.configbar'); const prevDisplay = cfg?.style.display; if(cfg) cfg.style.display = 'none'; // tira qualquer foco/hover para não “piscar” no canvas document.activeElement?.blur(); // captura com escala alta para qualidade const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' }); const imgData = canvas.toDataURL('image/jpeg', 0.98); // medidas para A4 const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' }); const pageW = pdf.internal.pageSize.getWidth(); const pageH = pdf.internal.pageSize.getHeight(); // encaixa a imagem respeitando margens semelhantes ao @page (14mm) const margin = 14; const targetW = pageW - margin*2; const ratio = canvas.height / canvas.width; const targetH = targetW * ratio; pdf.addImage(imgData, 'JPEG', margin, margin, targetW, targetH, undefined, 'FAST'); // volta a navbar if(cfg) cfg.style.display = prevDisplay || ''; return pdf.output('blob'); } /* Compartilha o PDF gerado via Web Share API (com fallback p/ download) */ async function sharePdfOfPage(){ try{ const blob = await generatePdfBlob(); const fileName = (document.title || 'documento') + '.pdf'; const file = new File([blob], fileName, { type: 'application/pdf' }); if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files: [file], title: document.title, text: 'Pós-operatório – orientações' }); }else{ // fallback: baixa o PDF e avisa const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); alert('Seu navegador não suporta compartilhar arquivos. Baixei o PDF para você enviar.'); } }catch(err){ console.error(err); alert('Não consegui gerar o PDF agora. Tente novamente.'); } }
+    </script>
+  </body>
 </html>

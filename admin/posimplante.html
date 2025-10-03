@@ -346,18 +346,27 @@
     const CRO_STORAGE_KEY  = "posimplante_cro_v1";
 
     /* ========= ENDEREÇOS ========= */
-    const DEFAULT_ADDR = [
-      "Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004"
-    ];
-    function loadAddrs(){
-      try{
-        const data = JSON.parse(localStorage.getItem(ADDR_STORAGE_KEY));
-        return Array.isArray(data) && data.length ? data : DEFAULT_ADDR.slice();
-      }catch{ return DEFAULT_ADDR.slice(); }
-    }
-    function saveAddrs(list){ localStorage.setItem(ADDR_STORAGE_KEY, JSON.stringify(list)); }
+    /* ========= ENDEREÇOS ========= */
+const DEFAULT_ADDR = [
+  "Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004",
+  "Av. dos Autonomistas, 896 Andar 25 - Sala 1408 - Vila Yara, Osasco - SP · Tel: (11) 99819-4004"
+];
 
-    let selectedAddrIndex = 0;
+function loadAddrs(){
+  try {
+    const data = JSON.parse(localStorage.getItem(ADDR_STORAGE_KEY));
+    return Array.isArray(data) && data.length ? data : DEFAULT_ADDR.slice();
+  } catch {
+    return DEFAULT_ADDR.slice();
+  }
+}
+
+function saveAddrs(list){
+  localStorage.setItem(ADDR_STORAGE_KEY, JSON.stringify(list));
+}
+
+let selectedAddrIndex = 0;
+
 
     /* ========= PROCEDIMENTOS ========= */
     const PROCS = [

@@ -183,11 +183,13 @@
 #dd-print{ background:#0a6ebd; color:#000000; border-color:#0a6ebd; }
 #dd-share{ background:#16a34a; color:#000000; border-color:#16a34a; }
 
+  
 /* empilha no mobile, se quiser */
 @media (max-width:600px){
   #m-enviar{ width:100%; }
   #m-enviar .dd-item{ flex:1 }
 }
+  
 
 </style>
 </head>
@@ -450,15 +452,12 @@
 
     /* ========= ENVIAR ========= */
     document.getElementById('dd-print').addEventListener('click', ()=>{ window.print(); closeAllDropdowns(); });
-    document.getElementById('dd-share').addEventListener('click', async ()=>{
-      const title = document.title;
-      const url = location.href;
-      try{
-        if(navigator.share){ await navigator.share({title, url}); }
-        else { await navigator.clipboard.writeText(url); alert("Link copiado para a área de transferência."); }
-      }catch(e){}
-      closeAllDropdowns();
-    });
+document.getElementById('dd-share').addEventListener('click', async ()=>{
+  await sharePdfOfPage();          // gera o PDF e compartilha o ARQUIVO
+  closeAllDropdowns();
+});
+
+
 
     // dropdown toggles
     document.querySelectorAll('.configbar .menubtn').forEach(btn=>{
@@ -739,8 +738,106 @@
     rebuildAddressDropdown();
     setProcedure(currentProcKey, currentProcLabel);
   </script>
+
+  <script>
+/* ===== Helpers para gerar PDF e compartilhar arquivo ===== */
+
+/* carrega libs (html2canvas + jsPDF) só se ainda não estiverem na página */
+async function ensurePdfLibs(){
+  const needH2C = (typeof window.html2canvas === 'undefined');
+  const needJSPDF = (typeof window.jspdf === 'undefined');
+
+  const loaders = [];
+  if(needH2C){
+    loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
+  }
+  if(needJSPDF){
+    loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'));
+  }
+  await Promise.all(loaders);
+}
+
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    const s = document.createElement('script');
+    s.src = src; s.async = true;
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+/* gera um Blob PDF do conteúdo da .page (A4, retrato) */
+async function generatePdfBlob(){
+  await ensurePdfLibs();
+  const { jsPDF } = window.jspdf;
+
+  const node = document.querySelector('.page');
+
+  // tira a barra de config para o PDF (já some no @media print, mas aqui é canvas)
+  const cfg = document.querySelector('.configbar');
+  const prevDisplay = cfg?.style.display;
+  if(cfg) cfg.style.display = 'none';
+
+  // tira qualquer foco/hover para não “piscar” no canvas
+  document.activeElement?.blur();
+
+  // captura com escala alta para qualidade
+  const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' });
+  const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+  // medidas para A4
+  const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+
+  // encaixa a imagem respeitando margens semelhantes ao @page (14mm)
+  const margin = 14;
+  const targetW = pageW - margin*2;
+  const ratio = canvas.height / canvas.width;
+  const targetH = targetW * ratio;
+
+  pdf.addImage(imgData, 'JPEG', margin, margin, targetW, targetH, undefined, 'FAST');
+
+  // volta a navbar
+  if(cfg) cfg.style.display = prevDisplay || '';
+
+  return pdf.output('blob');
+}
+
+/* Compartilha o PDF gerado via Web Share API (com fallback p/ download) */
+async function sharePdfOfPage(){
+  try{
+    const blob = await generatePdfBlob();
+    const fileName = (document.title || 'documento') + '.pdf';
+    const file = new File([blob], fileName, { type: 'application/pdf' });
+
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({
+        files: [file],
+        title: document.title,
+        text: 'Pós-operatório – orientações'
+      });
+    }else{
+      // fallback: baixa o PDF e avisa
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      alert('Seu navegador não suporta compartilhar arquivos. Baixei o PDF para você enviar.');
+    }
+  }catch(err){
+    console.error(err);
+    alert('Não consegui gerar o PDF agora. Tente novamente.');
+  }
+}
+</script>
+
+
+  
 </body>
 </html>
+
 
 
 

@@ -860,5 +860,146 @@ async function sharePdfOfPage(){
   }
 }
   </script>
+
+  <script>
+/* ====== Compartilhar o MESMO PDF do botão PDF ======
+   (cole este bloco no final do arquivo, após os seus scripts)  */
+
+/* Carrega libs se faltar */
+async function ensurePdfLibs(){
+  const needH2C   = (typeof window.html2canvas === "undefined");
+  const needJSPDF = (typeof window.jspdf === "undefined");
+  const loads = [];
+  if(needH2C)   loads.push(loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"));
+  if(needJSPDF) loads.push(loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"));
+  await Promise.all(loads);
+}
+function loadScript(src){
+  return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.async=true; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+}
+
+/* Regras do @media print aplicadas só na cópia que vamos capturar */
+function makeForcePrintStyle(scopeClass){
+  return `
+  .${scopeClass} .page{margin:0;border:none;border-radius:0}
+  .${scopeClass} .configbar{display:none !important}
+  .${scopeClass} .hero-wrap{position:relative}
+  .${scopeClass} .mascote{position:absolute !important;width:230px !important;left:-10px !important;top:-200px !important;margin:0 !important}
+  .${scopeClass} .pad-left-mascote{padding-left:180px !important}
+  .${scopeClass} *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important}
+  .${scopeClass} .info-table thead th{background:#0a6ebd !important;color:#fff !important}
+  .${scopeClass} .info-table tbody tr:nth-child(odd) td{background:#f8fafc !important}
+  .${scopeClass} .info-table{border-color:#e5e7eb !important}
+  .${scopeClass} .info-table td{border-top-color:#e5e7eb !important}
+  .${scopeClass} .chip{background:#f1f5f9 !important;color:#475569 !important}
+  .${scopeClass} .brand-badge{background:#f1f5f9 !important;color:#475569 !important}
+  .${scopeClass} .print-lines{display:block !important;text-align:right;margin-top:2px}
+  .${scopeClass} #print-proc{display:none !important}
+  `;
+}
+
+/* Gera PDF multi-página (A4, mesmas margens do print) */
+async function generateIdenticalPdfBlob(){
+  await ensurePdfLibs();
+  const { jsPDF } = window.jspdf;
+
+  const page = document.querySelector(".page");
+  // cria uma cópia offscreen com as mesmas regras do @media print
+  const WRAP_CLASS = "__share_print_scope__";
+  const wrap = document.createElement("div");
+  wrap.className = WRAP_CLASS;
+  wrap.style.position = "fixed";
+  wrap.style.left = "-10000px";
+  wrap.style.top = "0";
+  wrap.style.width = "1000px";           // força layout “desktop” mesmo no celular
+  wrap.style.zIndex = "-1";
+
+  const clone = page.cloneNode(true);
+  wrap.appendChild(clone);
+  document.body.appendChild(wrap);
+
+  // injeta estilos equivalentes ao @media print apenas no wrapper
+  const style = document.createElement("style");
+  style.textContent = makeForcePrintStyle(WRAP_CLASS);
+  document.head.appendChild(style);
+
+  // captura a cópia com html2canvas
+  const canvas = await html2canvas(clone, {
+    scale: 2,
+    backgroundColor: "#ffffff",
+    useCORS: true,
+    windowWidth: 1200
+  });
+
+  // limpeza
+  style.remove();
+  wrap.remove();
+
+  // Monta PDF com fatias para múltiplas páginas
+  const pdf = new jsPDF({orientation:"p", unit:"mm", format:"a4"});
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const margin = 14;
+  const targetW = pageW - margin*2;
+  const targetHAvail = pageH - margin*2;
+  const mmPerPx = targetW / canvas.width;
+  const slicePX = Math.floor(targetHAvail / mmPerPx);
+
+  const tmp = document.createElement("canvas");
+  const ctx = tmp.getContext("2d");
+
+  let y = 0, p = 0;
+  while(y < canvas.height){
+    const h = Math.min(slicePX, canvas.height - y);
+    tmp.width = canvas.width;
+    tmp.height = h;
+    ctx.clearRect(0,0,tmp.width,tmp.height);
+    ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
+
+    const img = tmp.toDataURL("image/jpeg", 0.98);
+    const hMM = h * mmPerPx;
+    if(p>0) pdf.addPage();
+    pdf.addImage(img, "JPEG", margin, margin, targetW, hMM, undefined, "FAST");
+    y += h; p++;
+  }
+
+  return pdf.output("blob");
+}
+
+/* Compartilhar arquivo (fallback: baixar) */
+async function sharePdfOfPage(){
+  try{
+    const blob = await generateIdenticalPdfBlob();
+    const fileName = (document.title || "documento") + ".pdf";
+    const file = new File([blob], fileName, { type: "application/pdf" });
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({ files:[file], title: document.title, text: "Pós-operatório – orientações" });
+    }else{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      alert("Seu navegador não suporta compartilhar arquivos. Baixei o PDF para você enviar.");
+    }
+  }catch(e){
+    console.error(e);
+    alert("Não consegui gerar o PDF agora. Tente novamente.");
+  }
+}
+
+/* Substitui o listener antigo do botão Compartilhar sem mexer no resto do código */
+(function hookShareButton(){
+  const oldBtn = document.getElementById("dd-share");
+  if(!oldBtn) return;
+  const clone = oldBtn.cloneNode(true);      // remove listeners antigos
+  oldBtn.replaceWith(clone);
+  clone.addEventListener("click", async ()=>{
+    await sharePdfOfPage();
+    // fecha dropdowns se existirem (idêntico ao seu comportamento atual)
+    if(typeof closeAllDropdowns === "function") closeAllDropdowns();
+  });
+})();
+</script>
+
 </body>
 </html>
+

@@ -17,6 +17,34 @@
   .page{max-width:900px;margin:26px auto;padding:22px;background:var(--card);
         border:1px solid var(--line);border-radius:20px}
 
+  /* ====== CONFIG BAR (novo) ====== */
+  .configbar{
+    display:flex; gap:10px; align-items:center; margin-bottom:10px;
+    padding:6px; border:1px dashed var(--line); border-radius:12px; background:#fff;
+  }
+  .configbar .menu{
+    position:relative;
+  }
+  .configbar .menubtn{
+    appearance:none; border:1px solid var(--line); background:#fff; color:var(--text);
+    padding:8px 12px; border-radius:12px; font-weight:700; cursor:pointer;
+  }
+  .configbar .dropdown{
+    position:absolute; top:110%; left:0; min-width:240px; z-index:10;
+    background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,.08);
+    display:none; padding:6px;
+  }
+  .configbar .dropdown.open{ display:block; }
+  .configbar .dd-title{
+    font-size:12px; color:var(--muted); margin:4px 8px 6px;
+  }
+  .configbar .dd-item{
+    width:100%; text-align:left; padding:8px 10px; border-radius:10px;
+    border:1px solid transparent; background:#fff; cursor:pointer; font-weight:600;
+  }
+  .configbar .dd-item:hover{ background:#f8fafc; border-color:#e5e7eb; }
+  .configbar .dd-sep{ height:1px; background:#e5e7eb; margin:6px 0; }
+
   /* ====== HEADER ====== */
   header{
     position:relative;
@@ -106,6 +134,7 @@
     html,body{font-size:12px}
     .page{margin:0;border:none;border-radius:0}
     .toolbar{display:none !important}
+    .configbar{display:none !important}
 
     /* mascote alinhado exatamente ao herói */
     .hero-wrap{ position:relative }
@@ -130,7 +159,6 @@
 
     /* Linhas de cabeçalho na impressão */
     .print-line{display:block !important; margin:0 0 6px 0}
-    /* Oculta a linha de Procedimento no PDF, conforme seu layout final */
     #print-proc{display:none !important}
   }
 
@@ -141,21 +169,62 @@
 </head>
 <body>
   <div class="page">
+
+    <!-- ====== HEADER DE CONFIGURAÇÕES (NOVO) ====== -->
+    <nav class="configbar" aria-label="Configurações">
+      <!-- Endereço -->
+      <div class="menu" id="m-address">
+        <button class="menubtn" type="button">Endereço ▾</button>
+        <div class="dropdown" role="menu" id="dd-address">
+          <div class="dd-title">Endereços cadastrados</div>
+          <div id="dd-address-list"></div>
+          <div class="dd-sep"></div>
+          <button class="dd-item" type="button" id="dd-new-address">Outro endereço…</button>
+        </div>
+      </div>
+
+      <!-- Logo -->
+      <div class="menu" id="m-logo">
+        <button class="menubtn" type="button">Logo ▾</button>
+        <div class="dropdown" role="menu">
+          <button class="dd-item" type="button" id="dd-edit-logo">Editar a logo</button>
+        </div>
+      </div>
+
+      <!-- Dados -->
+      <div class="menu" id="m-dados">
+        <button class="menubtn" type="button">Dados ▾</button>
+        <div class="dropdown" role="menu">
+          <button class="dd-item" type="button" id="dd-edit-nome">Alterar nome</button>
+          <button class="dd-item" type="button" id="dd-edit-cro">Alterar CROSP</button>
+        </div>
+      </div>
+
+      <!-- Enviar -->
+      <div class="menu" id="m-enviar" style="margin-left:auto">
+        <button class="menubtn" type="button">Enviar ▾</button>
+        <div class="dropdown" role="menu">
+          <button class="dd-item" type="button" id="dd-print">PDF</button>
+          <button class="dd-item" type="button" id="dd-share">Compartilhar</button>
+        </div>
+      </div>
+    </nav>
+
     <header>
       <div class="logo-wrap">
         <div class="logo">
-          <img src="../../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
+          <img id="logo-img" src="../../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
         </div>
       </div>
       <div class="clinic-box">
-        <h1>Dra. Elen Nogata</h1>
-        <div class="meta">CROSP: 76.956</div>
+        <h1 id="clinic-name">Dra. Elen Nogata</h1>
+        <div class="meta">CROSP: <span id="clinic-cro">76.956</span></div>
       </div>
     </header>
 
     <div class="hr"></div>
 
-    <!-- CONTROLES (somem no PDF) -->
+    <!-- CONTROLES (existentes) -->
     <div class="toolbar" aria-label="Seleções">
       <div class="group">
         <span class="label">Selecione o endereço:</span>
@@ -264,6 +333,10 @@
   <script>
     /* =================== ENDEREÇOS =================== */
     const ADDR_STORAGE_KEY = "posimplante_enderecos_v1";
+    const LOGO_STORAGE_KEY = "posimplante_logo_url_v1";
+    const NAME_STORAGE_KEY = "posimplante_nome_v1";
+    const CRO_STORAGE_KEY  = "posimplante_cro_v1";
+
     const DEFAULT_ADDR = [
       "Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004"
     ];
@@ -284,6 +357,7 @@
       addrSelect.innerHTML = addrs.map((a,i)=>`<option value="${i}">${a}</option>`).join('');
       if(typeof selected === "number" && addrs[selected]) addrSelect.value = String(selected);
       updatePrintMirrors();
+      rebuildAddressDropdown();
     }
 
     document.getElementById('manage').addEventListener('click', () => {
@@ -302,7 +376,99 @@ Endereços atuais:`, current.join("\n"));
       }
     });
 
-    /* =================== DADOS POR PROCEDIMENTO =================== */
+    /* ====== CONFIG BAR: Endereço (submenu dinâmico) ====== */
+    const ddAddress = document.getElementById('dd-address');
+    const ddAddressList = document.getElementById('dd-address-list');
+    function rebuildAddressDropdown(){
+      const addrs = loadAddrs();
+      ddAddressList.innerHTML = addrs.map((a,i)=>`<button class="dd-item" data-addr-idx="${i}" type="button">${a}</button>`).join('');
+      ddAddressList.querySelectorAll('.dd-item').forEach(btn=>{
+        btn.addEventListener('click', e=>{
+          const idx = Number(e.currentTarget.getAttribute('data-addr-idx'));
+          addrSelect.value = String(idx);
+          updatePrintMirrors();
+          closeAllDropdowns();
+        });
+      });
+    }
+    document.getElementById('dd-new-address').addEventListener('click', ()=>{
+      const val = prompt("Digite o novo endereço:");
+      if(!val) return;
+      const list = loadAddrs(); list.push(val.trim());
+      saveAddrs(list); refreshAddrSelect(list.length-1);
+      closeAllDropdowns();
+    });
+
+    /* ====== CONFIG BAR: Logo / Dados ====== */
+    const logoImg = document.getElementById('logo-img');
+    const clinicName = document.getElementById('clinic-name');
+    const clinicCro  = document.getElementById('clinic-cro');
+
+    // carregar persistidos
+    (function initBranding(){
+      const logoUrl = localStorage.getItem(LOGO_STORAGE_KEY);
+      if(logoUrl) logoImg.src = logoUrl;
+      const nm = localStorage.getItem(NAME_STORAGE_KEY);
+      if(nm) clinicName.textContent = nm;
+      const cro = localStorage.getItem(CRO_STORAGE_KEY);
+      if(cro) clinicCro.textContent = cro;
+    })();
+
+    document.getElementById('dd-edit-logo').addEventListener('click', ()=>{
+      const url = prompt("Cole a URL da nova logo (PNG/SVG/JPG):", logoImg.src);
+      if(!url) return;
+      logoImg.src = url;
+      localStorage.setItem(LOGO_STORAGE_KEY, url);
+      closeAllDropdowns();
+    });
+    document.getElementById('dd-edit-nome').addEventListener('click', ()=>{
+      const v = prompt("Nome para exibir:", clinicName.textContent);
+      if(!v) return;
+      clinicName.textContent = v.trim();
+      localStorage.setItem(NAME_STORAGE_KEY, v.trim());
+      closeAllDropdowns();
+    });
+    document.getElementById('dd-edit-cro').addEventListener('click', ()=>{
+      const v = prompt("CROSP (apenas números e pontos):", clinicCro.textContent);
+      if(!v) return;
+      clinicCro.textContent = v.trim();
+      localStorage.setItem(CRO_STORAGE_KEY, v.trim());
+      closeAllDropdowns();
+    });
+
+    /* ====== CONFIG BAR: Enviar ====== */
+    document.getElementById('dd-print').addEventListener('click', ()=>{ window.print(); closeAllDropdowns(); });
+    document.getElementById('dd-share').addEventListener('click', async ()=>{
+      const title = document.title;
+      const url = location.href;
+      try{
+        if(navigator.share){
+          await navigator.share({title, url});
+        }else{
+          await navigator.clipboard.writeText(url);
+          alert("Link copiado para a área de transferência.");
+        }
+      }catch(e){}
+      closeAllDropdowns();
+    });
+
+    // dropdown toggles
+    document.querySelectorAll('.configbar .menubtn').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        const dd = e.currentTarget.parentElement.querySelector('.dropdown');
+        const open = dd.classList.contains('open');
+        closeAllDropdowns();
+        if(!open) dd.classList.add('open');
+      });
+    });
+    function closeAllDropdowns(){
+      document.querySelectorAll('.configbar .dropdown').forEach(d=>d.classList.remove('open'));
+    }
+    document.addEventListener('click', (e)=>{
+      if(!e.target.closest('.configbar')) closeAllDropdowns();
+    });
+
+    /* ====== DADOS POR PROCEDIMENTO (seu código original) ====== */
     const DATA = {
       implante: {
         title: "Cuidados Pós-Operatórios – Implantes Dentários",
@@ -569,13 +735,8 @@ Endereços atuais:`, current.join("\n"));
 
     /* INIT */
     refreshAddrSelect(0);
+    rebuildAddressDropdown();
     render('siso');
   </script>
 </body>
 </html>
-
-
-
-
-
-

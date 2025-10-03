@@ -43,19 +43,12 @@
   .clinic-box h1{margin:0;font-size:18px;letter-spacing:.2px}
   .clinic-box .meta{color:var(--muted);font-size:12px}
 
-  /* Mascote (tela) */
-  .mascote{
-    position:absolute; left:-4px; top:-10px;
-    width:145px; height:auto; filter:drop-shadow(0 2px 0 rgba(0,0,0,.06));
-    user-select:none; pointer-events:none;
-  }
-
   .hr{height:1px;background:var(--line);margin:12px 0}
 
   h2.title{margin:0 0 4px 0;font-size:17px;text-align:center}
   .subtitle{color:var(--muted);font-size:11.5px;text-align:center;margin-bottom:10px}
 
-  /* ====== TOOLBAR ====== */
+  /* ====== CONTROLES ====== */
   .toolbar{
     display:flex; align-items:center; justify-content:space-around;
     gap:12px; flex-wrap:wrap; margin:8px 0 10px 0; flex-direction:column;
@@ -73,10 +66,10 @@
     padding:0 2px; text-decoration:underline;
   }
 
+  /* ====== TABELAS ====== */
   .section{margin-top:12px;page-break-inside:avoid}
   .section h3{margin:0 0 6px 0;font-size:14px;color:var(--brand)}
 
-  /* Tabelas */
   .info-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;
               border-radius:14px;border:1px solid var(--line)}
   .info-table thead th{background:var(--brand);color:#fff;text-align:left;padding:8px 10px;font-size:12.25px}
@@ -85,15 +78,22 @@
   .chip{display:inline-block;background:var(--chip);padding:4px 8px;border-radius:999px;
         font-size:11px;color:var(--muted)}
 
-  /* coluna esquerda do herói quando a tela é grande */
-  .pad-left-mascote{padding-left:12px}
-  @media (min-width:992px){
-    header{min-height:120px}
-    .mascote{top:165px;width:235px}
-    .pad-left-mascote{padding-left:160px}
+  /* ====== MASCOTE POSICIONADO NO BLOCO HERO ====== */
+  .hero-wrap{ position:relative; } /* âncora para o mascote */
+  .mascote{
+    position:absolute;
+    left:28px;                 /* posição padrão em tela */
+    top:-18px;                 /* ligeiro overlap no cabeçalho do herói */
+    width:150px;
+    height:auto;
+    filter:drop-shadow(0 2px 0 rgba(0,0,0,.06));
+    user-select:none; pointer-events:none;
   }
-  @media (max-width:390px){
-    .mascote{width:157px; left:0; top:10px}
+  .pad-left-mascote{ padding-left:160px } /* espaço p/ mascote na 1ª coluna */
+
+  @media (max-width:768px){
+    .mascote{ left:12px; top:-10px; width:135px }
+    .pad-left-mascote{ padding-left:140px }
   }
 
   footer{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -106,24 +106,20 @@
     html,body{font-size:12px}
     .page{margin:0;border:none;border-radius:0}
     .toolbar{display:none !important}
-    .logo-wrap{justify-content:center}
-    .clinic-box{justify-self:end}
-    .logo{margin-left:0}
 
-    /* Mascote maior e alinhado ao bloco "Próximos passos" */
+    /* mascote alinhado exatamente ao herói */
+    .hero-wrap{ position:relative }
     .mascote{
       position:absolute !important;
+      width:165px !important;   /* ajuste fino do tamanho no PDF */
+      left:34px !important;     /* encosta na borda esquerda do conteúdo */
+      top:-26px !important;     /* sobrepõe um pouco o cabeçalho azul */
       margin:0 !important;
-      width:190px !important;      /* tamanho do mascote no PDF */
-      top:235px !important;        /* altura ajustada para alinhar ao herói */
-      left:28px !important;        /* distância da margem esquerda */
-      print-color-adjust:exact; -webkit-print-color-adjust:exact
+      print-color-adjust:exact; -webkit-print-color-adjust:exact;
     }
+    .pad-left-mascote{ padding-left:180px !important } /* libera espaço p/ mascote */
 
-    /* Garante espaço para o mascote na primeira coluna do herói */
-    .pad-left-mascote{padding-left:190px !important}
-
-    /* Aparência fiel das tabelas no PDF */
+    /* Aparência das tabelas */
     *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important}
     .info-table thead th{background:#0a6ebd !important; color:#fff !important}
     .info-table tbody tr:nth-child(odd) td{background:#f8fafc !important}
@@ -132,9 +128,10 @@
     .chip{background:#f1f5f9 !important; color:#475569 !important}
     .brand-badge{background:#f1f5f9 !important; color:#475569 !important}
 
-    /* Mostra as linhas de Endereço e Procedimento na impressão */
-    .print-line{display:block !important}
-    .print-line{margin:2px 0 4px 0}
+    /* Linhas de cabeçalho na impressão */
+    .print-line{display:block !important; margin:0 0 6px 0}
+    /* Oculta a linha de Procedimento no PDF, conforme seu layout final */
+    #print-proc{display:none !important}
   }
 
   /* Linhas espelhadas (somem na tela) */
@@ -145,7 +142,6 @@
 <body>
   <div class="page">
     <header>
-      <img class="mascote" src="../../images/avatarElen.png" alt="Mensagem da equipe" />
       <div class="logo-wrap">
         <div class="logo">
           <img src="../../images/elenlogopng.png" alt="Logo Dra. Elen Nogata" />
@@ -181,15 +177,17 @@
       <button class="btn" id="btn-pdf" type="button">Gerar PDF</button>
     </div>
 
-    <!-- Linhas exibidas só na impressão (PDF) -->
+    <!-- Linhas exibidas só no PDF -->
     <div class="print-line" id="print-address"><small>Endereço:</small> <span></span></div>
     <div class="print-line" id="print-proc"><small>Procedimento:</small> <span></span></div>
 
     <h2 class="title" id="doc-title">Cuidados Pós-Operatórios – Exodontia de Siso</h2>
     <div class="subtitle" id="doc-subtitle">Primeiras 72h são decisivas para cicatrização</div>
 
-    <!-- Herói / próximos passos -->
+    <!-- ====== HERO / PRÓXIMOS PASSOS ====== -->
     <section class="section hero-wrap" aria-label="Mensagem e próximos passos">
+      <!-- Mascote ANCORADO nesta seção -->
+      <img class="mascote" src="../../images/avatarElen.png" alt="Mensagem da equipe" />
       <table class="info-table">
         <thead>
           <tr><th style="width:40%"></th><th>Próximos passos</th></tr>
@@ -268,6 +266,7 @@
     const ADDR_STORAGE_KEY = "posimplante_enderecos_v1";
     const DEFAULT_ADDR = [
       "Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004"
+      "Avenida dos Autonomistas 896 cj 1411 Torre 1, Vila Yara, Osasco - SP · Tel: (11) 99819-4004"
     ];
 
     function loadAddrs(){
@@ -304,7 +303,7 @@ Endereços atuais:`, current.join("\n"));
       }
     });
 
-    /* ====== DADOS ====== */
+    /* =================== DADOS POR PROCEDIMENTO =================== */
     const DATA = {
       implante: {
         title: "Cuidados Pós-Operatórios – Implantes Dentários",
@@ -425,7 +424,7 @@ Endereços atuais:`, current.join("\n"));
         ],
         hig: [
           ["Higiene normal com escova macia e fio dental.",
-          "Evite bochechos agressivos no dia do procedimento se houver sensibilidade."]
+           "Evite bochechos agressivos no dia do procedimento se houver sensibilidade."]
         ],
         extraTitle: "Cuidados adicionais",
         extra: [

@@ -57,7 +57,6 @@
   }
   .configbar .dd-item:hover{ background:#f8fafc; border-color:#e5e7eb; }
   .configbar .dd-sep{ height:1px; background:#e5e7eb; margin:8px 0; }
-  /* empurra “Enviar” para a direita */
   .configbar .push-right{ margin-left:auto }
 
   /* ====== RESPONSIVO NAVBAR ====== */
@@ -149,54 +148,48 @@
     .chip{background:#f1f5f9 !important; color:#475569 !important}
     .brand-badge{background:#f1f5f9 !important; color:#475569 !important}
 
-    /* Cabeçalho textual no PDF, alinhado à direita como Nome/CROSP */
     .print-lines{ display:block !important; text-align:right; margin-top:2px; }
     .print-line{ display:block !important; font-weight:600; margin:0; }
     .print-line small{ color:#64748b !important; font-weight:700 }
-    #print-proc{display:none !important} /* mantém oculto o procedimento no PDF */
+    #print-proc{display:none !important}
   }
 
   /* Linhas espelhadas (somem na tela) */
   .print-lines{ display:none }
   .print-line{ font-weight:600 }
   .print-line small{font-weight:700; color:var(--muted-2)}
-  /* botões PDF + Compartilhar lado a lado */
-#m-enviar{
-  margin-left:auto;                 /* empurra pro lado direito */
-  display:flex;                     /* fica em linha */
-  gap:10px;                         /* espaço entre eles */
-  align-items:center;
-}
-#m-enviar .dd-item{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:9px 14px;
-  border-radius:999px;
-  font-weight:700;
-  border:1px solid var(--line);
-  background:#fff;
-  cursor:pointer;
-}
 
-/* opcional: cores */
-#dd-print{ background:#0a6ebd; color:#000000; border-color:#0a6ebd; }
-#dd-share{ background:#16a34a; color:#000000; border-color:#16a34a; }
+  /* botões PDF + Compartilhar lado a lado + hover igual dropdown */
+  #m-enviar{
+    margin-left:auto; display:flex; gap:10px; align-items:center;
+  }
+  #m-enviar .dd-item{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:9px 14px; border-radius:999px; font-weight:700;
+    border:1px solid var(--line); background:#fff; cursor:pointer;
+    transition:all .15s ease;
+  }
+  #m-enviar .dd-item:hover{ background:#f8fafc; border-color:#e5e7eb; box-shadow:0 4px 14px rgba(2,6,23,.06) }
+  #dd-print{ background:#0a6ebd; color:#000; border-color:#0a6ebd; }
+  #dd-share{ background:#16a34a; color:#000; border-color:#16a34a; }
 
-  
-/* empilha no mobile, se quiser */
-@media (max-width:600px){
-  #m-enviar{ width:100%; }
-  #m-enviar .dd-item{ flex:1 }
-}
-  
+  @media (max-width:600px){
+    #m-enviar{ width:100%; }
+    #m-enviar .dd-item{ flex:1 }
+  }
 
+  /* ====== MODO CAPTURA PDF (força ajustes do @media print na renderização html2canvas) */
+  body.pdf-capture .configbar{ display:none !important; }
+  body.pdf-capture .print-lines{ display:block !important; text-align:right; margin-top:2px; }
+  body.pdf-capture #print-proc{ display:none !important; }
+  body.pdf-capture .mascote{ position:absolute !important; width:230px !important; left:-10px !important; top:-200px !important; }
+  body.pdf-capture .pad-left-mascote{ padding-left:180px !important; }
 </style>
 </head>
 <body>
   <div class="page">
 
-    <!-- ====== NAVBAR DE CONFIG (Procedimentos antes de Endereço) ====== -->
+    <!-- ====== NAVBAR ====== -->
     <nav class="configbar" aria-label="Configurações">
       <!-- Procedimentos -->
       <div class="menu" id="m-proc">
@@ -235,7 +228,7 @@
         </div>
       </div>
 
-      <!-- Enviar -->
+      <!-- Ações -->
       <div class="menu push-right" id="m-enviar">
         <button class="dd-item" type="button" id="dd-print">PDF</button>
         <button class="dd-item" type="button" id="dd-share">Compartilhar</button>
@@ -256,7 +249,7 @@
 
     <div class="hr"></div>
 
-    <!-- Linhas exibidas só no PDF (agora agrupadas e alinhadas à direita) -->
+    <!-- Linhas exibidas só no PDF -->
     <div class="print-lines">
       <div class="print-line" id="print-address"><small>Endereço:</small> <span></span></div>
       <div class="print-line" id="print-proc"><small>Procedimento:</small> <span></span></div>
@@ -265,7 +258,7 @@
     <h2 class="title" id="doc-title">Cuidados Pós-Operatórios – Exodontia de Siso</h2>
     <div class="subtitle" id="doc-subtitle">Primeiras 72h são decisivas para cicatrização</div>
 
-    <!-- ====== HERO / PRÓXIMOS PASSOS ====== -->
+    <!-- ====== HERO ====== -->
     <section class="section hero-wrap" aria-label="Mensagem e próximos passos">
       <img class="mascote" src="../../images/avatarElen.png" alt="Mensagem da equipe" />
       <table class="info-table">
@@ -382,7 +375,7 @@
     function rebuildAddressDropdown(){
       const addrs = loadAddrs();
       ddAddressList.innerHTML = addrs.map((a,i)=>`
-        <button class="dd-item" data-addr-idx="${i}" type="button">${a}</button>
+        <button class="dd-item" data-addr-idx="\${i}" type="button">\${a}</button>
       `).join('');
       ddAddressList.querySelectorAll('.dd-item').forEach(btn=>{
         btn.addEventListener('click', e=>{
@@ -402,7 +395,7 @@
 
     function buildProcDropdown(){
       ddProcList.innerHTML = PROCS.map(p=>`
-        <button class="dd-item" data-proc="${p.key}" type="button">${p.label}</button>
+        <button class="dd-item" data-proc="\${p.key}" type="button">\${p.label}</button>
       `).join('');
       ddProcList.querySelectorAll('.dd-item').forEach(btn=>{
         btn.addEventListener('click', e=>{
@@ -452,12 +445,10 @@
 
     /* ========= ENVIAR ========= */
     document.getElementById('dd-print').addEventListener('click', ()=>{ window.print(); closeAllDropdowns(); });
-document.getElementById('dd-share').addEventListener('click', async ()=>{
-  await sharePdfOfPage();          // gera o PDF e compartilha o ARQUIVO
-  closeAllDropdowns();
-});
-
-
+    document.getElementById('dd-share').addEventListener('click', async ()=>{
+      await sharePdfOfPage(); // gera e compartilha PDF em múltiplas páginas
+      closeAllDropdowns();
+    });
 
     // dropdown toggles
     document.querySelectorAll('.configbar .menubtn').forEach(btn=>{
@@ -739,14 +730,12 @@ document.getElementById('dd-share').addEventListener('click', async ()=>{
     setProcedure(currentProcKey, currentProcLabel);
   </script>
 
+  <!-- ====== Helpers PDF (multi-página + share arquivo) ====== -->
   <script>
-/* ===== Helpers para gerar PDF e compartilhar arquivo ===== */
-
 /* carrega libs (html2canvas + jsPDF) só se ainda não estiverem na página */
 async function ensurePdfLibs(){
   const needH2C = (typeof window.html2canvas === 'undefined');
   const needJSPDF = (typeof window.jspdf === 'undefined');
-
   const loaders = [];
   if(needH2C){
     loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
@@ -756,7 +745,6 @@ async function ensurePdfLibs(){
   }
   await Promise.all(loaders);
 }
-
 function loadScript(src){
   return new Promise((resolve,reject)=>{
     const s = document.createElement('script');
@@ -766,45 +754,66 @@ function loadScript(src){
   });
 }
 
-/* gera um Blob PDF do conteúdo da .page (A4, retrato) */
+/* Gera Blob PDF da página inteira (quebrado em várias páginas A4 se precisar) */
 async function generatePdfBlob(){
   await ensurePdfLibs();
   const { jsPDF } = window.jspdf;
 
   const node = document.querySelector('.page');
+  const body = document.body;
 
-  // tira a barra de config para o PDF (já some no @media print, mas aqui é canvas)
-  const cfg = document.querySelector('.configbar');
-  const prevDisplay = cfg?.style.display;
-  if(cfg) cfg.style.display = 'none';
+  // Força ajustes visuais equivalentes ao @media print para a captura
+  body.classList.add('pdf-capture');
 
-  // tira qualquer foco/hover para não “piscar” no canvas
-  document.activeElement?.blur();
+  // captura em alta resolução
+  const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
 
-  // captura com escala alta para qualidade
-  const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' });
-  const imgData = canvas.toDataURL('image/jpeg', 0.98);
+  // volta o visual da tela
+  body.classList.remove('pdf-capture');
 
-  // medidas para A4
+  // --- montar PDF multipágina ---
   const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
-
-  // encaixa a imagem respeitando margens semelhantes ao @page (14mm)
   const margin = 14;
-  const targetW = pageW - margin*2;
-  const ratio = canvas.height / canvas.width;
-  const targetH = targetW * ratio;
+  const targetW = pageW - margin*2;      // largura útil (mm)
+  const targetHAvail = pageH - margin*2; // altura útil (mm)
 
-  pdf.addImage(imgData, 'JPEG', margin, margin, targetW, targetH, undefined, 'FAST');
+  // escala mm/px para caber na largura
+  const scaleMMperPX = targetW / canvas.width;
+  // altura em px que cabe por página
+  const sliceHeightPX = Math.floor(targetHAvail / scaleMMperPX);
 
-  // volta a navbar
-  if(cfg) cfg.style.display = prevDisplay || '';
+  let renderedY = 0;
+  let pageIndex = 0;
+
+  // canvas auxiliar para fatiar
+  const sliceCanvas = document.createElement('canvas');
+  const sliceCtx = sliceCanvas.getContext('2d');
+
+  while (renderedY < canvas.height) {
+    const sliceHeight = Math.min(sliceHeightPX, canvas.height - renderedY);
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = sliceHeight;
+
+    // recorta parte do canvas original
+    sliceCtx.clearRect(0,0,sliceCanvas.width, sliceCanvas.height);
+    sliceCtx.drawImage(canvas, 0, renderedY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+
+    const imgData = sliceCanvas.toDataURL('image/jpeg', 0.98);
+    const sliceHeightMM = sliceHeight * scaleMMperPX;
+
+    if (pageIndex > 0) pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', margin, margin, targetW, sliceHeightMM, undefined, 'FAST');
+
+    renderedY += sliceHeight;
+    pageIndex++;
+  }
 
   return pdf.output('blob');
 }
 
-/* Compartilha o PDF gerado via Web Share API (com fallback p/ download) */
+/* Compartilha o PDF gerado via Web Share API (fallback: download) */
 async function sharePdfOfPage(){
   try{
     const blob = await generatePdfBlob();
@@ -818,7 +827,6 @@ async function sharePdfOfPage(){
         text: 'Pós-operatório – orientações'
       });
     }else{
-      // fallback: baixa o PDF e avisa
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = fileName;
@@ -831,17 +839,6 @@ async function sharePdfOfPage(){
     alert('Não consegui gerar o PDF agora. Tente novamente.');
   }
 }
-</script>
-
-
-  
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-

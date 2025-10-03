@@ -160,6 +160,36 @@
   .print-lines{ display:none }
   .print-line{ font-weight:600 }
   .print-line small{font-weight:700; color:var(--muted-2)}
+
+  /* botões PDF + Compartilhar lado a lado */
+#m-enviar{
+  margin-left:auto;                 /* empurra pro lado direito */
+  display:flex;                     /* fica em linha */
+  gap:10px;                         /* espaço entre eles */
+  align-items:center;
+}
+#m-enviar .dd-item{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:9px 14px;
+  border-radius:999px;
+  font-weight:700;
+  border:1px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+}
+
+/* opcional: cores */
+#dd-print{ background:#0a6ebd; color:#fff; border-color:#0a6ebd; }
+#dd-share{ background:#16a34a; color:#fff; border-color:#16a34a; }
+
+/* empilha no mobile, se quiser */
+@media (max-width:600px){
+  #m-enviar{ width:100%; }
+  #m-enviar .dd-item{ flex:1 }
+}
+
 </style>
 </head>
 <body>
@@ -710,6 +740,7 @@
   </script>
 </body>
 </html>
+
 
 
 

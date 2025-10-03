@@ -17,27 +17,24 @@
   .page{max-width:900px;margin:26px auto;padding:22px;background:var(--card);
         border:1px solid var(--line);border-radius:20px}
 
-  /* ====== CONFIG BAR (novo) ====== */
+  /* ====== CONFIG BAR ====== */
   .configbar{
     display:flex; gap:10px; align-items:center; margin-bottom:10px;
     padding:6px; border:1px dashed var(--line); border-radius:12px; background:#fff;
+    flex-wrap:wrap;
   }
-  .configbar .menu{
-    position:relative;
-  }
+  .configbar .menu{ position:relative; }
   .configbar .menubtn{
     appearance:none; border:1px solid var(--line); background:#fff; color:var(--text);
     padding:8px 12px; border-radius:12px; font-weight:700; cursor:pointer;
   }
   .configbar .dropdown{
-    position:absolute; top:110%; left:0; min-width:240px; z-index:10;
+    position:absolute; top:110%; left:0; min-width:260px; z-index:10;
     background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,.08);
     display:none; padding:6px;
   }
   .configbar .dropdown.open{ display:block; }
-  .configbar .dd-title{
-    font-size:12px; color:var(--muted); margin:4px 8px 6px;
-  }
+  .configbar .dd-title{ font-size:12px; color:var(--muted); margin:4px 8px 6px; }
   .configbar .dd-item{
     width:100%; text-align:left; padding:8px 10px; border-radius:10px;
     border:1px solid transparent; background:#fff; cursor:pointer; font-weight:600;
@@ -54,20 +51,13 @@
     gap:14px;
     margin-bottom:8px;
   }
-  .logo-wrap{
-    grid-column:1 / -1;
-    display:flex; justify-content:center; align-items:center;
-  }
+  .logo-wrap{ grid-column:1 / -1; display:flex; justify-content:center; align-items:center; }
   .logo{
     width:377px; height:85px; border-radius:14px; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
   }
   .logo img{width:90%; height:330%; object-fit:contain; display:block}
-  .clinic-box{
-    grid-column:2 / 3;
-    justify-self:end;
-    text-align:right;
-  }
+  .clinic-box{ grid-column:2 / 3; justify-self:end; text-align:right; }
   .clinic-box h1{margin:0;font-size:18px;letter-spacing:.2px}
   .clinic-box .meta{color:var(--muted);font-size:12px}
 
@@ -75,24 +65,6 @@
 
   h2.title{margin:0 0 4px 0;font-size:17px;text-align:center}
   .subtitle{color:var(--muted);font-size:11.5px;text-align:center;margin-bottom:10px}
-
-  /* ====== CONTROLES ====== */
-  .toolbar{
-    display:flex; align-items:center; justify-content:space-around;
-    gap:12px; flex-wrap:wrap; margin:8px 0 10px 0; flex-direction:column;
-  }
-  .group{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-  .label{font-weight:700;color:var(--muted)}
-  .select{
-    border:1px solid var(--line); background:#fff; color:var(--text);
-    padding:8px 10px; border-radius:12px; font-weight:600; min-width:220px;
-  }
-  .btn{appearance:none;border:1px solid var(--brand);background:var(--brand);color:#fff;
-       padding:8px 12px;border-radius:12px;font-weight:700;cursor:pointer}
-  .link{
-    border:none;background:transparent;color:var(--brand);font-weight:700;cursor:pointer;
-    padding:0 2px; text-decoration:underline;
-  }
 
   /* ====== TABELAS ====== */
   .section{margin-top:12px;page-break-inside:avoid}
@@ -106,19 +78,13 @@
   .chip{display:inline-block;background:var(--chip);padding:4px 8px;border-radius:999px;
         font-size:11px;color:var(--muted)}
 
-  /* ====== MASCOTE POSICIONADO NO BLOCO HERO ====== */
-  .hero-wrap{ position:relative; } /* âncora para o mascote */
+  /* ====== MASCOTE NO BLOCO HERO ====== */
+  .hero-wrap{ position:relative; }
   .mascote{
-    position:absolute;
-    left:28px;                 /* posição padrão em tela */
-    top:-18px;                 /* ligeiro overlap no cabeçalho do herói */
-    width:150px;
-    height:auto;
-    filter:drop-shadow(0 2px 0 rgba(0,0,0,.06));
-    user-select:none; pointer-events:none;
+    position:absolute; left:28px; top:-18px; width:150px; height:auto;
+    filter:drop-shadow(0 2px 0 rgba(0,0,0,.06)); user-select:none; pointer-events:none;
   }
-  .pad-left-mascote{ padding-left:160px } /* espaço p/ mascote na 1ª coluna */
-
+  .pad-left-mascote{ padding-left:160px }
   @media (max-width:768px){
     .mascote{ left:12px; top:-10px; width:135px }
     .pad-left-mascote{ padding-left:140px }
@@ -133,22 +99,15 @@
   @media print{
     html,body{font-size:12px}
     .page{margin:0;border:none;border-radius:0}
-    .toolbar{display:none !important}
     .configbar{display:none !important}
 
-    /* mascote alinhado exatamente ao herói */
     .hero-wrap{ position:relative }
     .mascote{
-      position:absolute !important;
-      width:165px !important;   /* ajuste fino do tamanho no PDF */
-      left:-10px !important;     /* encosta na borda esquerda do conteúdo */
-      top:-95px !important;     /* sobrepõe um pouco o cabeçalho azul */
-      margin:0 !important;
-      print-color-adjust:exact; -webkit-print-color-adjust:exact;
+      position:absolute !important; width:165px !important; left:-10px !important; top:-95px !important;
+      margin:0 !important; print-color-adjust:exact; -webkit-print-color-adjust:exact;
     }
-    .pad-left-mascote{ padding-left:180px !important } /* libera espaço p/ mascote */
+    .pad-left-mascote{ padding-left:180px !important }
 
-    /* Aparência das tabelas */
     *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important}
     .info-table thead th{background:#0a6ebd !important; color:#fff !important}
     .info-table tbody tr:nth-child(odd) td{background:#f8fafc !important}
@@ -157,9 +116,8 @@
     .chip{background:#f1f5f9 !important; color:#475569 !important}
     .brand-badge{background:#f1f5f9 !important; color:#475569 !important}
 
-    /* Linhas de cabeçalho na impressão */
     .print-line{display:block !important; margin:0 0 6px 0}
-    #print-proc{display:none !important}
+    #print-proc{display:none !important} /* mantenho oculto como antes */
   }
 
   /* Linhas espelhadas (somem na tela) */
@@ -170,8 +128,17 @@
 <body>
   <div class="page">
 
-    <!-- ====== HEADER DE CONFIGURAÇÕES (NOVO) ====== -->
+    <!-- ====== NAVBAR DE CONFIG (Procedimentos antes de Endereço) ====== -->
     <nav class="configbar" aria-label="Configurações">
+      <!-- Procedimentos -->
+      <div class="menu" id="m-proc">
+        <button class="menubtn" type="button">Procedimentos ▾</button>
+        <div class="dropdown" role="menu" id="dd-proc">
+          <div class="dd-title">Selecione um procedimento</div>
+          <div id="dd-proc-list"></div>
+        </div>
+      </div>
+
       <!-- Endereço -->
       <div class="menu" id="m-address">
         <button class="menubtn" type="button">Endereço ▾</button>
@@ -224,28 +191,6 @@
 
     <div class="hr"></div>
 
-    <!-- CONTROLES (existentes) -->
-    <div class="toolbar" aria-label="Seleções">
-      <div class="group">
-        <span class="label">Selecione o endereço:</span>
-        <select id="addr" class="select"></select>
-        <button id="manage" class="link" type="button">Gerenciar endereços</button>
-      </div>
-      <div class="group">
-        <span class="label">Selecione o procedimento:</span>
-        <select id="proc" class="select">
-          <option value="siso">Pós-Exo de Siso</option>
-          <option value="extracao">Pós-Extração</option>
-          <option value="canal">Pós-Tratamento de Canal</option>
-          <option value="restauracao">Pós-Restauração</option>
-          <option value="limpeza">Pós-Limpeza</option>
-          <option value="clareamento">Pós-Clareamento</option>
-          <option value="implante">Pós-Implante (modelo)</option>
-        </select>
-      </div>
-      <button class="btn" id="btn-pdf" type="button">Gerar PDF</button>
-    </div>
-
     <!-- Linhas exibidas só no PDF -->
     <div class="print-line" id="print-address"><small>Endereço:</small> <span></span></div>
     <div class="print-line" id="print-proc"><small>Procedimento:</small> <span></span></div>
@@ -255,7 +200,6 @@
 
     <!-- ====== HERO / PRÓXIMOS PASSOS ====== -->
     <section class="section hero-wrap" aria-label="Mensagem e próximos passos">
-      <!-- Mascote ANCORADO nesta seção -->
       <img class="mascote" src="../../images/avatarElen.png" alt="Mensagem da equipe" />
       <table class="info-table">
         <thead>
@@ -331,61 +275,52 @@
   </div>
 
   <script>
-    /* =================== ENDEREÇOS =================== */
+    /* ========= STORAGE KEYS ========= */
     const ADDR_STORAGE_KEY = "posimplante_enderecos_v1";
     const LOGO_STORAGE_KEY = "posimplante_logo_url_v1";
     const NAME_STORAGE_KEY = "posimplante_nome_v1";
     const CRO_STORAGE_KEY  = "posimplante_cro_v1";
 
+    /* ========= ENDEREÇOS ========= */
     const DEFAULT_ADDR = [
       "Rua Cincinato Braga, 321 cj. 82 – Bela Vista, São Paulo/SP · Tel: (11) 99819-4004"
     ];
-
     function loadAddrs(){
       try{
         const data = JSON.parse(localStorage.getItem(ADDR_STORAGE_KEY));
         return Array.isArray(data) && data.length ? data : DEFAULT_ADDR.slice();
       }catch{ return DEFAULT_ADDR.slice(); }
     }
-    function saveAddrs(list){
-      localStorage.setItem(ADDR_STORAGE_KEY, JSON.stringify(list));
-    }
+    function saveAddrs(list){ localStorage.setItem(ADDR_STORAGE_KEY, JSON.stringify(list)); }
 
-    const addrSelect = document.getElementById('addr');
-    function refreshAddrSelect(selected){
-      const addrs = loadAddrs();
-      addrSelect.innerHTML = addrs.map((a,i)=>`<option value="${i}">${a}</option>`).join('');
-      if(typeof selected === "number" && addrs[selected]) addrSelect.value = String(selected);
-      updatePrintMirrors();
-      rebuildAddressDropdown();
-    }
+    let selectedAddrIndex = 0;
 
-    document.getElementById('manage').addEventListener('click', () => {
-      const current = loadAddrs();
-      const text = prompt(
-`Gerenciar endereços
-- Digite um por linha.
-- Serão salvos exatamente como você escrever.
+    /* ========= PROCEDIMENTOS ========= */
+    const PROCS = [
+      {key:"siso",         label:"Pós-Exo de Siso"},
+      {key:"extracao",     label:"Pós-Extração"},
+      {key:"canal",        label:"Pós-Tratamento de Canal"},
+      {key:"restauracao",  label:"Pós-Restauração"},
+      {key:"limpeza",      label:"Pós-Limpeza"},
+      {key:"clareamento",  label:"Pós-Clareamento"},
+      {key:"implante",     label:"Pós-Implante (modelo)"}
+    ];
+    let currentProcKey = "siso";
+    let currentProcLabel = PROCS.find(p=>p.key===currentProcKey).label;
 
-Endereços atuais:`, current.join("\n"));
-      if(text === null) return;
-      const list = text.split("\n").map(s=>s.trim()).filter(Boolean);
-      if(list.length){
-        saveAddrs(list);
-        refreshAddrSelect(0);
-      }
-    });
-
-    /* ====== CONFIG BAR: Endereço (submenu dinâmico) ====== */
+    /* ========= CONFIG BAR: build menus ========= */
     const ddAddress = document.getElementById('dd-address');
     const ddAddressList = document.getElementById('dd-address-list');
+    const ddProcList = document.getElementById('dd-proc-list');
+
     function rebuildAddressDropdown(){
       const addrs = loadAddrs();
-      ddAddressList.innerHTML = addrs.map((a,i)=>`<button class="dd-item" data-addr-idx="${i}" type="button">${a}</button>`).join('');
+      ddAddressList.innerHTML = addrs.map((a,i)=>`
+        <button class="dd-item" data-addr-idx="${i}" type="button">${a}</button>
+      `).join('');
       ddAddressList.querySelectorAll('.dd-item').forEach(btn=>{
         btn.addEventListener('click', e=>{
-          const idx = Number(e.currentTarget.getAttribute('data-addr-idx'));
-          addrSelect.value = String(idx);
+          selectedAddrIndex = Number(e.currentTarget.getAttribute('data-addr-idx'));
           updatePrintMirrors();
           closeAllDropdowns();
         });
@@ -395,16 +330,29 @@ Endereços atuais:`, current.join("\n"));
       const val = prompt("Digite o novo endereço:");
       if(!val) return;
       const list = loadAddrs(); list.push(val.trim());
-      saveAddrs(list); refreshAddrSelect(list.length-1);
-      closeAllDropdowns();
+      saveAddrs(list); selectedAddrIndex = list.length-1;
+      rebuildAddressDropdown(); updatePrintMirrors(); closeAllDropdowns();
     });
 
-    /* ====== CONFIG BAR: Logo / Dados ====== */
+    function buildProcDropdown(){
+      ddProcList.innerHTML = PROCS.map(p=>`
+        <button class="dd-item" data-proc="${p.key}" type="button">${p.label}</button>
+      `).join('');
+      ddProcList.querySelectorAll('.dd-item').forEach(btn=>{
+        btn.addEventListener('click', e=>{
+          const key = e.currentTarget.getAttribute('data-proc');
+          const label = PROCS.find(p=>p.key===key)?.label || "";
+          setProcedure(key, label);
+          closeAllDropdowns();
+        });
+      });
+    }
+
+    /* ========= LOGO / DADOS ========= */
     const logoImg = document.getElementById('logo-img');
     const clinicName = document.getElementById('clinic-name');
     const clinicCro  = document.getElementById('clinic-cro');
 
-    // carregar persistidos
     (function initBranding(){
       const logoUrl = localStorage.getItem(LOGO_STORAGE_KEY);
       if(logoUrl) logoImg.src = logoUrl;
@@ -436,18 +384,14 @@ Endereços atuais:`, current.join("\n"));
       closeAllDropdowns();
     });
 
-    /* ====== CONFIG BAR: Enviar ====== */
+    /* ========= ENVIAR ========= */
     document.getElementById('dd-print').addEventListener('click', ()=>{ window.print(); closeAllDropdowns(); });
     document.getElementById('dd-share').addEventListener('click', async ()=>{
       const title = document.title;
       const url = location.href;
       try{
-        if(navigator.share){
-          await navigator.share({title, url});
-        }else{
-          await navigator.clipboard.writeText(url);
-          alert("Link copiado para a área de transferência.");
-        }
+        if(navigator.share){ await navigator.share({title, url}); }
+        else { await navigator.clipboard.writeText(url); alert("Link copiado para a área de transferência."); }
       }catch(e){}
       closeAllDropdowns();
     });
@@ -461,14 +405,10 @@ Endereços atuais:`, current.join("\n"));
         if(!open) dd.classList.add('open');
       });
     });
-    function closeAllDropdowns(){
-      document.querySelectorAll('.configbar .dropdown').forEach(d=>d.classList.remove('open'));
-    }
-    document.addEventListener('click', (e)=>{
-      if(!e.target.closest('.configbar')) closeAllDropdowns();
-    });
+    function closeAllDropdowns(){ document.querySelectorAll('.configbar .dropdown').forEach(d=>d.classList.remove('open')); }
+    document.addEventListener('click', (e)=>{ if(!e.target.closest('.configbar')) closeAllDropdowns(); });
 
-    /* ====== DADOS POR PROCEDIMENTO (seu código original) ====== */
+    /* ========= DADOS POR PROCEDIMENTO ========= */
     const DATA = {
       implante: {
         title: "Cuidados Pós-Operatórios – Implantes Dentários",
@@ -696,7 +636,7 @@ Endereços atuais:`, current.join("\n"));
       }
     };
 
-    /* ====== RENDER ====== */
+    /* ========= RENDER ========= */
     const $ = s => document.querySelector(s);
     function renderTable(tbody, rows){
       tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
@@ -706,10 +646,7 @@ Endereços atuais:`, current.join("\n"));
       $("#doc-title").textContent = d.title;
       $("#doc-subtitle").textContent = d.subtitle || "";
       $("#tb-hero").innerHTML = `
-        <tr>
-          <td class="pad-left-mascote"></td>
-          <td>${d.hero}</td>
-        </tr>`;
+        <tr><td class="pad-left-mascote"></td><td>${d.hero}</td></tr>`;
       renderTable($("#tb-24h"), d._24h);
       renderTable($("#tb-med"), d.med);
       renderTable($("#tb-alim"), d.alim);
@@ -720,23 +657,32 @@ Endereços atuais:`, current.join("\n"));
       updatePrintMirrors();
     }
 
-    /* ====== PRINT MIRRORS ====== */
-    function updatePrintMirrors(){
-      const addrText = addrSelect.options[addrSelect.selectedIndex]?.text || "";
-      const procText = $("#proc").options[$("#proc").selectedIndex]?.text || "";
-      $("#print-address span").textContent = addrText;
-      $("#print-proc span").textContent = procText;
+    /* ========= SELECTORS (sem toolbar) ========= */
+    function setProcedure(key,label){
+      currentProcKey = key;
+      currentProcLabel = label || (PROCS.find(p=>p.key===key)?.label||"");
+      render(key);
     }
 
-    /* ====== EVENTS ====== */
-    document.getElementById('proc').addEventListener('change', e => { render(e.target.value); });
-    addrSelect.addEventListener('change', updatePrintMirrors);
-    document.getElementById('btn-pdf').addEventListener('click', () => window.print());
+    function updatePrintMirrors(){
+      const addrText = loadAddrs()[selectedAddrIndex] || "";
+      $("#print-address span").textContent = addrText;
+      $("#print-proc span").textContent = currentProcLabel;
+    }
 
-    /* INIT */
-    refreshAddrSelect(0);
+    /* ========= INIT ========= */
+    // build dropdowns
+    buildProcDropdown();
     rebuildAddressDropdown();
-    render('siso');
+
+    // logo/dados já carregados
+    // fechar dropdowns ao clicar fora (já feito acima)
+
+    // ações de Enviar
+    // (já conectadas)
+
+    // primeira renderização
+    setProcedure(currentProcKey, currentProcLabel);
   </script>
 </body>
 </html>
